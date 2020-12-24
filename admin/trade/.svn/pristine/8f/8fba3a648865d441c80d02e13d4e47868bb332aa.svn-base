@@ -1,0 +1,265 @@
+import { Component, Injector, ViewChild, Output, EventEmitter, OnInit, ViewEncapsulation, ElementRef, AfterViewInit } from '@angular/core';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
+import * as _ from 'lodash';
+import {
+CM_BRANCH_ENTITY,
+    UltilityServiceProxy, PL_CATEGORYTRADE_ENTITY, CategoryTradeServiceProxy, PL_CATEGORYTRADE_DT_ENTITY, TR_PO_GOODS_ENTITY
+} from '@shared/service-proxies/service-proxies';
+import { ComponentBase } from "@app/ultilities/component-base";
+import { EditPageState } from '@app/ultilities/enum/edit-page-state';
+import { AllCodes } from '@app/ultilities/enum/all-codes';
+import { finalize } from 'rxjs/operators';
+import { DefaultComponentBase } from '@app/ultilities/default-component-base';
+import { IUiAction } from '@app/ultilities/ui-action';
+import { RecordStatusConsts } from '@app/admin/core/ultils/consts/RecordStatusConsts';
+import * as moment from 'moment';
+import { EditableTableComponent } from '@app/admin/core/controls/editable-table/editable-table.component';
+import { TrRequestGoodsModalCloneComponent } from '@app/admin/core/controls/goods-modal-clone/tr-request-goods-modal.component';
+import { PreviewTemplateService } from '@app/admin/common/preview-template/preview-template.service';
+import { Paginator, Dropdown } from 'primeng/primeng';
+import { AuthStatusConsts } from '@app/admin/core/ultils/consts/AuthStatusConsts';
+
+@Component({
+    templateUrl: './category-trade-edit.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+export class CategoryTradeEditComponent extends DefaultComponentBase implements OnInit, IUiAction<PL_CATEGORYTRADE_ENTITY> {
+
+    constructor(
+        injector: Injector,
+        private categoryTradeService: CategoryTradeServiceProxy,
+        private previewTemplateService: PreviewTemplateService,
+        private ultilityService: UltilityServiceProxy,
+    ) {
+        super(injector);
+        this.editPageState = this.getRouteData('editPageState');
+        this.inputModel.cgT_ID = this.getRouteParam('id');
+        this.inputModel.categorytradE_DT = [];
+        console.log(this);
+        this.initFilter();
+        this.initIsApproveFunct();
+    }
+    level: string;
+    onUpdate(item: PL_CATEGORYTRADE_ENTITY): void {
+    }
+    onDelete(item: PL_CATEGORYTRADE_ENTITY): void {
+    }
+    onApprove(item: PL_CATEGORYTRADE_ENTITY): void {
+        if (!this.inputModel.cgT_ID) {
+            return;
+        }
+        var currentUserName = this.appSession.user.userName;
+        if (currentUserName == this.inputModel.makeR_ID) {
+            this.showErrorMessage(this.l('ApproveFailed'));
+            return;
+        }
+        this.message.confirm(
+            this.l('ApproveWarningMessage', this.l(this.inputModel.cgT_NAME)),
+            this.l('AreYouSure'),
+            (isConfirmed) => {
+                if (isConfirmed) {
+                    this.saving = true;
+                    this.categoryTradeService.pL_CATEGORYTRADE_App(this.inputModel.cgT_ID, currentUserName)
+                        .pipe(finalize(() => { this.saving = false; }))
+                        .subscribe((response) => {
+                            if (response['Result'] != '0') {
+                                this.showErrorMessage(response['ErrorDesc']);
+                            }
+                            else {
+                                this.approveSuccess();
+                            }
+                        });
+                }
+            }
+        );
+    }
+    onViewDetail(item: PL_CATEGORYTRADE_ENTITY): void {
+    }
+
+    @ViewChild('editForm') editForm: ElementRef;
+    @ViewChild('trRequestGoodsModal') trRequestGoodsModal: TrRequestGoodsModalCloneComponent;
+    @ViewChild('editTable') editTable: EditableTableComponent<PL_CATEGORYTRADE_DT_ENTITY>;
+    @ViewChild('paginator') paginator: Paginator;
+
+    EditPageState = EditPageState;
+    AllCodes = AllCodes;
+    editPageState: EditPageState;
+
+    inputModel: PL_CATEGORYTRADE_ENTITY = new PL_CATEGORYTRADE_ENTITY();
+    isApproveFunct: boolean;
+
+    currentBranchFunct: (branch: CM_BRANCH_ENTITY) => void;
+
+    get disableInput(): boolean {
+        return this.editPageState == EditPageState.viewDetail;
+    }
+    isShowError = false;
+    isCheckAll = false;
+    currentItem: PL_CATEGORYTRADE_DT_ENTITY;
+    totalAmt: number = 0;
+    processValue: number = 0;
+    rolename: any[];
+    dataInTables: PL_CATEGORYTRADE_DT_ENTITY[] = [];
+    ngOnInit(): void {
+        switch (this.editPageState) {
+            case EditPageState.add:
+                this.inputModel.categorytradE_DT = [];
+                this.appToolbar.setRole('CategoryTrade', false, false, true, false, false, false, false, false);
+                this.appToolbar.setEnableForEditPage();
+                break;
+            case EditPageState.edit:
+                this.appToolbar.setRole('CategoryTrade', false, false, true, false, false, false, false, false);
+                this.appToolbar.setEnableForEditPage();
+                this.getPlCategoryTradeDetail();
+                break;
+            case EditPageState.viewDetail:
+                this.appToolbar.setRole('CategoryTrade', false, false, false, false, false, false, true, false);
+                this.appToolbar.setEnableForViewDetailPage();
+                this.getPlCategoryTradeDetail();
+                break;
+        }
+
+        this.appToolbar.setUiAction(this);
+    }
+    initIsApproveFunct() {
+        this.ultilityService.isApproveFunct(this.getCurrentFunctionId()).subscribe(isApproveFunct => {
+            this.isApproveFunct = isApproveFunct;
+        })
+    }
+    getPlCategoryTradeDetail() {
+        this.categoryTradeService.pL_CATEGORYTRADE_ById(this.inputModel.cgT_ID).subscribe(response => {
+            this.inputModel = response;
+            if (this.inputModel.autH_STATUS == AuthStatusConsts.Approve) {
+                this.appToolbar.setButtonApproveEnable(false);
+            }
+            this.updateView();
+        });
+
+        this.categoryTradeService.pL_CATEGORYTRADE_DT_ById(this.inputModel.cgT_ID).subscribe(response => {
+            if (response.length != 0) {
+                this.inputModel.categorytradE_DT = response;
+                this.editTable.setList(this.inputModel.categorytradE_DT);
+            }
+            this.updateView();
+        })
+
+    }
+    isValid() {
+    }
+    onSelectRow(item: any) {
+        this.currentItem = item;
+    }
+
+    goBack() {
+        this.navigatePassParam('/app/admin/categorytrade', null, null);
+    }
+
+    onAdd(): void {
+    }
+    onRemoveAssetsItem():void {
+        this.editTable.allData = this.editTable.allData.filter(x => !x['isChecked']);
+        this.editTable.setList(this.editTable.allData);
+    }
+    saveInput() {
+        if (this.isApproveFunct == undefined) {
+            this.showErrorMessage(this.l('PageLoadUndone'));
+            return;
+        }
+        if ((this.editForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return;
+        }
+        this.inputModel.categorytradE_DT = this.editTable.allData;
+        if (this.editPageState != EditPageState.viewDetail) {
+            this.saving = true;
+            this.inputModel.makeR_ID = this.appSession.user.userName;
+            if (!this.inputModel.cgT_ID) {
+                this.inputModel.autH_STATUS = AuthStatusConsts.NotApprove;
+                this.categoryTradeService.pL_CATEGORYTRADE_Ins(this.inputModel).pipe(finalize(() => { this.saving = false; }))
+                    .subscribe((response) => {
+                        if (response['Result'] != '0') {
+                            this.showErrorMessage(response.errorDesc);
+                        }
+                        else {
+                            this.addNewSuccess();
+                            if (!this.isApproveFunct) {
+                                this.categoryTradeService.pL_CATEGORYTRADE_App(response.id, this.appSession.user.userName)
+                                    .pipe(finalize(() => { this.saving = false; }))
+                                    .subscribe((response) => {
+                                        if (response['Result'] != '0') {
+                                            this.showErrorMessage(response.errorDesc);
+                                        }
+                                    });
+                            }
+                        }
+                    });
+            }
+            else {
+                this.categoryTradeService.pL_CATEGORYTRADE_Upd(this.inputModel).pipe(finalize(() => { this.saving = false; }))
+                    .subscribe((response) => {
+                        if (response['Result'] != '0') {
+                            this.showErrorMessage(response.errorDesc);
+                        }
+                        else {
+                            this.updateSuccess();
+                            if (!this.isApproveFunct) {
+                                this.categoryTradeService.pL_CATEGORYTRADE_App(this.inputModel.cgT_ID, this.appSession.user.userName)
+                                    .pipe(finalize(() => { this.saving = false; }))
+                                    .subscribe((response) => {
+                                        if (response['Result'] != '0') {
+                                            this.showErrorMessage(response.errorDesc);
+                                        }
+                                        else {
+                                            this.inputModel.autH_STATUS = AuthStatusConsts.Approve;
+                                        }
+                                    });
+                            }
+                            else {
+                                this.inputModel.autH_STATUS = AuthStatusConsts.NotApprove;
+                            }
+                        }
+                    });
+            }
+        }
+    }
+    onSave(): void {
+        this.saveInput();
+    }
+
+    onSearch(): void {
+
+    }
+
+    onResetSearch(): void {
+
+    }
+
+    onCheckAll(isCheckAll): void {
+        this.editTable.allData.forEach(x => {
+            x['isChecked'] = isCheckAll;
+        });
+    }
+    onAddNewAssetsItem(): void {
+        this.trRequestGoodsModal.show();
+    }
+    onSelectTrRequestGoods(selectedGoods: TR_PO_GOODS_ENTITY[]) {
+        selectedGoods.forEach(x => {
+            if (this.editTable.allData.filter(t => t.goodS_ID == x.gD_ID).length == 0) {
+                var item = new PL_CATEGORYTRADE_DT_ENTITY();
+                if(x.price == null){
+                    x.price=0;
+                }
+                item.goodS_ID = x.gD_ID;
+                item.goodS_CODE = x.gD_CODE;
+                item.goodS_NAME = x.gD_NAME;
+                item.price = x.price;
+                item.level=this.trRequestGoodsModal.level;
+                Object.assign(item, x);
+                this.editTable.pushItem(item);
+            }
+        });
+    }
+}

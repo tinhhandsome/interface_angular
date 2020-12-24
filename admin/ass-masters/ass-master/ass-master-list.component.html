@@ -1,0 +1,232 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <!-- Begin Title -->
+                        <span>{{l("AssMaster_Title")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-suP_ dropdown mr-2">
+                        <button class=" btn btn-outline-success" *ngIf="appToolbar.buttonSearchEnable" (click)="exportExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+
+                                <!-- Mã loại tài sản -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("TypeCode")}}</label>
+                                        <all-code-select [(ngModel)]="filterInput.typE_ID" (onChangeSelect2)="onChangeAssType()" [ngModelOptions]="{standalone: true}" [emptyText]="l('SelectAll')" [cdName]="'ASS_TYPE'" [cdType]="'ASS'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+
+                                <!-- Mã nhóm tài sản -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("AssGroupCode")}}</label>
+                                        <select2-custom [ngModelOptions]="{standalone: true}" [(ngModel)]="filterInput.grouP_ID" [(list)]="assGroups" [emptyText]="l('SelectAll')" [valueMember]="'grouP_ID'" [displayMember]="'grouP_CODE|grouP_NAME'">
+                                        </select2-custom>
+                                    </div>
+                                </div>
+
+                                <!-- Số seri -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("SerialNo")}}</label>
+                                        <input [(ngModel)]="filterInput.asseT_SERIAL_NO" [ngModelOptions]="{standalone: true}" class="form-control" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Mã tài sản -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("AssetCode")}}</label>
+                                        <input [(ngModel)]="filterInput.asseT_CODE" [ngModelOptions]="{standalone: true}" class="form-control" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Tên tài sản -->
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label>{{l("AssetName")}}</label>
+                                        <input [(ngModel)]="filterInput.asseT_NAME" [ngModelOptions]="{standalone: true}" class="form-control" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Đơn vị -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("Branch")}}</label>
+                                        <select2-custom [ngModelOptions]="{standalone: true}" [(ngModel)]="filterInput.brancH_ID" [(list)]="branchs" [emptyText]="l('SelectAll')" [valueMember]="'brancH_ID'" [displayMember]="'brancH_CODE|brancH_NAME'">
+                                        </select2-custom>
+                                    </div>
+                                </div>
+
+                                <!-- Đơn vị độc lập -->
+                                <div class="col-md-6">
+                                    <label></label>
+                                    <div class="form-group">
+                                        <checkbox-control [ngModelOptions]="{standalone: true}" [TrueValue]="'UNIT'" [FalseValue]="'ALL'" [label]="l('IndependentUnit')" [(ngModel)]="filterInput.level"></checkbox-control>
+                                    </div>
+                                </div>
+
+                                <!-- End Filter -->
+                                <div style="display:none;" class="col-md-12">
+                                    <div class="form-group">
+                                        <button *ngIf="appToolbar.buttonSearchEnable" class="btn btn-primary btn-search" (click)="onSearch()">{{l('Search')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th class="center">
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <!-- Khu vực -->
+                                        <th sortField="KHU_VUC">
+                                            <span style="width: 180px">{{l("Area")}}</span>
+                                        </th>
+                                        <!-- Mã đơn vị -->
+                                        <th sortField="CHI_NHANH">
+                                            <span style="width: 150px">{{l("BranchCode")}}</span>
+                                        </th>
+                                        <!-- Phòng giao dịch -->
+                                        <th sortField="PGD">
+                                            <span style="width: 150px">{{l("SubBranch")}}</span>
+                                        </th>
+                                        <!-- Mã tài sản -->
+                                        <th sortField="ASSET_CODE">
+                                            <span style="width: 150px">{{l("AssetCode")}}</span>
+                                        </th>
+                                        <!-- Tên tài sản -->
+                                        <th sortField="ASSET_NAME">
+                                            <span style="width: 250px">{{l("AssetName")}}</span>
+                                        </th>
+                                        <!-- Số seri -->
+                                        <th sortField="ASSET_SERIAL_NO">
+                                            <span style="width: 150px">{{l("SerialNo")}}</span>
+                                        </th>
+                                        <!-- Nguyên giá -->
+                                        <th class="right" sortField="BUY_PRICE">
+                                            <span style="width: 150px">{{l("OriginalPrice")}}</span>
+                                        </th>
+                                        <!-- Giá trị khấu hao -->
+                                        <th class="right" sortField="AMORT_AMT">
+                                            <span style="width: 150px">{{l("AmortPrice")}}</span>
+                                        </th>
+                                        <!-- Mã loại tài sản -->
+                                        <th sortField="TYPE_NAME">
+                                            <span style="width: 150px">{{l("TypeCode")}}</span>
+                                        </th>
+                                        <!-- Mã nhóm tài sản -->
+                                        <th sortField="GROUP_NAME">
+                                            <span style="width: 150px">{{l("AssGroupCode")}}</span>
+                                        </th>
+                                        <!-- Ngày xuất -->
+                                        <th sortField="USE_DATE">
+                                            <span style="width: 150px">{{l("AssDateExport")}}</span>
+                                        </th>
+                                        <!-- Người sử dụng -->
+                                        <th sortField="EMP_NAME">
+                                            <span style="width: 150px">{{l("EmpName")}}</span>
+                                        </th>
+                                        <!-- Ngày bắt đầu khấu hao -->
+                                        <th sortField="AMORT_START_DATE">
+                                            <span style="width: 180px">{{l("AmortStartDate")}}</span>
+                                        </th>
+                                        <!-- Ngày kết thúc khấu hao -->
+                                        <th sortField="AMORT_END_DATE">
+                                            <span style="width: 180px">{{l("AmortEndDate")}}</span>
+                                        </th>
+                                        <!-- Trạng thái khấu hao -->
+                                        <th sortField="AMORT_STATUS_NAME">
+                                            <span style="width: 180px">{{l("AmortStatus")}}</span>
+                                        </th>
+                                        <!-- Trạng thái tài sản -->
+                                        <th sortField="ASS_STATUS_NAME">
+                                            <span style="width: 150px">{{l("AssetStatus")}}</span>
+                                        </th>
+
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onDblclick(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <td class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <!-- Khu vực -->
+                                        <td><span class="mo-header"></span>{{record.khU_VUC}}</td>
+                                        <!-- Mã đơn vị -->
+                                        <td><span class="mo-header"></span>{{record.chI_NHANH}}</td>
+                                        <!-- Phòng giao dịch -->
+                                        <td><span class="mo-header"></span>{{record.pgd}}</td>
+                                        <!-- Mã tài sản -->
+                                        <td><span class="mo-header"></span>{{record.asseT_CODE}}</td>
+                                        <!-- Tên tài sản -->
+                                        <td><span class="mo-header"></span>{{record.asseT_NAME}}</td>
+                                        <!-- Số seri -->
+                                        <td><span class="mo-header"></span>{{record.asseT_SERIAL_NO}}</td>
+                                        <!-- Nguyên giá -->
+                                        <td class="right"><span class="mo-header"></span>{{record.buY_PRICE | moneyFormatPipe}}</td>
+                                        <!-- Giá trị khấu hao -->
+                                        <td class="right"><span class="mo-header"></span>{{record.amorT_AMT | moneyFormatPipe}}</td>
+                                        <!-- Mã loại tài sản -->
+                                        <td><span class="mo-header"></span>{{record.typE_NAME}}</td>
+                                        <!-- Mã nhóm tài sản -->
+                                        <td><span class="mo-header"></span>{{record.grouP_NAME}}</td>
+                                        <!-- Ngày xuất -->
+                                        <td><span class="mo-header"></span>{{record.usE_DATE | dateFormatPipe}}</td>
+                                        <!-- Người sử dụng -->
+                                        <td><span class="mo-header"></span>{{record.emP_NAME}}</td>
+                                        <!-- Ngày bắt đầu khấu hao -->
+                                        <td><span class="mo-header"></span>{{record.amorT_START_DATE | dateFormatPipe}}
+                                        </td>
+                                        <!-- Ngày kết thúc khấu hao -->
+                                        <td><span class="mo-header"></span>{{record.amorT_END_DATE | dateFormatPipe}}
+                                        </td>
+                                        <!-- Trạng thái khấu hao -->
+                                        <td><span class="mo-header"></span>{{record.amorT_STATUS_NAME}}</td>
+                                        <!-- Trạng thái tài sản -->
+                                        <td><span class="mo-header"></span>{{record.asS_STATUS_NAME}}</td>
+
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

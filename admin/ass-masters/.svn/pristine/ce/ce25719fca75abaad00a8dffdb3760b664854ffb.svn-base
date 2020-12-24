@@ -1,0 +1,819 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <!-- Begin Title -->
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("AssRepairMulti")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                    <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                    <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+
+                        <!-- Người thực hiện -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("Implementer")}}</label>
+                                <input class="form-control" type="text" #useR_REPAIR_ID="ngModel" name="useR_REPAIR_ID"
+                                    [(ngModel)]="inputModel.useR_REPAIR_ID" disabled>
+                            </div>
+                        </div>
+
+                        <!-- Ngày sửa chữa -->
+                        <div class="col-md-4 ">
+                            <div class="form-group">
+                                <label>{{l("RepairDate")}}</label>
+                                <date-control [disabled]="true" [inpCss]="'form-control'" type="text"
+                                    #ngaY_THUC_HIEN="ngModel" name="ngaY_THUC_HIEN"
+                                    [(ngModel)]="inputModel.ngaY_THUC_HIEN">
+                                </date-control>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                        </div>
+                        <!-- Ghi chú -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <textarea class="form-control" name="notes" #notes="ngModel" type="text"
+                                    [disabled]="editPageState == EditPageState.viewDetail || isApprove"
+                                    [(ngModel)]="inputModel.notes">
+											</textarea>
+                            </div>
+                        </div>
+
+                        <button hidden (click)="saveInput()"></button>
+                        <!-- Bảng con danh sách hàng hóa -->
+                        <form #editTableAssetForm="ngForm" class='w-100'>
+                            <div class="col-md-12">
+                                <div class="editable-title-group">
+                                    <h5 class="popup-title col-md-12">{{l("AssetList")}}</h5>
+                                    <div class="action-button" *ngIf="editPageState == EditPageState.add">
+                                        <button type="button" [disabled]="disableInput" class="btn btn-primary"
+                                            (click)="showAssetModal()"><i class="pi pi-plus"></i>{{l('Add')}}</button>
+                                        <button type="button" [disabled]="disableInput" class="btn btn-danger"
+                                            (click)="editTableAsset.removeAllCheckedItem()"><i
+                                                class="pi pi-times"></i>{{l("Delete")}}</button>
+                                    </div>
+                                </div>
+                                <div class="primeng-datatable-container {{editTableAsset.isLoading}}">
+                                    <div class="spinner-border m-5" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                    <editable-table [editTableName]="'1'" #editTableAsset class="custom-table ui-table">
+                                        <thead>
+                                            <tr>
+                                                <!-- Checkbox -->
+                                                <th>
+                                                    <span style="width: 40px">
+                                                        <checkbox-control
+                                                            (onchange)="editTableAsset.checkAll($event.target.checked)"
+                                                            [checked]="editTableAsset.isCheckAll">
+                                                        </checkbox-control>
+
+                                                    </span>
+                                                </th>
+                                                <!-- Begin Table Column -->
+                                                <!-- STT -->
+                                                <th class="center"><span style="width: 40px">{{l("No")}}</span></th>
+                                                <!-- Mã tài sản -->
+                                                <th class="center" style="width: 14.2%;" sortField="asseT_CODE">
+                                                    <span style="width: 150px">{{l("AssetCode")}}</span>
+                                                </th>
+                                                <!-- Tên tài sản -->
+                                                <th class="center" style="width: 14.2%;" sortField="asseT_NAME">
+                                                    <span style="width: 230px">{{l("AssetName")}}</span>
+                                                </th>
+                                                <!-- Nguyên giá -->
+                                                <th class="center" style="width: 14.2%;" sortField="buY_PRICE">
+                                                    <span style="width: 120px">{{l("OriginalPrice")}}</span>
+                                                </th>
+                                                <!-- Giá trị còn lại -->
+                                                <th class="center" style="width: 14.2%;" sortField="asremaiN_AMT">
+                                                    <span style="width: 150px">{{l("RemainValue")}}</span>
+                                                </th>
+                                                <!-- Thời gian sử dụng -->
+                                                <th class="center" style="width: 14.2%;" sortField="usE_DATE">
+                                                    <span style="width: 150px">{{l("UseTime")}}</span>
+                                                </th>
+
+                                                <!-- Đơn vị sử dụng -->
+                                                <th class="center" style="width: 14.2%;" sortField="brancH_NAME">
+                                                    <span style="width: 150px">{{l("BranchNameUse")}}</span>
+                                                </th>
+
+                                                <!-- Phòng ban sử dụng -->
+                                                <th class="center" style="width: 14.2%;" sortField="deP_NAME">
+                                                    <span style="width: 150px">{{l("DepartmentUse")}}</span>
+                                                </th>
+                                                <!-- End Table Column -->
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let item of editTableAsset.dataInPage; let in = index"
+                                                class="selectable {{item['editableIsSelected']? 'selected' : ''}}"
+                                                [hidden]="item['page'] != editTableAsset.currentPage"
+                                                (click)="editTableAsset.selectRow($event,item)">
+                                                <!-- Checkbox -->
+                                                <td class="center">
+                                                    <span class="mo-header"></span>
+                                                    <!-- <checkbox-control (onchange)="item.isChecked = $event.target.checked"
+                                                    [checked]="item['isChecked']"></checkbox-control> -->
+                                                    <checkbox-control [disabled]="disableInput"
+                                                        name="{{editTableAsset.name('isChecked',in)}}"
+                                                        [(ngModel)]="editTableAsset.dataInPage[in]['isChecked']">
+                                                    </checkbox-control>
+                                                </td>
+                                                <!-- STT -->
+                                                <td class="text-center"><span class="mo-header"></span>
+                                                    <!-- {{item['no']}} -->
+                                                    <input class="label" disabled
+                                                        [(ngModel)]="editTableAsset.dataInPage[in]['no']"
+                                                        name="{{editTableAsset.name('no',in)}}">
+                                                </td>
+
+                                                <!-- Mã tài sản -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.asseT_CODE}} -->
+                                                    <input class="label" disabled
+                                                        [(ngModel)]="editTableAsset.dataInPage[in]['asseT_CODE']"
+                                                        name="{{editTableAsset.name('asseT_CODE',in)}}">
+                                                </td>
+
+                                                <!-- Tên tài sản -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.asseT_NAME}} -->
+
+                                                    <input class="label" disabled
+                                                        [(ngModel)]="editTableAsset.dataInPage[in]['asseT_NAME']"
+                                                        name="{{editTableAsset.name('asseT_NAME',in)}}">
+                                                </td>
+
+                                                <!-- Nguyên giá -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.buY_PRICE | moneyFormatPipe}} -->
+                                                    <money-input class="label" class="transparent" [disabled]="true"
+                                                        [(ngModel)]="editTableAsset.dataInPage[in]['buY_PRICE']"
+                                                        name="{{editTableAsset.name('buY_PRICE',in)}}">
+                                                    </money-input>
+                                                </td>
+
+                                                <!-- Giá trị còn lại -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.asremaiN_AMT | moneyFormatPipe}} -->
+                                                    <money-input class="label" class="transparent" [disabled]="true"
+                                                        [(ngModel)]="editTableAsset.dataInPage[in]['asremaiN_AMT']"
+                                                        name="{{editTableAsset.name('asremaiN_AMT',in)}}">
+                                                    </money-input>
+
+                                                </td>
+
+                                                <!-- Thời gian sử dụng -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.usE_DATE | dateFormatPipe}} -->
+                                                    <date-control [disabled]="true" class="transparent"
+                                                        [inpCss]="'form-control'"
+                                                        [(ngModel)]="editTableAsset.dataInPage[in]['usE_DATE']"
+                                                        name="{{editTableAsset.name('usE_DATE',in)}}">
+                                                    </date-control>
+
+                                                </td>
+
+
+                                                <!-- Đơn vị sử dụng -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.brancH_NAME}} -->
+                                                    <input class="label" disabled
+                                                        [(ngModel)]="editTableAsset.dataInPage[in]['brancH_NAME']"
+                                                        name="{{editTableAsset.name('brancH_NAME',in)}}">
+
+                                                </td>
+
+                                                <!-- Phòng ban sử dụng -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.deP_NAME}} -->
+                                                    <input class="label" disabled
+                                                        [(ngModel)]="editTableAsset.dataInPage[in]['deP_NAME']"
+                                                        name="{{editTableAsset.name('deP_NAME',in)}}">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </editable-table>
+                                </div>
+                            </div>
+                            <!-- Kết thúc bảng con danh sách hàng hóa -->
+
+
+                            <!-- Bảng con nội dung sửa chữa -->
+
+                            <div class="col-md-12">
+                                <div class="editable-title-group">
+                                    <h5 class="popup-title col-md-12">{{l("DetailRepairRecent")}}</h5>
+
+                                </div>
+                                <div class="primeng-datatable-container {{editableRepairRecent.isLoading}}">
+                                    <div class="spinner-border m-5" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                    <editable-table [editTableName]="'2'" #editableRepairRecent
+                                        class="custom-table ui-table">
+                                        <thead>
+                                            <tr>
+
+                                                <!-- Begin Table Column -->
+                                                <!-- STT -->
+                                                <th class="center"><span style="width: 40px">
+                                                        {{l("No")}}
+                                                    </span></th>
+                                                <!-- Ngày sửa chữa gần nhất -->
+                                                <th class="center" style="width: 16.6%;" sortField="repaiR_DT_RECENT">
+                                                    <span style="width: 180px">{{l("NearestRepairDate")}}</span>
+                                                </th>
+                                                <!-- Đơn vị sửa chữa -->
+                                                <th class="center" style="width: 16.6%;"
+                                                    sortField="repaiR_DIVISION_RECENT">
+                                                    <span style="width: 150px">{{l("OfferRepDivision")}}</span>
+                                                </th>
+                                                <!-- Chi phí sửa chữa -->
+                                                <th class="center" style="width: 16.6%;" sortField="repaiR_AMT_RECENT">
+                                                    <span style="width: 140px">{{l("RepairAMT")}}</span>
+                                                </th>
+                                                <!-- Nội dung sửa chữa thực tế -->
+                                                <th class="center" style="width: 16.6%;"
+                                                    sortField="repaiR_CONTENT_RECENT">
+                                                    <span style="width: 210px">{{l("RepairContent")}}</span>
+                                                </th>
+                                                <!-- Ghi chú -->
+                                                <th class="center" style="width: 16.6%;" sortField="repaiR_NOTE_RECENT">
+                                                    <span style="width: 150px">{{l("Notes")}}</span>
+                                                </th>
+
+                                                <!-- Lý do sửa chữa -->
+                                                <th class="center" style="width: 16.6%;"
+                                                    sortField="offeR_REASON_RECENT">
+                                                    <span style="width: 150px">{{l("RepairReason")}}</span>
+                                                </th>
+
+
+                                                <!-- End Table Column -->
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let item of editableRepairRecent.dataInPage; let in = index"
+                                                class="selectable {{item['editableIsSelected']? 'selected' : ''}}"
+                                                [hidden]="item['page'] != editableRepairRecent.currentPage"
+                                                (click)="editableRepairRecent.selectRow($event,item)">
+
+                                                <!-- STT -->
+                                                <td class="center"><span class="mo-header"></span>
+                                                    <!-- {{item['no']}} -->
+                                                    <input class="text-center label" disabled
+                                                        [(ngModel)]="editableRepairRecent.dataInPage[in]['no']"
+                                                        name="{{editableRepairRecent.name('no',in)}}">
+                                                </td>
+
+                                                <!-- Ngày sửa chữa gần nhất -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.repaiR_DT_RECENT | dateFormatPipe}} -->
+                                                    <date-control [inpCss]="'form-control'" [disabled]="true"
+                                                        class="transparent"
+                                                        [(ngModel)]="editableRepairRecent.dataInPage[in]['repaiR_DT_RECENT']"
+                                                        name="{{editableRepairRecent.name('repaiR_DT_RECENT',in)}}">
+                                                    </date-control>
+
+                                                </td>
+
+                                                <!-- Đơn vị sửa chữa -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.repaiR_DIVISION_RECENT}} -->
+                                                    <input class="label" disabled
+                                                        [(ngModel)]="editableRepairRecent.dataInPage[in]['repaiR_DIVISION_RECENT']"
+                                                        name="{{editableRepairRecent.name('repaiR_DIVISION_RECENT',in)}}">
+                                                </td>
+
+
+                                                <!-- Chi phí sửa chữa -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.repaiR_AMT_RECENT | moneyFormatPipe}} -->
+                                                    <money-input class="label" class="transparent" [disabled]="true"
+                                                        [(ngModel)]="editableRepairRecent.dataInPage[in]['repaiR_AMT_RECENT']"
+                                                        name="{{editableRepairRecent.name('repaiR_AMT_RECENT',in)}}">
+                                                    </money-input>
+                                                </td>
+
+                                                <!-- Nội dung sửa chữa thực tế -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.repaiR_CONTENT_RECENT}} -->
+                                                    <input class="label" disabled
+                                                        [(ngModel)]="editableRepairRecent.dataInPage[in]['repaiR_CONTENT_RECENT']"
+                                                        name="{{editableRepairRecent.name('repaiR_CONTENT_RECENT',in)}}">
+                                                </td>
+
+                                                <!-- Ghi chú -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.repaiR_NOTE_RECENT}} -->
+                                                    <input class="label" disabled
+                                                        [(ngModel)]="editableRepairRecent.dataInPage[in]['repaiR_NOTE_RECENT']"
+                                                        name="{{editableRepairRecent.name('repaiR_NOTE_RECENT',in)}}">
+                                                </td>
+
+                                                <!-- Lý do sửa chữa -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.offeR_REASON_RECENT}} -->
+                                                    <input class="label" disabled
+                                                        [(ngModel)]="editableRepairRecent.dataInPage[in]['offeR_REASON_RECENT']"
+                                                        name="{{editableRepairRecent.name('offeR_REASON_RECENT',in)}}">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </editable-table>
+                                </div>
+                            </div>
+                            <!-- Kết thúc bảng con nội dung sửa chữa -->
+                            <!-- Bảng con đề xuất sửa chữa -->
+
+                            <div class="col-md-12">
+                                <div class="editable-title-group">
+                                    <h5 class="popup-title col-md-12">{{l("RepairOffer")}}</h5>
+
+                                </div>
+                                <div class="primeng-datatable-container {{editableRepairOffer.isLoading}}">
+                                    <div class="spinner-border m-5" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                    <editable-table
+                                        [requiredFields]="['offeR_DT','finisH_DT','offeR_REP_DIVISION','offeR_AMT','offeR_REASON','offeR_CONTENT']"
+                                        #editableRepairOffer class="custom-table ui-table" [editTableName]="'3'">
+                                        <thead>
+                                            <tr>
+
+                                                <!-- Begin Table Column -->
+                                                <!-- STT -->
+                                                <th class="center"><span style="width: 40px">{{l("No")}}</span></th>
+                                                <!-- Ngày đề xuất -->
+                                                <th style="width: 11.1%;" class="form-group center"
+                                                    sortField="offeR_DT">
+                                                    <span style="width: 200px">{{l("OfferDate")}}</span>
+                                                </th>
+                                                <!-- Ngày dự kiến sửa xong -->
+                                                <th style="width: 11.1%;" class="form-group center"
+                                                    sortField="finisH_DT">
+                                                    <span style="width: 200px">{{l("FinishRepairDate")}}</span>
+                                                </th>
+                                                <!-- Đề xuất nơi sửa chữa -->
+                                                <th style="width: 11.1%;" class="form-group center"
+                                                    sortField="offeR_REP_DIVISION">
+                                                    <span style="width: 180px">{{l("OfferDivison")}}</span>
+                                                </th>
+                                                <!-- Đơn vị đề xuất -->
+                                                <th class="center" style="width: 11.1%;" sortField="brancH_CREATE">
+                                                    <span style="width: 150px">{{l("BranchOffer")}}</span>
+                                                </th>
+                                                <!-- Người đề xuất -->
+                                                <th class="center" style="width: 11.1%;" sortField="offeR_PERSON">
+                                                    <span style="width: 200px">{{l("PersonOffer")}}</span>
+                                                </th>
+
+                                                <!-- Chi phí dự kiến -->
+                                                <th style="width: 11.1%;" class="form-group center"
+                                                    sortField="offeR_AMT">
+                                                    <span style="width: 150px">{{l("ExpectedCost")}}</span>
+                                                </th>
+
+                                                <!-- Lý do sửa chữa -->
+                                                <th style="width: 11.1%;" class="form-group center"
+                                                    sortField="offeR_REASON">
+                                                    <span style="width: 150px">{{l("RepairReason")}}</span>
+                                                </th>
+
+                                                <!-- Nội dung đề xuất -->
+                                                <th style="width: 11.1%;" class="form-group center"
+                                                    sortField="offeR_CONTENT">
+                                                    <span style="width: 150px">{{l("ContentOffer")}}</span>
+                                                </th>
+
+                                                <!-- Ghi chú -->
+                                                <th class="center" style="width: 11.1%;" sortField="offeR_NOTE">
+                                                    <span style="width: 150px">{{l("Notes")}}</span>
+                                                </th>
+
+
+                                                <!-- End Table Column -->
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let item of editableRepairOffer.dataInPage; let in = index"
+                                                class="selectable {{item['editableIsSelected']? 'selected' : ''}}"
+                                                [hidden]="item['page'] != editableRepairRecent.currentPage"
+                                                (click)="editableRepairRecent.selectRow($event,item)">
+
+                                                <!-- STT -->
+                                                <td class="center"><span class="mo-header"></span>
+                                                    <!-- {{item['no']}} -->
+                                                    <input class="label text-center" disabled
+                                                        [(ngModel)]="editableRepairOffer.dataInPage[in]['no']"
+                                                        name="{{editableRepairOffer.name('no',in)}}">
+                                                </td>
+
+                                                <!-- Ngày đề xuất -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- <date-control [disabled]="disableInput" name="offeR_DT-{{in}}"
+                                                            [(ngModel)]="item.offeR_DT" autoFocus>
+                                                        </date-control> -->
+                                                    <date-control [disabled]="disableInput" class="transparent"
+                                                        [inpCss]="'form-control'"
+                                                        name="{{editableRepairOffer.name('offeR_DT',in)}}"
+                                                        [(ngModel)]="editableRepairOffer.dataInPage[in]['offeR_DT']"
+                                                        autoFocus>
+                                                    </date-control>
+
+                                                    <!-- <div class="error-message" *ngIf="isShowError">
+                                                    <span *ngIf="isNull(item.offeR_DT)">{{l('OfferDate')}}
+                                                        {{l("ValidationRequired")}}</span>
+                                                </div> -->
+                                                </td>
+
+                                                <!-- Ngày dự kiến sửa xong -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- <date-control [disabled]="disableInput" name="finisH_DT-{{in}}"
+                                                            [(ngModel)]="item.finisH_DT" autoFocus>
+                                                        </date-control> -->
+                                                    <date-control [disabled]="disableInput" class="transparent"
+                                                        [inpCss]="'form-control'"
+                                                        [(ngModel)]="editableRepairOffer.dataInPage[in]['finisH_DT']"
+                                                        name="{{editableRepairOffer.name('finisH_DT',in)}}" autoFocus>
+                                                    </date-control>
+
+                                                    <!-- <div class="error-message" *ngIf="isShowError">
+                                                    <span *ngIf="isNull(item.finisH_DT)">{{l('FinishRepairDate')}}
+                                                        {{l("ValidationRequired")}}</span>
+                                                </div> -->
+                                                </td>
+
+                                                <!-- Đề xuất nơi sửa chữa -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- <input [disabled]="disableInput"
+                                                            name="offeR_REP_DIVISION-{{in}}"
+                                                            class="form-control transparent" type="text"
+                                                            [(ngModel)]="item.offeR_REP_DIVISION" /> -->
+                                                    <input [disabled]="disableInput"
+                                                        name="{{editableRepairOffer.name('offeR_REP_DIVISION',in)}}"
+                                                        class="form-control transparent" type="text"
+                                                        [(ngModel)]="editableRepairOffer.dataInPage[in]['offeR_REP_DIVISION']" />
+
+
+                                                    <!-- <div class="error-message" *ngIf="isShowError">
+                                                    <span *ngIf="isNull(item.offeR_REP_DIVISION)">{{l('OfferDivison')}}
+                                                        {{l("ValidationRequired")}}</span>
+                                                </div> -->
+                                                </td>
+
+                                                <!-- Đơn vị đề xuất -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- {{item.brancH_CREATE}} -->
+                                                    <input class="label" disabled
+                                                        [(ngModel)]="editableRepairOffer.dataInPage[in]['brancH_CREATE']"
+                                                        name="{{editableRepairOffer.name('brancH_CREATE',in)}}">
+                                                </td>
+
+                                                <!-- Người đề xuất -->
+                                                <td><span class="mo-header"></span>
+                                                    <div class='user-group'>
+
+                                                        <!-- <input disabled [(ngModel)]="item.offeR_PERSON_NAME"
+                                                                name="offeR_PERSON-{{in}}" autoFocus
+                                                                class="form-control m-input" type="text"> -->
+                                                        <input class="label" disabled
+                                                            [(ngModel)]="editableRepairOffer.dataInPage[in]['offeR_PERSON_NAME']"
+                                                            name="{{editableRepairOffer.name('offeR_PERSON_NAME',in)}}">
+                                                        <button [disabled]="disableInput" type="button"
+                                                            class="btn btn-primary"
+                                                            (click)="currentRepairDetail = item; employeeModal.show();">...</button>
+
+                                                    </div>
+                                                </td>
+
+                                                <!-- Chi phí dự kiến -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- <money-input [disabled]="disableInput" name="offeR_AMT-{{in}}"
+                                                            [(ngModel)]="item.offeR_AMT">
+                                                        </money-input> -->
+
+                                                    <money-input [inputCss]="'form-control left'"
+                                                        [disabled]="disableInput"
+                                                        [(ngModel)]="editableRepairOffer.dataInPage[in]['offeR_AMT']"
+                                                        name="{{editableRepairOffer.name('offeR_AMT',in)}}">
+                                                    </money-input>
+                                                    <!-- <div class="error-message" *ngIf="isShowError">
+                                                    <span *ngIf="isNull(item.offeR_AMT)">{{l('ExpectedCost')}}
+                                                        {{l("ValidationRequired")}}</span>
+                                                </div> -->
+                                                </td>
+
+                                                <!-- Lý do sửa chữa -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- <input  name="offeR_REASON-{{in}}"
+                                                            class="form-control transparent" type="text"
+                                                            [(ngModel)]="item.offeR_REASON" /> -->
+
+                                                    <input [disabled]="disableInput" class="form-control"
+                                                        [(ngModel)]="editableRepairOffer.dataInPage[in]['offeR_REASON']"
+                                                        name="{{editableRepairOffer.name('offeR_REASON',in)}}">
+                                                    <!-- <div class="error-message" *ngIf="isShowError">
+                                                    <span *ngIf="isNull(item.offeR_REASON)">{{l('RepairReason')}}
+                                                        {{l("ValidationRequired")}}</span>
+                                                </div> -->
+                                                </td>
+                                                <!-- Nội dung đề xuất -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- <input [disabled]="disableInput" name="offeR_CONTENT-{{in}}"
+                                                            class="form-control transparent" type="text"
+                                                            [(ngModel)]="item.offeR_CONTENT" /> -->
+                                                    <input [disabled]="disableInput" class="form-control"
+                                                        [(ngModel)]="editableRepairOffer.dataInPage[in]['offeR_CONTENT']"
+                                                        name="{{editableRepairOffer.name('offeR_CONTENT',in)}}">
+                                                    <!-- 
+                                                <div class="error-message" *ngIf="isShowError">
+                                                    <span 
+                                                    
+                                                    >{{l('ContentOffer')}}
+                                                        {{l("ValidationRequired")}}</span>
+                                                </div> -->
+                                                </td>
+                                                <!-- Ghi chú -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- <textarea [disabled]="disableInput" name="offeR_NOTE-{{in}}"
+                                                            class="form-control transparent" type="text"
+                                                            [(ngModel)]="item.offeR_NOTE"></textarea> -->
+                                                    <textarea [disabled]="disableInput" class="form-control transparent"
+                                                        [(ngModel)]="editableRepairOffer.dataInPage[in]['offeR_NOTE']"
+                                                        name="{{editableRepairOffer.name('offeR_NOTE',in)}}"></textarea>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </editable-table>
+                                    <div *ngIf="editPageState != EditPageState.add" class="editable-footer">
+                                        <div>
+                                            <label class="popup-title col-md-12 no-margin no-underline">
+                                                <button type="button" class="mt-3 btn btn-primary"
+                                                    (click)="exportReportPreview()">{{l("PrintRequestDoc")}}</button>
+                                            </label>
+
+                                        </div>
+
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </form>
+                        <!-- Kết thúc bảng con đề xuất sửa chữa -->
+                        <!-- Bảng con thông tin sửa chữa thực tế -->
+
+                        <div [hidden]="editPageState == EditPageState.add" class="col-md-12">
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("ActualRepairInfo")}}</h5>
+
+                            </div>
+                            <form #editableRepairRealTimeForm="ngForm" class='w-100'>
+                                <div class="primeng-datatable-container {{editableRepairRealTime.isLoading}}">
+                                    <div class="spinner-border m-5" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                    <editable-table [editTableName]="'4'"
+                                        [requiredFields]="['repaiR_DT','repaiR_DIVISION','repaiR_AMT','repaiR_CONTENT']"
+                                        #editableRepairRealTime class="custom-table ui-table">
+                                        <thead>
+                                            <tr>
+
+                                                <!-- Begin Table Column -->
+                                                <!-- STT -->
+                                                <th class="center"><span style="width: 40px">{{l("No")}}</span></th>
+                                                <!-- Ngày sửa chữa-->
+                                                <th style="width: 14.2%;" class="form-group center required"
+                                                    sortField="repaiR_DT">
+                                                    <span style="width: 150px">{{l("RepairDate")}}</span>
+                                                </th>
+                                                <!-- Đơn vị sửa chữa -->
+                                                <th style="width: 14.2%;" class="form-group center required"
+                                                    sortField="repaiR_DIVISION">
+                                                    <span style="width: 230px">{{l("OfferRepDivision")}}</span>
+                                                </th>
+                                                <!-- Chi phí sửa chữa -->
+                                                <th style="width: 14.2%;" class="form-group center required"
+                                                    sortField="repaiR_AMT">
+                                                    <span style="width: 150px">{{l("RepairAMT")}}</span>
+                                                </th>
+                                                <!-- Nội dung sửa chữa-->
+                                                <th style="width: 14.2%;" class="form-group center required"
+                                                    sortField="repaiR_CONTENT">
+                                                    <span style="width: 210px">{{l("RepairContent")}}</span>
+                                                </th>
+                                                <!--Ghi chú -->
+                                                <th class="center" style="width: 14.2%;" sortField="repaiR_NOTE">
+                                                    <span style="width: 150px">{{l("Notes")}}</span>
+                                                </th>
+
+                                                <!-- File đính kèm -->
+                                                <th class="center" style="width: 14.2%;" sortField="filE_ATTACHMENT">
+                                                    <span style="width: 230px">{{l("AttachedFile")}}</span>
+                                                </th>
+
+                                                <!-- Thay đổi công năng -->
+                                                <th class="center" style="width: 14.2%;" sortField="performance">
+                                                    <span style="width: 160px">{{l("ChangePerformance")}}</span>
+                                                </th>
+
+
+
+                                                <!-- End Table Column -->
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let item of editableRepairRealTime.dataInPage; let in = index"
+                                                class="selectable {{item['editableIsSelected']? 'selected' : ''}}"
+                                                [hidden]="item['page'] != editableRepairRealTime.currentPage"
+                                                (click)="editableRepairRealTime.selectRow($event,item)">
+
+                                                <!-- STT -->
+                                                <td class="center"><span class="mo-header"></span>
+
+                                                    <!-- {{item['no']}} -->
+                                                    <input class="text-center label" disabled
+                                                        [(ngModel)]="editableRepairRealTime.dataInPage[in]['no']"
+                                                        name="{{editableRepairRealTime.name('no',in)}}">
+                                                </td>
+                                                <!-- Ngày sửa chữa-->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- <date-control *ngIf="editPageState != EditPageState.add"
+                                                            [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                            name="repaiR_DT-{{in}}" [(ngModel)]="item.repaiR_DT"
+                                                            autoFocus>
+                                                        </date-control> -->
+                                                    <date-control *ngIf="editPageState != EditPageState.add"
+                                                        [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                        [(ngModel)]="editableRepairRealTime.dataInPage[in]['repaiR_DT']"
+                                                        name="{{editableRepairRealTime.name('repaiR_DT',in)}}">
+                                                    </date-control>
+                                                    <!-- <div class="error-message" *ngIf="isShowError">
+                                                    <span *ngIf="isNull(item.repaiR_DT)">{{l('RepairDate')}}
+                                                        {{l("ValidationRequired")}}</span>
+                                                </div> -->
+                                                </td>
+                                                <!-- Đơn vị sửa chữa -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- <input *ngIf="editPageState != EditPageState.add"
+                                                            [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                            name="repaiR_DIVISION-{{in}}"
+                                                            class="form-control transparent" type="text"
+                                                            [(ngModel)]="item.repaiR_DIVISION" /> -->
+                                                    <input *ngIf="editPageState != EditPageState.add"
+                                                        [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                        class="form-control transparent" type="text"
+                                                        name="{{editableRepairRealTime.name('repaiR_DIVISION',in)}}"
+                                                        [(ngModel)]="editableRepairRealTime.dataInPage[in]['repaiR_DIVISION']" />
+                                                    <!-- <div class="error-message" *ngIf="isShowError">
+                                                    <span *ngIf="isNull(item.repaiR_DIVISION)">{{l('OfferRepDivision')}}
+                                                        {{l("ValidationRequired")}}</span>
+                                                </div> -->
+                                                </td>
+
+                                                <!-- Chi phí sửa chữa -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- <money-input *ngIf="editPageState != EditPageState.add"
+                                                            [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                            name="repaiR_AMT-{{in}}" [(ngModel)]="item.repaiR_AMT">
+                                                        </money-input> -->
+                                                    <money-input *ngIf="editPageState != EditPageState.add"
+                                                        [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                        name="{{editableRepairRealTime.name('repaiR_AMT',in)}}"
+                                                        [(ngModel)]="editableRepairRealTime.dataInPage[in]['repaiR_AMT']">
+                                                    </money-input>
+                                                    <!-- <div class="error-message" *ngIf="isShowError">
+                                                    <span *ngIf="isNull(item.repaiR_AMT)">{{l('RepairAMT')}}
+                                                        {{l("ValidationRequired")}}</span>
+                                                </div> -->
+
+                                                    <!-- Nội dung sửa chữa-->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- <input *ngIf="editPageState != EditPageState.add"
+                                                            [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                            name="repaiR_CONTENT-{{in}}"
+                                                            class="form-control transparent" type="text"
+                                                            [(ngModel)]="item.repaiR_CONTENT" /> -->
+                                                    <input *ngIf="editPageState != EditPageState.add"
+                                                        [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                        class="form-control transparent" type="text"
+                                                        name="{{editableRepairRealTime.name('repaiR_CONTENT',in)}}"
+                                                        [(ngModel)]="editableRepairRealTime.dataInPage[in]['repaiR_CONTENT']" />
+                                                    <!-- <div class="error-message" *ngIf="isShowError">
+                                                    <span *ngIf="isNull(item.repaiR_CONTENT)">{{l('RepairContent')}}
+                                                        {{l("ValidationRequired")}}</span>
+                                                </div> -->
+                                                </td>
+
+                                                <!--Ghi chú -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- <textarea
+                                                            [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                            name="repaiR_NOTE-{{in}}" class="form-control transparent"
+                                                            type="text" [(ngModel)]="item.repaiR_NOTE"></textarea> -->
+                                                    <textarea
+                                                        [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                        name="{{editableRepairRealTime.name('repaiR_NOTE',in)}}"
+                                                        class="form-control transparent" type="text"
+                                                        [(ngModel)]="editableRepairRealTime.dataInPage[in]['repaiR_NOTE']"></textarea>
+                                                </td>
+
+                                                <!-- File đính kèm -->
+                                                <td><span class="mo-header"></span>
+                                                    <!-- <file-picker [multiFile]="true"
+                                                            [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                            type="text" [folderUpload]="'AssRepaitMulti'"
+                                                            [inpCss]="'form-control'"
+                                                            [(ngModel)]="item['filE_ATTACHMENT']"
+                                                            name="filE_ATTACHMENT-{{in}}">
+                                                        </file-picker> -->
+                                                    <file-picker [multiFile]="true"
+                                                        [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                        type="text" [folderUpload]="'AssRepaitMulti'"
+                                                        [inpCss]="'form-control'"
+                                                        [(ngModel)]="editableRepairRealTime.dataInPage[in]['filE_ATTACHMENT']"
+                                                        name="filE_ATTACHMENT-{{in}}">
+                                                    </file-picker>
+                                                    <!-- <file-picker [multiFile]="true" [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                        type="text" [folderUpload]="'AssRepaitMulti'" [inpCss]="'form-control'"
+                                                        [(ngModel)]="item['filE_ATTACHMENT']"
+                                                        name="filE_ATTACHMENT-{{in}}"></file-picker> -->
+
+                                                </td>
+
+                                                <!-- Thay đổi công năng -->
+                                                <td class="center"><span class="mo-header"></span>
+                                                    <!-- <checkbox-control
+                                                            [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                            name="performance-{{in}}" [(ngModel)]="item.performance"
+                                                            [TrueValue]="'1'" [FalseValue]="'0'"></checkbox-control> -->
+                                                    <checkbox-control
+                                                        [disabled]="isApprove || editPageState == EditPageState.viewDetail"
+                                                        name="{{editableRepairRealTime.name('performance',in)}}"
+                                                        [(ngModel)]="editableRepairRealTime.dataInPage[in]['performance']"
+                                                        [TrueValue]="'1'" [FalseValue]="'0'"></checkbox-control>
+                                                </td>
+
+
+                                            </tr>
+                                        </tbody>
+                                    </editable-table>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- Kết thúc bảng con thông tin sửa chữa thực tế  -->
+                    </div>
+
+
+
+
+
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+    <!-- <asset-modal #assetMasterModal (onSelect)="onSelectAsset($event)" [multiple]="true"></asset-modal> -->
+    <employee-modal #employeeModal (onSelect)="onSelectEmployee($event)" [multiple]="false"></employee-modal>
+    <asset-modal [hideFields]="'buY_DATE,remaiN_MONTH,planLiqTitle,PlanLiqFilter,planMonthTitle,PlanMonthFilter,level'"
+        #assetMasterModal (onSelect)="onSelectAsset($event)" [multiple]="true"></asset-modal>
+
+</div>

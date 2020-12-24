@@ -1,0 +1,54 @@
+<div [@routerTransition]>
+    <!-- BEGIN: Header -->
+    <header mHeader id="m_header"
+            *ngIf="!installationMode"
+            #mHeader class="m-grid__item m-header"
+            [attr.m-minimize]="currentTheme.baseSettings.header.desktopFixedHeader ? 'minimize': ''"
+            [attr.m-minimize-mobile]="currentTheme.baseSettings.header.mobileFixedHeader ? 'minimize': ''"
+            m-minimize-offset="10" m-minimize-mobile-offset="10">
+        <div class="m-header__top">
+            <div class="m-container {{ui.getContainerClass()}} m-container--full-height m-page__container">
+                <div class="m-stack m-stack--ver m-stack--desktop">
+                    <!-- BEGIN: Brand -->
+                    <theme10-brand class="m-stack__item m-brand m-brand--skin-{{currentTheme.baseSettings.menu.asideSkin}} d-print-non"></theme10-brand>
+                    <!-- END: Brand -->
+                    <div class="m-stack__item m-stack__item--fluid m-header-head" id="m_header_nav">
+                        <!-- BEGIN: Topbar -->
+                        <topbar></topbar>
+                        <!-- END: Topbar -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="m-header__bottom">
+            <div class="m-container m-container--full-height m-page__container {{ui.getContainerClass()}}">
+                <div class="m-stack m-stack--ver m-stack--desktop">
+                    <!-- BEGIN: Topbar Menu -->
+                    <div class="m-stack__item m-stack__item--fluid m-header-menu-wrapper">
+                        <top-bar-menu [isTabMenuUsed]="true"></top-bar-menu>
+                    </div>
+                    <!-- END: Topbar Menu -->
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- END: Header -->
+    <!-- begin::Body -->
+    <div class="m-grid__item m-grid__item--fluid {{ui.getContainerClass()}} m-grid m-grid--ver-desktop m-grid--desktop m-container m-page__container m-body">
+        <div class="m-grid__item m-grid__item--fluid m-wrapper">
+            <div *ngIf="subscriptionStatusBarVisible()"
+                 [ngClass]="{'hidden': !subscriptionStatusBarVisible()}" class="d-inline-block d-sm-none m-3">
+                <span *ngIf="tenant.isInTrialPeriod && !subscriptionIsExpiringSoon()" [innerHTML]="getTrialSubscriptionNotification()"></span>
+                <a *ngIf="subscriptionIsExpiringSoon()" routerLink="/app/admin/subscription-management">
+                    <span *ngIf="subscriptionIsExpiringSoon() && tenant.isInTrialPeriod"><i class="fa fa-exclamation-circle"></i> {{getExpireNotification("TrialExpireNotification")}}</span>
+                    <span *ngIf="subscriptionIsExpiringSoon() && !tenant.isInTrialPeriod"><i class="fa fa-exclamation-circle"></i> {{getExpireNotification("SubscriptionExpireNotification")}}</span>
+                </a>
+            </div>
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+    <!-- end:: Body -->
+    <!-- begin::Footer -->
+    <footer-bar></footer-bar>
+    <!-- end::Footer -->
+</div>

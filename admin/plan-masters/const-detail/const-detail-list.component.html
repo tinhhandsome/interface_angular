@@ -1,0 +1,146 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <!-- Begin Title -->
+                        <span>{{l("ConstDetail_Title")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-group dropdown mr-2">
+                        <button class=" btn btn-outline-success" *ngIf="appToolbar.buttonSearchEnable" (click)="exportExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+                                <!-- Tên kế hoạch -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("PlanName")}}</label>
+                                        <input [(ngModel)]="filterInput.plaN_NAME" name="plaN_NAME" autoFocus class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+                                <!-- Năm thực hiện -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("PlanYear")}}</label>
+                                        <input [(ngModel)]="filterInput.year" type="number" name="year" autoFocus class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+                                <!-- Trạng thái duyệt -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("ApproveStatus")}}</label>
+                                        <all-code-select name="autH_STATUS" [(ngModel)]="filterInput.auth" [emptyText]="l('SelectAll')" [cdName]="'AUTH_STATUS'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+                                <!-- Mã đơn vị -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("BranchCode")}}</label>
+                                        <select2-custom name="brancH_ID" [(ngModel)]="filterInput.brancH_ID" [(list)]="branchs" [emptyText]="l('SelectAll')" [valueMember]="'brancH_ID'" [displayMember]="'brancH_CODE|brancH_NAME'">
+                                        </select2-custom>
+                                    </div>
+                                </div>
+                                <!-- Đơn vị độc lập -->
+                                <div class="col-md-4">
+                                    <label></label>
+                                    <div class="form-group">
+                                        <checkbox-control name="independenT_UNIT" [label]="l('IndependentUnit')" [checked]="true" [TrueValue]="'UNIT'" [FalseValue]="'ALL'" [(ngModel)]="filterInput.level"></checkbox-control>
+                                    </div>
+                                </div>
+                                <!-- End Filter -->
+                                <div style="display:none;" class="col-md-12">
+                                    <div class="form-group">
+                                        <button *ngIf="appToolbar.buttonSearchEnable" class="btn btn-primary btn-search" (click)="onSearch()">{{l('Search')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" [reloadPageOnInit]="false" (reloadPage)="search()">
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th class="center">
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <!-- Đơn vị thực hiện -->
+                                        <th style="width:20%" sortField="PGD">
+                                            <span style="width: 150px">{{l("BranchProcess")}}</span>
+                                        </th>
+                                        <!-- Tên kế hoạch -->
+                                        <th style="width:20%" sortField="PLAN_NAME">
+                                            <span style="width: 150px">{{l("PlanName")}}</span>
+                                        </th>
+                                        <!-- Năm thực hiện -->
+                                        <th style="width:20%" sortField="YEAR">
+                                            <span style="width: 150px">{{l("PlanYear")}}</span>
+                                        </th>
+                                        <!-- Ngày hiệu lực -->
+                                        <th style="width:20%" sortField="EFFECT_DT">
+                                            <span style="width: 150px">{{l("EffectDt")}}</span>
+                                        </th>
+                                        <!-- Tình trạng xử lý -->
+                                        <th style="width:20%" sortField="STATUS_NAME">
+                                            <span style="width: 150px">{{l("ProcessStatus")}}</span>
+                                        </th>
+                                        <!-- Trạng thái duyệt -->
+                                        <th sortField="AUTH_STATUS">
+                                            <span style="width: 150px">{{l("ApproveStatus")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onDblclick(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <!-- STT -->
+                                        <td class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <!-- Đơn vị thực hiện -->
+                                        <td><span class="mo-header"></span>{{record.pgd}}</td>
+                                        <!-- Tên kế hoạch -->
+                                        <td><span class="mo-header"></span>{{record.plaN_NAME}}</td>
+                                        <!-- Năm thực hiện -->
+                                        <td><span class="mo-header"></span>{{record.year}}</td>
+                                        <!-- Ngày hiệu lực -->
+                                        <td><span class="mo-header"></span>{{record.effecT_DT | dateFormatPipe}}</td>
+                                        <!-- Tình trạng xử lý -->
+                                        <td><span class="mo-header"></span>{{record.statuS_NAME}}</td>
+                                        <!-- Trạng thái duyệt -->
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

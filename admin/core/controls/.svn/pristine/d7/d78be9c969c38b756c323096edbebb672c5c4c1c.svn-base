@@ -1,0 +1,14 @@
+<div *ngIf="messages && messages.length>0">
+    <div>
+        <span>{{l('RejectMessage')}}</span>
+        <button class="btn btn-danger" type="button" data-toggle="collapse" data-target="#notes-message" aria-expanded="true" aria-controls="notes-message">
+            {{l('Detail')}}
+        </button>
+    </div>
+    <ul id="notes-message" class="collapse notes-message">
+        <li *ngFor="let message of messages">
+            <p><span>Được từ chối bởi {{message.fullname}} vào ngày {{message.rejecT_DT}} </span> {{message.notes}}</p>
+            <span class="branch">{{message.brancH_NAME}}</span>
+        </li>
+    </ul>
+</div>

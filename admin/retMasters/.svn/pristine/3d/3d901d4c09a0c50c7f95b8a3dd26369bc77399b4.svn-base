@@ -1,0 +1,343 @@
+import { Component, Injector, ViewChild, OnInit, ViewEncapsulation, ElementRef, AfterViewInit } from '@angular/core';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
+import * as _ from 'lodash';
+import { RetRepairServiceProxy, UltilityServiceProxy, CAR_MASTER_ENTITY, CarMasterServiceProxy, RET_REPAIR_ENTITY, ASS_MASTER_ENTITY, AssMasterServiceProxy, RET_MASTER_ENTITY, IPagedResultDtoOfASS_AMORT_STATUS_ENTITY, CM_EMPLOYEE_ENTITY, RealEstateServiceProxy } from '@shared/service-proxies/service-proxies';
+import { EditPageState } from '@app/ultilities/enum/edit-page-state';
+import { DefaultComponentBase } from '@app/ultilities/default-component-base';
+import { IUiAction } from '@app/ultilities/ui-action';
+import { AuthStatusConsts } from '@app/admin/core/ultils/consts/AuthStatusConsts';
+import { AssetModalComponent } from '@app/admin/core/controls/asset-modal/asset-modal.component';
+import { finalize } from 'rxjs/operators';
+import * as moment from 'moment';
+import { PreviewTemplateService } from '@app/admin/common/preview-template/preview-template.service';
+import { EmployeeModalComponent } from '@app/admin/core/controls/employee-modal/employee-modal.component';
+
+@Component({
+    templateUrl: './ret-repair-edit.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+export class RetRepairEditComponent extends DefaultComponentBase implements OnInit, IUiAction<any>, AfterViewInit {
+
+
+    constructor(
+        injector: Injector,
+        private retRepairServiceProxy: RetRepairServiceProxy,
+        private retMasterService: RealEstateServiceProxy,
+        private ultilityService: UltilityServiceProxy,
+        private _previewTemplateService: PreviewTemplateService
+    ) {
+        super(injector);
+
+        this.editPageState = this.getRouteData('editPageState');
+        this.inputModel.rP_ID = this.getRouteParam('id');
+
+        this.initFilter();
+        this.initInputModel();
+        this.initIsApproveFunct();
+        // COMMENT: this.stopAutoUpdateView();
+        this.initDefaultInputValue();
+        console.log(this);
+    }
+
+    @ViewChild('editForm') editForm: ElementRef;
+    @ViewChild('employeeModal') employeeModal: EmployeeModalComponent;
+
+    EditPageState = EditPageState;
+    editPageState: EditPageState;
+
+    inputModel: RET_REPAIR_ENTITY = new RET_REPAIR_ENTITY();
+    retMaster: RET_MASTER_ENTITY = new RET_MASTER_ENTITY();
+
+    filterInput: any;
+    isApproveFunct: boolean;
+
+    showChargeTerm: boolean;
+
+    get disableInput(): boolean {
+        return this.editPageState == EditPageState.viewDetail;
+    }
+
+
+    
+    isShowError = false;
+    isCheckAll = false;
+    ngOnInit(): void {
+        switch (this.editPageState) {
+            case EditPageState.add:
+                this.appToolbar.setRole('RetRepair', false, false, true, false, false, false, false, false);
+                this.appToolbar.setEnableForEditPage();
+                break;
+            case EditPageState.edit:
+                this.appToolbar.setRole('RetRepair', false, false, true, false, false, false, false, false);
+                this.appToolbar.setEnableForEditPage();
+                this.getRetRepair();
+                break;
+            case EditPageState.viewDetail:
+                this.appToolbar.setRole('RetRepair', false, false, false, false, false, false, true, false);
+                this.appToolbar.setEnableForViewDetailPage();
+                this.getRetRepair();
+                break;
+        }
+        this.appToolbar.setUiAction(this);
+    }
+
+    private initDefaultInputValue() {
+        this.showChargeTerm = false;
+        // this.inputModel.buY_DT = moment();
+        // this.inputModel.usE_PERIOD = 0;
+    }
+
+    ngAfterViewInit(): void {
+        this.setupValidationMessage();
+        this.updateView();
+    }
+
+    initInputModel() {
+        this.inputModel.offeR_BRANCH = this.appSession.user.subbrId;
+        this.inputModel.offeR_AMT = 0;
+        this.inputModel.repaiR_AMT = 0;
+    }
+
+    initIsApproveFunct() {
+        this.ultilityService.isApproveFunct(this.getCurrentFunctionId()).subscribe(isApproveFunct => {
+            this.isApproveFunct = isApproveFunct;
+        })
+    }
+
+
+
+    getRetRepair() {
+        this.retRepairServiceProxy.rET_REPAIR_ById(this.inputModel.rP_ID).subscribe(response => {
+            this.inputModel = response;
+            this.retMasterService.rET_MASTER_ById(response.reT_ID).subscribe(result => {
+                this.retMaster = result;
+                this.updateView();
+
+            });
+            // this.showChargeTerm = response.usE_PERIOD && response.usE_PERIOD > 0;
+
+        });
+    }
+
+
+
+
+
+    ValidateInput() {
+
+    }
+
+    private updateRetRepair() {
+        this.inputModel.offeR_STATUS = '1';
+        this.inputModel.reT_REPAIR_ID = this.inputModel.rP_ID;
+        this.retRepairServiceProxy.rET_REPAIR_Upd(this.inputModel).pipe(finalize(() => { this.saving = false; }))
+            .subscribe((response) => {
+                if (response['Result'] != '0') {
+                    this.showErrorMessage(response['ErrorDesc']);
+                }
+                else {
+                    this.updateSuccess();
+                    if (!this.isApproveFunct) {
+                        this.retRepairServiceProxy.rET_REPAIR_App(this.inputModel.reT_ID, this.appSession.user.userName)
+                            .pipe(finalize(() => { this.saving = false; }))
+                            .subscribe((response) => {
+                                if (response['Result'] != '0') {
+                                    this.showErrorMessage(response['ErrorDesc']);
+                                }
+                                else {
+                                    this.setPageStateToApprove();
+                                }
+                            });
+                    }
+                    else {
+                        this.inputModel.autH_STATUS = AuthStatusConsts.NotApprove;
+                    }
+                    this.updateView()
+                }
+            });
+    }
+
+    private addNewRetRepair() {
+        // this.inputModel.usE_PERIOD = this.showChargeTerm ? this.inputModel.usE_PERIOD : 0;
+        this.inputModel.recorD_STATUS = '1';
+        this.retRepairServiceProxy.rET_REPAIR_Ins(this.inputModel).pipe(finalize(() => { this.saving = false; }))
+            .subscribe((response) => {
+                if (response['Result'] != '0') {
+                    this.showErrorMessage(response['ErrorDesc']);
+                }
+                else {
+
+                    this.addNewSuccess();
+                    this.inputModel.offeR_STATUS = '0';
+                    this.inputModel.rP_ID = response['RET_REPAIR_ID'];
+                    if (!this.isApproveFunct) {
+                        this.retRepairServiceProxy.rET_REPAIR_App(response['RET_ID'], this.appSession.user.userName)
+                            .pipe(finalize(() => { this.saving = false; }))
+                            .subscribe((response) => {
+                                if (response['Result'] != '0') {
+                                    this.showErrorMessage(response['ErrorDesc']);
+                                }
+                            });
+                    }
+                }
+                this.updateView();
+            });
+    }
+
+    saveInput() {
+        if (this.isApproveFunct == undefined) {
+            this.showErrorMessage(this.l('PageLoadUndone'));
+            this.updateView();
+            return;
+        }
+
+        if ((this.editForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return;
+        }
+        if (this.inputModel.offeR_DT.isAfter(this.inputModel.finisH_DT)) {
+            this.showErrorMessage(this.l('FinishDateCannotSmallerThanOfferDate'));
+            return;
+        }
+        if (this.editPageState != EditPageState.viewDetail) {
+
+            this.saving = true;
+            this.inputModel.makeR_ID = this.appSession.user.userName;
+            if (!this.inputModel.rP_ID) {
+
+                this.addNewRetRepair();
+            }
+            else {
+                if (this.inputModel.autH_STATUS == AuthStatusConsts.Reject) {
+                    this.showErrorMessage(this.l('UpdateFailed'));
+                    return;
+                }
+                this.updateRetRepair();
+            }
+        }
+    }
+
+    goBack() {
+        this.navigatePassParam('/app/admin/ret-repair', null, { filterInput: JSON.stringify(this.filterInput) });
+    }
+
+    onAdd(): void {
+    }
+
+    onUpdate(): void {
+    }
+
+    onDelete(): void {
+    }
+
+    onViewDetail(item: any): void {
+    }
+
+    onApprove(): void {
+        if (!this.inputModel.rP_ID) {
+            return;
+        }
+        var currentUserName = this.appSession.user.userName;
+        if (currentUserName == this.inputModel.makeR_ID) {
+            this.showErrorMessage(this.l('ApproveFailed'));
+            return;
+        }
+        this.message.confirm(
+            this.l('ApproveWarningMessage', this.l(this.inputModel.rP_ID)),
+            this.l('AreYouSure'),
+            (isConfirmed) => {
+                if (isConfirmed) {
+                    this.saving = true;
+                    this.retRepairServiceProxy.rET_REPAIR_App(this.inputModel.rP_ID, currentUserName)
+                        .pipe(finalize(() => { this.saving = false; }))
+                        .subscribe((response) => {
+                            if (response['Result'] != '0') {
+                                this.showErrorMessage(response['ErrorDesc']);
+                            }
+                            else {
+                                // this.inputModel.autH_STATUS = 'A';
+                                this.setPageStateToApprove();
+                                this.approveSuccess();
+                            }
+                        });
+                }
+            }
+        );
+    }
+
+
+    onSave(): void {
+        this.saveInput();
+    }
+
+    onSearch(): void {
+    }
+
+    onResetSearch(): void {
+    }
+
+    focusOutRetCode() {
+        // this.retMasterService.rET_MASTER_ById(this.inputModel.reT_ID).subscribe(result => {
+        //     this.retMaster = result;
+        //     this.updateView();
+        // });
+    }
+    onSelectRet(event: RET_MASTER_ENTITY) {
+        this.inputModel.asseT_ID = event.asseT_ID;
+        this.inputModel.reT_ID = event.reT_ID;
+        this.inputModel.asseT_NAME = event.asseT_NAME;
+        this.retMaster = event;
+        this.retMasterService.rET_MASTER_ById(this.inputModel.reT_ID).subscribe(result => {
+            this.retMaster = result;
+            this.updateView();
+        });
+    }
+    onSelectEmployee(event: CM_EMPLOYEE_ENTITY) {
+        this.inputModel.emP_NAME = event.emP_NAME;
+        this.inputModel.offeR_PERSON = event.emP_ID;
+        this.updateView();
+
+    }
+    exportPDN() {
+
+        var date = moment();
+        var values = [];
+
+        values.push(this.GetParamNameAndValue("branchCode", this.appSession.user.branchCode));
+        values.push(this.GetParamNameAndValue("branchName", this.appSession.user.branchName));
+
+        values.push(this.GetParamNameAndValue("fullName", this.appSession.user.name));
+        values.push(this.GetParamNameAndValue("datePrint", date.format('DD/MM/YYYY')));
+
+        var parameters = [];
+        parameters.push(this.GetParamNameAndValue("RP_ID", this.inputModel.rP_ID));
+
+
+
+        this._previewTemplateService.printReportTemplate("BDS_PDN", parameters, values);
+    }
+    exportOfferStateMent() {
+        var date = moment();
+        var values = [];
+
+        values.push(this.GetParamNameAndValue("branchCode", this.appSession.user.branchCode));
+        values.push(this.GetParamNameAndValue("branchName", this.appSession.user.branchName));
+
+        values.push(this.GetParamNameAndValue("fullName", this.appSession.user.name));
+        values.push(this.GetParamNameAndValue("datePrint", date.format('DD/MM/YYYY')));
+
+        var parameters = [];
+        parameters.push(this.GetParamNameAndValue("RET_ID", this.inputModel.rP_ID));
+
+
+
+        this._previewTemplateService.printReportTemplate("BDS_PDX", parameters, values);
+    }
+    employeeModalShow() {
+        this.employeeModal.filterInput.level = "UNIT";
+        this.employeeModal.show();
+    }
+}

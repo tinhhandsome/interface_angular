@@ -1,0 +1,115 @@
+import { Injector, Component, OnInit, ViewEncapsulation, AfterViewInit, ElementRef, ViewChild } from "@angular/core";
+import { ReportInfo, AsposeServiceProxy, CM_DEPARTMENT_ENTITY, BranchServiceProxy, CM_BRANCH_ENTITY, CM_DIVISION_ENTITY, DepartmentServiceProxy } from "@shared/service-proxies/service-proxies";
+import { appModuleAnimation } from "@shared/animations/routerTransition";
+import { FileDownloadService } from "@shared/utils/file-download.service";
+import { ReportTypeConsts } from "@app/admin/core/ultils/consts/ReportTypeConsts";
+import { DefaultComponentBase } from "@app/ultilities/default-component-base";
+import { PreviewTemplateService } from "@app/admin/common/preview-template/preview-template.service";
+import * as moment from 'moment';
+import { DateFormatPipe } from "@app/admin/core/pipes/date-format.pipe";
+import { ReportTemplateModalComponent } from "@app/admin/core/controls/report-template-modal/report-template-modal.component";
+
+@Component({
+    templateUrl: './re-status-not-use.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+
+export class ReStatusNotUseComponent extends DefaultComponentBase implements OnInit, AfterViewInit {
+
+    hidden: boolean = false;
+
+    filterInput: any = {};
+
+    levels: any[];
+    currentBranchIdField: string;
+    currentBranchNameField: string;
+
+    datePipeFormatter: DateFormatPipe
+
+    ngAfterViewInit(): void {
+        this.stopAutoUpdateView();
+    }
+
+    constructor(injector: Injector,
+        private fileDownloadService: FileDownloadService,
+        private asposeService: AsposeServiceProxy) {
+        super(injector);
+        this.datePipeFormatter = new DateFormatPipe()
+    }
+
+    @ViewChild('editForm') editForm: ElementRef;
+    @ViewChild('reportTemplate') reportTemplate : ReportTemplateModalComponent;
+    isShowError = false;
+
+    ngOnInit(): void {
+        this.levels = this.getLevelsCombobox();
+        this.filterInput.USE_STATUS = 'C'
+        this.filterInput.STATUS = ''
+        this.filterInput.brancH_ID = this.appSession.user.subbrId;
+        this.filterInput.brancH_NAME = this.appSession.user.branchName;
+        this.filterInput.brancH_LOGIN = this.appSession.user.subbrId;
+        this.filterInput.level = 'ALL';
+        this.filterInput.fromDate = moment().startOf('month');
+        this.filterInput.toDate = moment().endOf('month');
+    }
+
+
+    exportToExcel() {
+
+        if ((this.editForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return;
+        }
+
+        let reportInfo = this.getReportParameters()
+
+        reportInfo.pathName = "/REPORT/BDS_BC03.xlsx";
+        reportInfo.storeName = "rpt_BDS_BC03_Excel";
+
+        this.asposeService.getReport(reportInfo).subscribe(x => {
+            this.fileDownloadService.downloadTempFile(x);
+            this.showSuccessMessage(this.l('ExportFileSuccess'));
+            this.updateView();
+        });
+    }
+
+    exportToWord() {
+        if ((this.editForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return;
+        }
+        let reportInfo = this.getReportParameters()
+        this.reportTemplate.show('ReStatus_Report', reportInfo.parameters, reportInfo.values);
+    }
+
+    private getReportParameters(): ReportInfo {
+        let reportInfo = new ReportInfo();
+        reportInfo.typeExport = ReportTypeConsts.Excel;
+
+        reportInfo.parameters = this.GetParamsFromFilter(this.filterInput);
+
+        reportInfo.values = this.GetParamsFromFilter({
+            branchCode: this.appSession.user.branch.brancH_CODE,
+            branchName: this.appSession.user.branch.brancH_NAME,
+            level: this.filterInput.level == 'ALL' ? this.l('AllGoods') : this.l('Branch'),
+            fullName: this.appSession.user.name,
+            datePrint: this.datePipeFormatter.transform(moment()),
+            reportCode: 'BDS_BC03',
+            A3: this.l("ReStatusNotUseReportTitle")
+        });
+        return reportInfo
+    }
+
+
+    onSelectBranch(branch: CM_BRANCH_ENTITY) {
+        this.filterInput.brancH_ID = branch.brancH_ID;
+        this.filterInput.brancH_NAME = branch.brancH_NAME;
+    }
+
+
+}

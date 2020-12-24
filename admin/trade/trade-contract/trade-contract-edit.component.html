@@ -1,0 +1,583 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("TradeContract")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Edit")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("View")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <input hidden class="form-control" type="text" #contracT_ID="ngModel" name="contracT_ID" [(ngModel)]="inputModel.contracT_ID">
+                        <!-- Mã hợp đồng -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("ContractCode")}}</label>
+                                <input (focusout)="focusOut()" [disabled]="disableInput" class="form-control" type="text" #contracT_CODE="ngModel" name="contracT_CODE" [(ngModel)]="inputModel.contracT_CODE" required>
+                                <div class="error-message" *ngIf="contracT_CODE.invalid && isShowError">
+                                    <span *ngIf="contracT_CODE?.errors.required">{{l('ContractCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="contracT_CODE?.errors.pattern">{{l('ContractCode')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tên hợp đồng -->
+
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("ContractName")}}</label>
+                                <input (focusout)="focusOut()" [disabled]="disableInput" class="form-control" type="text" #contracT_NAME="ngModel" name="contracT_NAME" [(ngModel)]="inputModel.contracT_NAME" required>
+                                <div class="error-message" *ngIf="contracT_NAME.invalid && isShowError">
+                                    <span *ngIf="contracT_NAME?.errors.required">{{l('ContractName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ngày giao hàng -->
+
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("DeliveryDt")}}</label>
+                                <date-control (focusout)="focusOut()" [disabled]="disableInput" required [inpCss]="'form-control'" type="text" #deliverY_DT="ngModel" name="deliverY_DT" [(ngModel)]="inputModel.deliverY_DT">
+                                </date-control>
+                                <div class="error-message" *ngIf="deliverY_DT.invalid && isShowError">
+                                    <span *ngIf="deliverY_DT?.errors.required">{{l('DeliveryDt')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Popup form hồ sơ -->
+                        <!-- begin pop up data -->
+                        <!-- số hồ sơ -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+
+                                <label>{{l("BidCode")}}</label>
+                                <div class='user-group'>
+
+                                    <input (focusout)="findBranch()" [(ngModel)]="inputModel.biD_CODE" name="biD_CODE" autoFocus class="form-control m-input" type="text" [disabled]="disableInput">
+                                    <button [disabled]="disableInput" type="button" class="btn btn-primary" (click)="bidMasterModal.show()">...</button>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Mã đơn vị trúng thầu -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("CodeBidWin")}}</label>
+                                <input disabled class="form-control" type="text" #suP_CODE="ngModel" name="suP_CODE" [(ngModel)]="inputModel.suP_CODE">
+
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <!-- Tên đơn vị trúng thầu -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("NameBidWin")}}</label>
+                                <input disabled class="form-control" type="text" #suP_NAME="ngModel" name="suP_NAME" [(ngModel)]="inputModel.suP_NAME">
+
+                            </div>
+                        </div>
+                        <!-- Số điện thoại -->
+                        <div class="col-md-4">
+                            <div class="form-group ">
+                                <label>{{l("Tel")}}</label>
+                                <input disabled class="form-control" type="text" #suP_TEL="ngModel" name="suP_TEL" [(ngModel)]="inputModel.suP_TEL">
+
+                            </div>
+                        </div>
+                        <!-- Địa chỉ -->
+                        <div class="col-md-8">
+                            <div class="form-group ">
+                                <label>{{l("Address")}}</label>
+                                <input disabled class="form-control" type="text" #addr="ngModel" name="addr" [(ngModel)]="inputModel.addr">
+
+                            </div>
+                        </div>
+                        <!-- Người liên hệ -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("ContactPerson")}}</label>
+                                <input disabled class="form-control" type="text" #suP_CONTACT_PERSON="ngModel" name="suP_CONTACT_PERSON" [(ngModel)]="inputModel.suP_CONTACT_PERSON">
+
+                            </div>
+                        </div>
+                        <!-- end pop up data -->
+                        <!-- Chú thích hợp đồng -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Note")}}</label>
+                                <textarea [disabled]="disableInput" class="form-control" type="text" #notes="ngModel" name="notes" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+                        <!-- Begin field bảo lãnh hợp đồng -->
+                        <div class="col-md-12">
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("GuaranteeWarranty")}}</h5>
+
+                            </div>
+                        </div>
+
+
+
+
+                        <!-- hình thức -->
+
+                        <div class="col-md-4">
+                            <div class="form-group ">
+                                <label>{{l("Form")}}</label>
+                                <all-code-select name="forM1" [disabled]="disableInput" #forM1="ngModel" [(ngModel)]="inputModel.forM1" [emptyText]="l('NullSelect')" [cdName]="'FORM'" [cdType]="'CONT'">
+                                </all-code-select>
+                                <!-- <div class="error-message" *ngIf="procountry.invalid && isShowError">
+                                <span *ngIf="procountry?.errors.required">{{l('Procountry')}}
+                                    {{l("ValidationRequired")}}</span>
+                                
+                            </div> -->
+                            </div>
+                        </div>
+                        <!-- số chứng thư bảo lãnh -->
+
+                        <div class="col-md-4">
+
+                            <div class="form-group">
+                                <label>{{l("VoucherCode")}}</label>
+                                <input [disabled]="disableInput" class="form-control" type="text" #voucheR_ID1="ngModel" name="voucheR_ID1" [(ngModel)]="inputModel.voucheR_ID1">
+                                <!-- <div class="error-message" *ngIf="voucheR_ID1.invalid && isShowError">
+                                    <span *ngIf="projecT_CODE?.errors.required">{{l('ProjectCode')}}
+                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="voucheR_ID1?.errors.pattern">{{l('VoucherCode')}}
+                                        {{l("Invalidation")}}</span>
+                                </div> -->
+                            </div>
+                        </div>
+                        <!-- ngày hết hạn chứng thư -->
+                        <div class="col-md-4">
+
+                            <div class="form-group">
+                                <label>{{l("CertificateExpDt")}}</label>
+                                <date-control [disabled]="disableInput" [inpCss]="'form-control'" #exP_DT1="ngModel" name="exP_DT1" [(ngModel)]="inputModel.exP_DT1">
+                                </date-control>
+
+                            </div>
+                        </div>
+                        <!-- Tỉ lệ -->
+                        <div class="col-md-4">
+
+
+                            <div class="form-group">
+                                <label>{{l("Rate")}}</label>
+                                <div class="row outter-vertical-center">
+                                    <div class="col-md-10">
+                                        <input class="form-control" #ratE1="ngModel" type="number" name="ratE1" [(ngModel)]="inputModel.ratE1" [disabled]="disableInput" min="0" max="100">
+
+                                    </div>
+                                    <div class="col-md-2 inner-vertical-center">
+                                        <label>{{l('%')}}</label><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tổng tiền -->
+                        <div class="col-md-4">
+
+
+                            <div class="form-group">
+                                <label>{{l("Amount")}}</label>
+                                <money-input [disabled]="disableInput" name="amounT1" class="transparent" [(ngModel)]="inputModel.amounT1">
+                                </money-input>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+                        <!-- Ngân hàng bảo lãnh -->
+                        <div class="col-md-8">
+
+                            <div class="form-group">
+                                <label>{{l("GuaranteeBank")}}</label>
+                                <input class="form-control" type="text" #banK1="ngModel" name="banK1" [(ngModel)]="inputModel.banK1">
+
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-4"></div>
+
+
+                        <!-- File đính kèm -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("FileAttachment")}}</label>
+
+                                <file-picker [disabled]="disableInput" #filE_ATTACHMENT_1="ngModel" [folderUpload]="'TradeContract'" [inpCss]="'form-control'" [(ngModel)]="inputModel['filE_ATTACHMENT_1']" name="filE_ATTACHMENT_1">
+                                </file-picker>
+
+                            </div>
+                        </div>
+
+                        <!-- End field bảo lãnh hợp đồng -->
+                        <!-- begin field bảo lãnh bảo hànH -->
+                        <div class="col-md-12">
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("GuaranteeContract")}}</h5>
+
+                            </div>
+                        </div>
+
+
+                        <!-- <div class='col-md-12'>
+    <h5 class="popup-title col-md-12">{{l("GuaranteeContract")}}</h5>
+
+</div> -->
+                        <!-- hình thức -->
+
+                        <div class="col-md-4">
+                            <div class="form-group ">
+                                <label>{{l("Form")}}</label>
+                                <all-code-select name="forM2" [disabled]="disableInput" #forM2="ngModel" [(ngModel)]="inputModel.forM2" [emptyText]="l('NullSelect')" [cdName]="'FORM'" [cdType]="'CONT'">
+                                </all-code-select>
+                                <!-- <div class="error-message" *ngIf="procountry.invalid && isShowError">
+                                <span *ngIf="procountry?.errors.required">{{l('Procountry')}}
+                                    {{l("ValidationRequired")}}</span>
+                                
+                            </div> -->
+                            </div>
+                        </div>
+                        <!-- Số chứng thư bảo lãnh -->
+                        <div class="col-md-4">
+
+                            <div class="form-group">
+                                <label>{{l("VoucherCode")}}</label>
+                                <input [disabled]="disableInput" class="form-control" type="text" #voucheR_ID2="ngModel" name="voucheR_ID2" [(ngModel)]="inputModel.voucheR_ID2">
+                                <!-- <div class="error-message" *ngIf="voucheR_ID2.invalid && isShowError">
+
+                                    <span *ngIf="voucheR_ID2?.errors.pattern">{{l('VoucherCode')}}
+                                        {{l("Invalidation")}}</span>
+                                </div> -->
+                            </div>
+                        </div>
+                        <!-- Ngày hết hạn chứng thư -->
+                        <div class="col-md-4">
+
+                            <div class="form-group">
+                                <label>{{l("CertificateExpDt")}}</label>
+                                <date-control [disabled]="disableInput" [inpCss]="'form-control'" #exP_DT2="ngModel" name="exP_DT2" [(ngModel)]="inputModel.exP_DT2">
+                                </date-control>
+
+                            </div>
+                        </div>
+                        <!-- Tỉ lệ -->
+                        <div class="col-md-4">
+
+
+                            <div class="form-group">
+                                <label>{{l("Rate")}}</label>
+                                <div class="row outter-vertical-center">
+                                    <div class="col-md-10">
+                                        <input class="form-control" #ratE2="ngModel" type="number" name="ratE2" [(ngModel)]="inputModel.ratE2" [disabled]="disableInput" min="0" max="100">
+
+                                    </div>
+                                    <div class="col-md-2 inner-vertical-center">
+                                        <label>{{l('%')}}</label><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Số tiền -->
+                        <div class="col-md-4">
+
+
+                            <div class="form-group">
+                                <label>{{l("InsuAMT")}}</label>
+                                <money-input [disabled]="disableInput" name="amounT2" class="transparent" [(ngModel)]="inputModel.amounT2">
+                                </money-input>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+                        <!-- Ngân hàng bảo lãnh -->
+                        <div class="col-md-8">
+
+                            <div class="form-group">
+                                <label>{{l("GuaranteeBank")}}</label>
+                                <input class="form-control" type="text" #banK2="ngModel" name="banK2" [(ngModel)]="inputModel.banK2">
+
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+                        <!-- File đính kèm -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("FileAttachment")}}</label>
+                                <file-picker [disabled]="disableInput" #filE_ATTACHMENT_2="ngModel" [folderUpload]="'TradeContract'" [inpCss]="'form-control'" [(ngModel)]="inputModel['filE_ATTACHMENT_2']" name="filE_ATTACHMENT_2">
+                                </file-picker>
+                            </div>
+                        </div>
+                        <!-- End field Bảo lãnh bảo hành -->
+                    </div>
+
+
+                    <!-- Begin Danh sách hàng hóa -->
+                    <div class="editable-title-group">
+                        <h5 class="popup-title col-md-12">{{l("GoodsList")}}</h5>
+                        <div class="action-button">
+                            <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="onAddNewGoodsItem()"><i class="pi pi-plus"></i>{{l("Add")}}</button>
+                            <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="editGoodsTable.removeAllCheckedItem()"><i
+                                    class="pi pi-times"></i>{{l("Delete")}}</button>
+                        </div>
+                    </div>
+
+
+                    <div class="primeng-datatable-container">
+                        <editable-table [requiredFields]="['quantity', 'price']" #editGoodsTable class="custom-table ui-table">
+                            <thead>
+                                <tr>
+                                    <th class="center">
+                                        <span style="width: 40px">
+                                            <checkbox-control
+                                                (onchange)="editGoodsTable.checkAll($event.target.checked)"
+                                                [checked]="editGoodsTable.isCheckAll">
+                                            </checkbox-control>
+
+                                        </span>
+                                    </th>
+                                    <!-- <th class="center">
+                                        <div class="outter-vertical-center">
+                                            <span class="inner-vertical-center" style="width: 40px">
+                                                <label class="m-checkbox" for="checkAllGood">
+                                                    <input type="checkbox" id="checkAllGood" #checkAllGood
+                                                        name="checkAllGood" [checked]="isCheckAllGood"
+                                                        (change)="onCheckAllGood(checkAllGood.checked)">
+                                                    <span class="label-span"></span>
+                                            </label>
+                                            </span>
+                                        </div>
+                                    </th> -->
+                                    <th class="center"><span style="width: 40px">{{l("No")}}</span></th>
+                                    <th class="center" style="width: 14%" sortField="gD_CODE"><span style="width: 150px">{{l("GoodsCode")}}</span></th>
+                                    <th class="center" style="width: 14%" sortField="gD_NAME"><span style="width: 150px">{{l("GoodsName")}}</span></th>
+                                    <th class="center" style="width: 14%" sortField="gD_NAME_REAL"><span style="width: 150px">{{l("GoodsRealName")}}</span></th>
+                                    <th class="center" style="width: 14%" sortField="quantity"><span style="width: 150px">{{l("Quantity")}}</span></th>
+                                    <th class="center" style="width: 14%" sortField="price"><span style="width: 150px">{{l("UnitPrice")}}</span></th>
+                                    <th class="center" style="width: 14%" sortField="AMOUNT"><span style="width: 150px">{{l("Amount")}}</span></th>
+                                    <th class="center" style="width: 14%" sortField="notes"><span style="width: 250px">{{l("Notes")}}</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of editGoodsTable.dataInPage; let in = index" [hidden]="item.page != editGoodsTable.currentPage">
+                                    <td class="center">
+                                        <span class="mo-header"></span>
+                                        <!-- <checkbox-control (onchange)="item.isChecked = $event.target.checked"
+                                                    [checked]="item['isChecked']"></checkbox-control> -->
+                                        <checkbox-control [disabled]="disableInput" name="{{editGoodsTable.name('isChecked',in)}}" [(ngModel)]="editGoodsTable.dataInPage[in]['isChecked']">
+                                        </checkbox-control>
+                                    </td>
+                                    <!-- <td class="center">
+                                        <div>
+                                            <span style="width: 40px">
+                                                <label class="m-checkbox" for="check-Good-{{item.no}}">
+                                                    <input type="checkbox" id="check-Good-{{item.no}}"
+                                                        name="check-Good-{{item.no}}" [checked]="item.isChecked"
+                                                        (change)="item.isChecked = $event.target.checked">
+                                                    <span class="label-span"></span>
+                                                </label>
+                                            </span>
+                                        </div>
+                                    </td> -->
+                                    <td class="center">{{item.no}}</td>
+                                    <td>{{item.gD_CODE}}</td>
+                                    <td>{{item.gD_NAME}}</td>
+                                    <td>
+                                        <input [disabled]="disableInput" name="gD_NAME_REAL-{{in}}" class="form-control transparent" type="text" [(ngModel)]="item.gD_NAME_REAL" />
+
+                                    </td>
+                                    <td>
+                                        <input (focusout)="reloadTotalAmt()" [disabled]="disableInput" name="quantity-{{in}}" class="form-control transparent" type="number" min="1" [(ngModel)]="item.quantity" />
+
+                                        <!-- <div class="error-message" *ngIf="isShowError">
+                                            <span *ngIf="isNull(item.quantity)">{{l('Quantity')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div> -->
+                                    </td>
+
+                                    <td>
+                                        <money-input (focusout)="reloadTotalAmt()" [disabled]="disableInput" name="price-{{in}}" class="transparent" [(ngModel)]="item.price">
+                                        </money-input>
+                                        <!-- <div class="error-message" *ngIf="isShowError">
+                                            <span *ngIf="isNull(item.price)">{{l('Price')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div> -->
+                                    </td>
+
+                                    <td class="right">
+                                        <!-- {{item.quantity * item.price | moneyFormatPipe}} -->
+                                        <money-input [disabled]="true" name="AMOUNT-{{in}}" class="transparent" [(ngModel)]="item['AMOUNT']">
+                                        </money-input>
+                                    </td>
+                                    <td>
+                                        <input [disabled]="disableInput" name="note-{{in}}" class="form-control transparent" type="text" [(ngModel)]="item.notes" />
+
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </editable-table>
+
+
+                    </div>
+                    <div class="editable-footer">
+                        <div>
+                            <label class="popup-title col-md-12 no-margin no-underline">{{l('TotalContractValue')}} :
+                                {{inputModel.totaL_AMT | moneyFormatPipe}}</label>
+                        </div>
+
+
+                    </div>
+                    <!-- end danh sách hàng hóa -->
+                    <!-- Begin chi tiết thanh toán -->
+
+                    <div class="editable-title-group">
+                        <h5 class="popup-title col-md-12">{{l("PaymentDetail")}}</h5>
+                        <div class="action-button">
+                            <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="addNewPayment()"><i class="pi pi-plus"></i>{{l("Add")}}</button>
+                            <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="editPaymentTable.removeAllCheckedItem()"><i
+                                    class="pi pi-times"></i>{{l("Delete")}}</button>
+                        </div>
+                    </div>
+
+                    <div class="primeng-datatable-container">
+                        <editable-table [requiredFields]="['expecteD_DT', 'percent', 'amount']" #editPaymentTable class="custom-table ui-table">
+                            <thead>
+                                <tr>
+                                    <th class="center">
+                                        <span style="width: 40px">
+                                            <checkbox-control
+                                                (onchange)="editPaymentTable.checkAll($event.target.checked)"
+                                                [checked]="editPaymentTable.isCheckAll">
+                                            </checkbox-control>
+
+                                        </span>
+                                    </th>
+                                    <!-- <th class="center">
+                                        <div class="">
+                                            <span style="width: 40px">
+                                                <label class="m-checkbox" for="checkAllPayment">
+                                                    <input type="checkbox" id="checkAllPayment" #checkAllPayment
+                                                        name="checkAllPayment" [checked]="editPaymentTable.isCheckAll"
+                                                        (change)="editPaymentTable.checkAll(checkAllPayment.checked)">
+                                                    <span class="label-span"></span>
+                                            </label>
+                                            </span>
+                                        </div>
+                                    </th> -->
+                                    <th class="center"><span style="width: 40px">{{l("No")}}</span></th>
+                                    <th class="center" sortField="paY_PHASE"><span style="width: 60px">{{l("PayPhase")}}</span>
+                                    </th>
+                                    <th class="center" sortField="expecteD_DT" style="width: 25%"><span style="width: 200px">{{l("ExpectePaydDt")}}</span>
+                                    </th>
+                                    <th class="center" sortField="percent" style="width: 25%"><span style="width: 150px">{{l("%")}}</span>
+                                    </th>
+                                    <th class="center" sortField="amount" style="width: 25%"><span style="width: 160px">{{l("ChargeAMT")}}</span>
+                                    </th>
+                                    <th class="center" sortField="notes" style="width: 25%"><span style="width: 200px">{{l("Notes")}}</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of editPaymentTable.dataInPage; let in = index" [hidden]="item.page != editPaymentTable.currentPage">
+                                    <td class="center">
+                                        <span class="mo-header"></span>
+                                        <!-- <checkbox-control (onchange)="item.isChecked = $event.target.checked"
+                                                    [checked]="item['isChecked']"></checkbox-control> -->
+                                        <checkbox-control [disabled]="disableInput" name="{{editPaymentTable.name('isChecked',in)}}" [(ngModel)]="editPaymentTable.dataInPage[in]['isChecked']">
+                                        </checkbox-control>
+                                    </td>
+                                    <!-- <td class="center">
+                                        <div class="outter-vertical-center">
+                                            <span class="inner-vertical-center" style="width: 60px">
+                                                <label class="m-checkbox" for="check-payMent-{{item.no}}">
+                                                    <input type="checkbox" id="check-payMent-{{item.no}}"
+                                                        name="check-payMent-{{item.no}}" [checked]="item.isChecked"
+                                                        (change)="item.isChecked = $event.target.checked">
+                                                    <span class="label-span"></span>
+                                                </label>
+                                            </span>
+                                        </div>
+                                    </td> -->
+                                    <td class="center">{{item.no}}</td>
+                                    <td>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="number" name="paY_PHASE-{{in}}" [(ngModel)]="item.paY_PHASE" />
+
+                                    </td>
+                                    <td>
+                                        <date-control class="transparent" [disabled]="disableInput" [inpCss]="'form-control'" type="text" name="expecteD_DT-{{in}}" [(ngModel)]="item.expecteD_DT"></date-control>
+                                        <!-- <div class="error-message" *ngIf="isShowError">
+                                            <span *ngIf="isNull(item.expecteD_DT)">{{l('ExpectedDt')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div> -->
+                                    </td>
+                                    <td>
+                                        <input (focusout)="reloadFromPercent()" [disabled]="disableInput" class="form-control transparent" type="number" min="0" max="100" name="percent-{{in}}" [(ngModel)]="item.percent" />
+                                        <!-- <div class="error-message" *ngIf="isShowError">
+                                            <span *ngIf="isNull(item.percent)">{{l('Percent')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div> -->
+
+                                    </td>
+                                    <td>
+                                        <money-input (focusout)="reloadFromAmount()" [disabled]="disableInput" class="transparent" type="text" name="amount-{{in}}" [(ngModel)]="item.amount">
+                                        </money-input>
+                                        <!-- <div class="error-message" *ngIf="isShowError">
+                                            <span *ngIf="isNull(item.amount)">{{l('Amount')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div> -->
+
+                                    </td>
+                                    <td>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="notes-{{in}}" [(ngModel)]="item.notes" />
+
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </editable-table>
+
+                    </div>
+                    <!-- end chi tiết thanh toán -->
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<bid-master-modal (onSelect)="onSelectBidMaster($event)" #bidMasterModal [multiple]="false"></bid-master-modal>
+
+<goods-modal [hideFields]="'ValueDefault'" (onSelect)="onSelectGoods($event)" #goodModal></goods-modal>

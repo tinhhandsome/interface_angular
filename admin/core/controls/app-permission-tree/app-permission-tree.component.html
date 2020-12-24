@@ -1,0 +1,2 @@
+<input (click)="showPermissionModal()" (required)="required" #control class="form-control" type="text" [(ngModel)]="ngModel" />
+<app-tree (modalSelect)="selectPermission($event)" #permissionTree></app-tree>

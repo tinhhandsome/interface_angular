@@ -1,0 +1,417 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("RealEstateList")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <div class="row">
+
+                                <!-- Mã tài sản -->
+                                <div class="col-md-4">
+                                    <div class="form-group required">
+                                        <label>{{l("AssetCode")}}</label>
+                                        <div class="user-group">
+                                            <input [readOnly]="true" required class="form-control m-input" name="asseT_CODE" #asseT_CODE="ngModel" type="text" [(ngModel)]="inputModel.asseT_CODE">
+                                            <button class="btn btn-primary" (click)="showAssetModal()" type='button'>...</button>
+                                        </div>
+                                        <div class="error-message" *ngIf="asseT_CODE.invalid && isShowError">
+                                            <span *ngIf="asseT_CODE?.errors.required">{{l('AssetCode')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="w-100"></div>
+
+                                <!-- Địa chỉ -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("Address")}}</label>
+                                        <input [disabled]="true" class="form-control m-input" name="addr" [(ngModel)]="assModel.addr" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Tên tài sản -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("AssetName")}}</label>
+                                        <input [disabled]="true" class="form-control m-input" name="asseT_NAME" type="text" [(ngModel)]="assModel.asseT_NAME">
+                                    </div>
+                                </div>
+
+                                <!-- Loại tài sản -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AssType")}}</label>
+                                        <input [disabled]="true" class="form-control m-input" name="typE_NAME" type="text" [(ngModel)]="assModel.typE_NAME">
+                                    </div>
+                                </div>
+
+                                <!-- Nhóm tài sản -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AssGroup")}}</label>
+                                        <input [disabled]="true" class="form-control m-input" name="grouP_NAME" type="text" [(ngModel)]="assModel.grouP_NAME">
+                                    </div>
+                                </div>
+
+                                <!-- Thông tin mô tả -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("Description")}}</label>
+                                        <textarea class="form-control" [disabled]="true" type="text" name="notes" [(ngModel)]="assModel.notes"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Nguyên giá tài sản -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AssBuyPrice")}}</label>
+                                        <input [disabled]="true" class="form-control m-input" name="buY_PRICE" type="text" [value]="assModel.buY_PRICE | moneyFormatPipe">
+                                    </div>
+                                </div>
+                                <div class="w-100"></div>
+
+                                <!-- Đơn vị sử dụng -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("BranchNameUse")}}</label>
+                                        <input [disabled]="true" class="form-control m-input" name="brancH_NAME" type="text" [(ngModel)]="assModel.brancH_NAME">
+                                    </div>
+                                </div>
+
+                                <!-- Người sử dụng -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("EmpName")}}</label>
+                                        <input [disabled]="true" class="form-control m-input" name="emP_NAME" type="text" [(ngModel)]="assModel.emP_NAME">
+                                    </div>
+                                </div>
+
+                                <!-- Tình trạng tài sản -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AssStatusName")}}</label>
+                                        <input [disabled]="true" class="form-control m-input" name="asS_STATUS_NAME" type="text" [(ngModel)]="assModel.asS_STATUS_NAME">
+                                    </div>
+                                </div>
+
+                                <!-- Tình trạng khấu hao -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AmortStatusName")}}</label>
+                                        <input [disabled]="true" class="form-control m-input" name="amorT_STATUS_NAME" type="text" [(ngModel)]="assModel.amorT_STATUS_NAME">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <!-- Thông tin bất động sản -->
+                        <div class="col-md-12">
+                            <h5 class="popup-title col-md-12">{{l("RetInfo")}}</h5>
+                        </div>
+
+                        <!-- Hiện trạng bất động sản -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("RetCurrentState")}}</label>
+                                <input [disabled]="disableInput" #currenT_STATE="ngModel" class="form-control m-input" name="currenT_STATE" type="text" [(ngModel)]="inputModel.currenT_STATE">
+                            </div>
+                        </div>
+
+                        <!-- Loại bất động sản -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("RetType")}}</label>
+                                <all-code-select required [disabled]="disableInput" #reT_TYPE="ngModel" name="RetType" [(ngModel)]="inputModel.reT_TYPE" [emptyText]="l('SelectAll')" [cdName]="'RET_TYPE'" [displayMember]="'cdval|content'" [cdType]="'RET'"></all-code-select>
+                                <div class="error-message" *ngIf="reT_TYPE.invalid && isShowError">
+                                    <span *ngIf="reT_TYPE?.errors.required">{{l('RetType')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chiều dài -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("Length")}}</label>
+                                <div class="user-group">
+                                    <money-input (focusout)="reloadLandSquare();  updateView();" class="align-left" #length="ngModel" [disabled]="disableInput" name="length" [(ngModel)]="inputModel.length">
+                                    </money-input>
+                                    <label>({{l("Meters")}})</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chiều rộng -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("RetWidth")}}</label>
+                                <div class="user-group">
+                                    <money-input (focusout)="reloadLandSquare();  updateView();" class="align-left" #width="ngModel" [disabled]="disableInput" name="width" [(ngModel)]="inputModel.width">
+                                    </money-input>
+                                    <label>({{l("Meters")}})</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Diện tích đất -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("LandSquare")}}</label>
+                                <div class="user-group">
+                                    <money-input class="align-left" #lanD_SQUARE="ngModel" [disabled]="disableInput" name="lanD_SQUARE" [(ngModel)]="inputModel.lanD_SQUARE">
+                                    </money-input>
+                                    <label>({{l("MeterSquare")}})</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Diện tích xây dựng -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("ConstructSquare")}}</label>
+                                <div class="user-group">
+                                    <money-input (focusout)="reloadTotaLSquare(); updateView();" class="align-left" #construcT_SQUARE="ngModel" [disabled]="disableInput" name="construcT_SQUARE" [(ngModel)]="inputModel.construcT_SQUARE">
+                                    </money-input>
+                                    <label>({{l("MeterSquare")}})</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Số tầng -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("Floors")}}</label>
+                                <money-input (focusout)="reloadTotaLSquare(); updateView();" required class="align-left" #floors="ngModel" max="9999" [disabled]="disableInput" name="floors" [(ngModel)]="inputModel.floors">
+                                </money-input>
+                                <div class="error-message" *ngIf="floors.invalid && isShowError">
+                                    <span *ngIf="floors?.errors.required">{{l('Floors')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Diện tích sàn sử dụng -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("TotalSquare")}}</label>
+                                <div class="user-group">
+                                    <money-input class="align-left" #totaL_SQUARE="ngModel" [disabled]="disableInput" name="totaL_SQUARE" [(ngModel)]="inputModel.totaL_SQUARE">
+                                    </money-input>
+                                    <label>({{l("MeterSquare")}})</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <div class="row">
+
+                                <!-- Ngày mua BĐS -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("RetBuyDate")}}</label>
+                                        <date-control required #buY_DT="ngModel" [disabled]="disableInput" name="buY_DT" [(ngModel)]="inputModel.buY_DT"></date-control>
+                                        <div class="error-message" *ngIf="buY_DT.invalid && isShowError">
+                                            <span *ngIf="buY_DT?.errors.required">{{l('RetBuyDate')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Thời hạn sử dụng -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("ChargeTerms")}}</label>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label class="m-radio" for="Lasting">
+                                                        <input id="Lasting"
+                                                            type="radio"
+                                                            (change)="updateView()"
+                                                            name="showChargeTerm"
+                                                            [value]="false"
+                                                            [(ngModel)]="showChargeTerm"> {{l("Lasting")}}
+                                                        <span></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label class="m-radio" for="Temporary">
+                                                        <input id="Temporary"
+                                                            type="radio"
+                                                            (change)="updateView()"
+                                                            name="showChargeTerm"
+                                                            [value]="true"
+                                                            [(ngModel)]="showChargeTerm"> {{l("Temporary")}}
+                                                        <span></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div class="form-group">
+                                                    <div *ngIf="showChargeTerm" class="user-group">
+                                                        <money-input class="align-left" #usE_PERIOD="ngModel" [disabled]="disableInput" name="usE_PERIOD" [(ngModel)]="inputModel.usE_PERIOD">
+                                                        </money-input>
+                                                        <label>({{l("Month")}})</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tình trạng sử dụng đất -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("RetUseStatus")}}</label>
+                                        <all-code-select required name="usE_STATUS" [disabled]="disableInput" #usE_STATUS="ngModel" [(ngModel)]="inputModel.usE_STATUS" [emptyText]="l('NullSelect')" [displayMember]="'cdval|content'" [cdName]="'USE_STATUS'" [cdType]="'RET'">
+                                        </all-code-select>
+                                        <div class="error-message" *ngIf="usE_STATUS.invalid && isShowError">
+                                            <span *ngIf="usE_STATUS?.errors.required">{{l('RetUseStatus')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tình trạng xây dựng -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("RetConstStatus")}}</label>
+                                        <all-code-select required name="consT_STATUS" [disabled]="disableInput" #consT_STATUS="ngModel" [(ngModel)]="inputModel.consT_STATUS" [emptyText]="l('NullSelect')" [displayMember]="'cdval|content'" [cdName]="'CONST_STATUS'" [cdType]="'RET'">
+                                        </all-code-select>
+                                        <div class="error-message" *ngIf="consT_STATUS.invalid && isShowError">
+                                            <span *ngIf="consT_STATUS?.errors.required">{{l('RetConstStatus')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Mục đích sử dụng đất -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("RetPurposeInUse")}}</label>
+                                        <all-code-select required name="purposE_IN_USE" [disabled]="disableInput" #purposE_IN_USE="ngModel" [(ngModel)]="inputModel.purposE_IN_USE" [emptyText]="l('NullSelect')" [displayMember]="'cdval|content'" [cdName]="'RET_PURPOSE'" [cdType]="'RET'">
+                                        </all-code-select>
+                                        <div class="error-message" *ngIf="purposE_IN_USE.invalid && isShowError">
+                                            <span *ngIf="purposE_IN_USE?.errors.required">{{l('RetPurposeInUse')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Công năng sử dụng -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("RetWUserCon")}}</label>
+                                        <input [disabled]="disableInput" class="form-control m-input" name="w_USE_CON" #w_USE_CON="ngModel" type="text" [(ngModel)]="inputModel.w_USE_CON">
+                                    </div>
+                                </div>
+
+                                <!-- Kết cấu nhà -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("RetHouseDes")}}</label>
+                                        <textarea class="form-control" [disabled]="disableInput" #housedes="ngModel" name="housedes" [(ngModel)]="inputModel.housedes"></textarea>
+                                    </div>
+                                </div>
+
+
+                                <!-- Ranh giới -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("RetBoundary")}}</label>
+                                        <input [disabled]="disableInput" class="form-control m-input" name="boundary" #boundary="ngModel" type="text" [(ngModel)]="inputModel.boundary">
+                                    </div>
+                                </div>
+
+                                <!-- Hiện trạng pháp lý -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("LegalStatus")}}</label>
+                                        <all-code-select required name="status" [disabled]="disableInput" #status="ngModel" [(ngModel)]="inputModel.status" [emptyText]="l('NullSelect')" [displayMember]="'cdval|content'" [cdName]="'RET_STATUS'" [cdType]="'RET'">
+                                        </all-code-select>
+                                        <div class="error-message" *ngIf="status.invalid && isShowError">
+                                            <span *ngIf="status?.errors.required">{{l('LegalStatus')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ghi chú -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("Notes")}}</label>
+                                        <textarea class="form-control" [disabled]="disableInput" type="text" #reason="ngModel" name="reason" [(ngModel)]="inputModel.reason"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Loại sở hữu -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("OwnerType")}}</label>
+                                        <all-code-select required name="owneR_TYPE" [disabled]="disableInput" #owneR_TYPE="ngModel" [(ngModel)]="inputModel.owneR_TYPE" [emptyText]="l('NullSelect')" [displayMember]="'cdval|content'" [cdName]="'OWNER_TYPE'" [cdType]="'RET'">
+                                        </all-code-select>
+                                        <div class="error-message" *ngIf="owneR_TYPE.invalid && isShowError">
+                                            <span *ngIf="owneR_TYPE?.errors.required">{{l('OwnerType')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Chủ sở hữu	OWNER -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("Owner")}}</label>
+                                        <textarea class="form-control" [disabled]="disableInput" type="text" #owner="ngModel" name="owner" [(ngModel)]="inputModel.owner"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- File đính kèm -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("FileAttachment")}}</label>
+                                        <file-picker [disabled]="disableInput" type="text" #filE_ATTACHMENT="ngModel" [folderUpload]="'RealEstate'" [inpCss]="'form-control'" [(ngModel)]="inputModel['filE_ATTACHMENT']" name="filE_ATTACHMENT"></file-picker>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <asset-modal #assetModal [hideFields]="'SearchContains,brancH_ID,dep_ID,planLiqTitle,PlanLiqFilter,planMonthTitle,PlanMonthFilter,level'" [hideColumns]="'BRANCH_NAME,DEP_NAME,USE_DATE'" [multiple]="false" (onSelect)="onSelectAsset($event)"></asset-modal>
+</div>

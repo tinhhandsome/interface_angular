@@ -1,0 +1,130 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("InsuCompany")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Create")}}
+                        {{l("InsuCompany") | lowercase}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Edit")}} {{l("InsuCompany") | lowercase}} :
+                        {{inputModel.name}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("View")}}
+                        {{l("InsuCompany") | lowercase}} :
+                        {{inputModel.name}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <input hidden class="form-control" [disabled]="disableInput" type="text" #insU_COMPANY_ID="ngModel" name="insU_COMPANY_ID" [(ngModel)]="inputModel.insU_COMPANY_ID">
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("InsuCompanyCode")}} </label>
+                                <input class="form-control" [disabled]="disableInput" maxlength="15" type="text" required #insU_COMPANY_CODE="ngModel" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}" name="insU_COMPANY_CODE" [(ngModel)]="inputModel.insU_COMPANY_CODE">
+                                <div class="error-message" *ngIf="insU_COMPANY_CODE.invalid && isShowError">
+                                    <span *ngIf="insU_COMPANY_CODE?.errors.required">{{l('InsuCompanyCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="insU_COMPANY_CODE?.errors.pattern">
+                                        {{l("InsuCompanyCode")}} {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("InsuCompanyName")}} </label>
+                                <input required class="form-control" [disabled]="disableInput" type="text" #name="ngModel" name="name" [(ngModel)]="inputModel.name" maxlength="200">
+                                <div class="error-message" *ngIf="name.invalid && isShowError">
+                                    <span *ngIf="name?.errors.required">{{l('InsuCompanyName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="name?.errors.pattern">
+                                            {{l("InsuCompanyName")}} {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("Address")}}</label>
+                                <input class="form-control" [disabled]="disableInput" type="text" #addr="ngModel" name="addr" [(ngModel)]="inputModel.addr">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("Email")}}</label>
+                                <input class="form-control" [disabled]="disableInput" type="text" type="email" #email="ngModel" pattern="{{s('gAMSProCore.EmailRegexValidation')}}" name="email" [(ngModel)]="inputModel.email">
+                                <div class="error-message" *ngIf="email && email.invalid && isShowError">
+                                    <span *ngIf="email?.errors.pattern">
+                                        {{l("Email")}} {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("TaxNo")}}</label>
+                                <input class="form-control" [disabled]="disableInput" type="text" #taX_NO="ngModel" name="taX_NO" pattern="{{s('gAMSProCore.TaxNoRegexValidation')}}" [(ngModel)]="inputModel.taX_NO" maxlength="25">
+                                <div class="error-message" *ngIf="taX_NO && taX_NO.invalid && isShowError">
+                                    <span *ngIf="taX_NO?.errors.pattern">
+                                        {{l("TaxNo")}} {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="PhoneNumber">{{l("PhoneNumber")}}</label>
+                                <input id="PhoneNumber" [disabled]="disableInput" #phoneNumber="ngModel" type="text" name="PhoneNumber" class="form-control" pattern="{{s('gAMSProCore.PhoneNumberRegexValidation')}}" [(ngModel)]="inputModel.tel" maxlength="24">
+                                <div class="error-message" *ngIf="phoneNumber && phoneNumber.invalid && isShowError">
+                                    <span *ngIf="phoneNumber?.errors.pattern">
+                                        {{l("PhoneNumber")}} {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("ContactPerson")}}</label>
+                                <input class="form-control" [disabled]="disableInput" type="text" #contacT_PERSON="ngModel" name="contacT_PERSON" [(ngModel)]="inputModel.contacT_PERSON">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group outter-vertical-center">
+                                <div class="form-group inner-vertical-center">
+                                    <label class="m-checkbox" for="recorD_STATUS">{{l("IsActive")}}
+                                        <input type="checkbox" id="recorD_STATUS" #recorD_STATUS name="recorD_STATUS"
+                                            [checked]="inputModel.recorD_STATUS == '1'" [disabled]="disableInput"
+                                            (change)="inputModel.recorD_STATUS = recorD_STATUS.checked? '1' : '0'">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("Note")}}</label>
+                                <textarea class="form-control" [disabled]="disableInput" type="text" #notes="ngModel" name="notes" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+                        <button hidden (click)="saveInput()"></button>
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>

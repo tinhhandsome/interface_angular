@@ -1,0 +1,118 @@
+<div [@routerTransition]>
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate autocomplete="off">
+                    <div class="modal-body row">
+
+                        <div class="row container">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>{{l("ReportTemplate")}}</label>
+
+                                    <select2-custom name="reportTemplateModel" [(ngModel)]="reportTemplateModel.reporT_TEMPLATE_ID" #reportTemplate="ngModel" [emptyText]="l('Select') + ' ' + l('Template').toLocaleLowerCase()" [(list)]="reportTemplateItems" [valueMember]="'reporT_TEMPLATE_ID'"
+                                        (onChangeSelect2)="onChangeTemplate($event)" [displayMember]="'reporT_TEMPLATE_NAME'" required>
+                                    </select2-custom>
+                                    <div class="error-message" *ngIf="reportTemplate.invalid && isShowError">
+                                        <span *ngIf="reportTemplate?.errors.required">{{l('ReportTemplate')}}
+                                            {{l("ValidationRequired")}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>{{l("PageSize")}}</label>
+                                    <!-- <select2-custom name="pageSizeModel" [(ngModel)]="pageSizeModel.id" #pageSize="ngModel"
+                                                [ngModelOptions]="{standalone: true}"
+                                                [nullableValue]="l('Select') + ' ' + l('PageSize').toLocaleLowerCase()"
+                                                [value]="pageSizeModel.id" [(list)]="pageSizeItems" [valueMember]="'id'"
+                                                (changeEvent)="pageSizeModel.id = $event ; onChangePageSize($event)"
+                                                [displayMember]="'pageSizeName'">
+                                            </select2-custom> -->
+
+
+
+                                    <select2-custom name="reportTemplateDetailModel" [(ngModel)]="reportTemplateDetailModel.reporT_TEMPLATE_DETAIL_ID" #pageSize="ngModel" [emptyText]="l('Select') + ' ' + l('PageSize').toLocaleLowerCase()" [(list)]="reportTemplateDetailItems" [valueMember]="'reporT_TEMPLATE_DETAIL_ID'"
+                                        (onChangeSelect2)="onChangePageSize($event)" [displayMember]="'pagE_SIZE'" required>
+                                    </select2-custom>
+
+                                    <div class="error-message" *ngIf="pageSize.invalid && isShowError">
+                                        <span *ngIf="pageSize?.errors.required">{{l('PageSize')}}
+                                            {{l("ValidationRequired")}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mg-top">
+                                    <label class="m-checkbox mb-3" for="{{l('isDefault')}}">
+                                        <input type="checkbox" id="{{l('isDefault')}}" name="{{l('isDefault')}}"
+                                            [ngModelOptions]="{standalone: true}"
+                                            [(ngModel)]="reportTemplateDetailModel.isDefault">
+                                        <span></span>
+                                    </label>
+                                    <label>{{l("Default")}}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+
+                                <div class="form-group  mt-4">
+                                    <button (click)="ckeditor.refreshTemplate()" class="btn btn-primary">{{l('Refresh')}}</button>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group  mt-4">
+                                    <button (click)="showReportNoteModal(reportTemplateModel.reporT_TEMPLATE_STORE)" class="btn btn-primary">{{l('Note')}}</button>
+
+                                </div>
+                            </div>
+                            <!-- <div class="col-md-6 align-right">
+                                        <div class="form-group">
+                                            <ckeditor [(ngModel)]="reportTemplateDetailModel.reporT_TEMPLATE_DETAIL_CONTENT" name="reporT_TEMPLATE_DETAIL_CONTENT"
+                                                [config]="templateConfig" (change)="onChange()">
+                                            </ckeditor>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 align-right">
+                                        <div class="form-group">
+                                            <div class="content-header-preview">
+                                                <div class="header-preview">{{l('Preview')}}</div>
+            
+                                            </div>
+                                            <div class="previewContent"></div>
+                                        </div>
+                                    </div> -->
+                        </div>
+
+                        <ckeditor-control #ckeditor [(ngModel)]="reportTemplateDetailModel.reporT_TEMPLATE_DETAIL_CONTENT" [storeData]="storeData" class="row col-md-12" name="reporT_TEMPLATE_DETAIL_CONTENT">
+                        </ckeditor-control>
+                        <!-- [disabled]="disabled" -->
+
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <button (click)="saveTemplate()" class="btn btn-primary">{{l('Save') + ' ' + l('Template').toLowerCase()}}</button>
+
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <button (click)="exportWordReport()" class="btn btn-primary">{{l('Report') + ' word'}}</button>
+
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <button (click)="printContent()" class="btn btn-primary">{{l('Print')}}</button>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+    <reportNoteModal (modalSave)="ckeditor.InsertTableToEditor($event)" #reportNoteModal></reportNoteModal>
+
+</div>

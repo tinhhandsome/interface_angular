@@ -1,0 +1,76 @@
+import { Injector, Component, OnInit, ViewEncapsulation, AfterViewInit, ElementRef, ViewChild } from "@angular/core";
+import { ReportInfo, AsposeServiceProxy, CM_DEPARTMENT_ENTITY, BranchServiceProxy, CM_BRANCH_ENTITY, CM_DIVISION_ENTITY, DepartmentServiceProxy, TR_PO_MASTER_ENTITY } from "@shared/service-proxies/service-proxies";
+import { appModuleAnimation } from "@shared/animations/routerTransition";
+import { FileDownloadService } from "@shared/utils/file-download.service";
+import { ReportTypeConsts } from "@app/admin/core/ultils/consts/ReportTypeConsts";
+import { DefaultComponentBase } from "@app/ultilities/default-component-base";
+import { PreviewTemplateService } from "@app/admin/common/preview-template/preview-template.service";
+import * as moment from 'moment';
+import { Select2CustomComponent } from "@app/admin/core/controls/custom-select2/select2-custom.component";
+import { BranchModalComponent } from "@app/admin/core/controls/branch-modal/branch-modal.component";
+import { TradePoMasterModalComponent } from "@app/admin/core/controls/trade-po-master-modal/trade-po-master-modal.component";
+
+@Component({
+    templateUrl: './pl-kh-bc-07.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+
+export class PlKHBC07Component extends DefaultComponentBase implements OnInit, AfterViewInit {
+
+    filterInput: any = {};
+
+    @ViewChild('editForm') editForm: ElementRef;
+    @ViewChild('poMasterModal') poMasterModal : TradePoMasterModalComponent;
+    isShowError = false;
+    po: TR_PO_MASTER_ENTITY = new TR_PO_MASTER_ENTITY();
+
+    constructor(injector: Injector,
+        private previewTemplateService: PreviewTemplateService) {
+        super(injector);
+        this.stopAutoUpdateView();
+    }
+
+    ngAfterViewInit(): void {
+        this.updateView();
+    }
+
+
+    ngOnInit(): void {
+        this.filterInput.BRANCH_LOGIN = this.appSession.user.subbrId;
+    }
+
+    previewTemplate() {
+
+        if ((this.editForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return;
+        }
+
+        let reportInfo = new ReportInfo();
+
+        let parameters = this.GetParamsFromFilter(this.filterInput);
+        let values = this.GetParamsFromFilter({
+            branchName: this.appSession.user.branchName,
+            datePrint: moment().format(this.s('gAMSProCore.DateReportDisplayFormat')),
+            poCode: this.po.pO_CODE,
+            supName: this.po.s_SUP_NAME,
+            NOI_NHAN_HANG: this.po.suP_ADDR,
+            fullName: this.appSession.user.name
+        });
+
+        this.previewTemplateService.printReportTemplate('rpt_KH_BC07', parameters, values);
+    }
+
+    showPoMasterModal(){
+        this.poMasterModal.filterInput.autH_STATUS = undefined;
+        this.poMasterModal.show();
+    }
+
+    onSelectPo(po: TR_PO_MASTER_ENTITY) {
+        this.po = po;
+        this.filterInput.PO_ID = po.pO_ID;
+    }
+}

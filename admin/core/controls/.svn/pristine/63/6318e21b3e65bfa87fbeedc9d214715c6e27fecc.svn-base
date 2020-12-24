@@ -1,0 +1,100 @@
+<div bsModal #reportNoteModal="bs-modal" (onShown)="onShown()" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="reportNoteModal" aria-hidden="true" [config]="{backdrop: 'static', keyboard: !saving}">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    <span>{{l("Note")}}</span>
+
+                </h4>
+                <button type="button" class="close" (click)="close()" [attr.aria-label]="l('Close')" [disabled]="saving" style="position: absolute; top: 40px; right: 50px;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div *ngIf="reportStore" class="modal-body">
+
+                <ng-container *ngFor="let item of reportStore, let a = index">
+                    <br>
+                    <h5 *ngIf="a==0" class="popup-title col-md-12">{{l('DefaultValue')}}</h5>
+                    <!-- <h3 >{{l('DefaultValue')}}</h3> -->
+                    <h5 *ngIf="a>0" class="popup-title col-md-12">{{item.tableName}}</h5>
+
+                    <!-- <h3 *ngIf="a>0">{{l(item.tableName)}}</h3> -->
+
+
+
+                    <table *ngIf="a==0" class="table table-bordered" style="margin-top: 50px">
+                        <thead class="table-title">
+
+                            <tr>
+                                <th scope="col">{{l("Explain")}}</th>
+                                <th scope="col">{{l("Code")}}</th>
+                                <th scope="col">{{l("Explain")}}</th>
+                                <th scope="col">{{l("Code")}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ng-container *ngFor="let detail of item.columns, let b = index">
+                                <tr *ngIf="b%2 == 0">
+                                    <td *ngIf="reportStore[a].columns[b]">{{l(reportStore[a].columns[b].colName)}}</td>
+                                    <td *ngIf="reportStore[a].columns[b]">{{l(reportStore[a].columns[b].keyName)}}
+                                    </td>
+                                    <td *ngIf="reportStore[a].columns[b+1]">{{l(reportStore[a].columns[b+1].colName)}}
+                                    </td>
+                                    <td *ngIf="reportStore[a].columns[b+1]">
+                                        {{l(reportStore[a].columns[b+1].keyName)}}
+                                    </td>
+                                </tr>
+                            </ng-container>
+
+
+                        </tbody>
+                    </table>
+                    <table *ngIf="a>0" class="table table-bordered" style="margin-top: 50px">
+                        <thead class="table-title">
+                            <tr>
+                                <th scope="col">{{l("Explain")}}</th>
+                                <th scope="col">{{l("CodeList")}}</th>
+
+                                <th scope="col">{{l("Explain")}}</th>
+                                <th scope="col">{{l("CodeList")}}</th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <ng-container *ngFor="let detail of item.columns, let b = index">
+                                <tr *ngIf="b%2 == 0">
+                                    <td *ngIf="reportStore[a].columns[b]">{{l(reportStore[a].columns[b].colName)}}</td>
+                                    <td *ngIf="reportStore[a].columns[b]">{{l(reportStore[a].columns[b].keyName)}}
+                                    </td>
+
+                                    <td *ngIf="reportStore[a].columns[b+1]">{{l(reportStore[a].columns[b+1].colName)}}
+                                    </td>
+                                    <td *ngIf="reportStore[a].columns[b+1]">
+                                        {{l(reportStore[a].columns[b+1].keyName)}}
+                                    </td>
+
+                                </tr>
+                            </ng-container>
+
+
+                        </tbody>
+                    </table>
+                    <button *ngIf="a>0" type="button" class="btn btn-primary" (click)="insertTableToEditor(item)">{{l("InsertToEditor")}}</button>
+                </ng-container>
+
+
+
+
+            </div>
+
+            <div class="modal-footer">
+                <button [disabled]="saving" class="btn btn-secondary" (click)="close()">{{"Cancel" | localize}}</button>
+
+            </div>
+        </div>
+    </div>
+</div>

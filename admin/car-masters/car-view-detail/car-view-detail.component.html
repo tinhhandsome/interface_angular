@@ -1,0 +1,596 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <!-- Begin Title -->
+                    <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+
+                        <span>{{l("CarViewDetail")}}</span>
+                    </h3>
+                    <!-- End Title -->
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <!-- Begin Form -->
+                    <!-- <form autocomplete="off"> -->
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-30">
+
+                            <!-- Số xe -->
+                            <div class="col-md-6">
+                                <div class="form-group required">
+                                    <label>{{l("N_Plate")}}</label>
+                                    <div class="input-group">
+                                        <input class="form-control" [(ngModel)]="carViewDetailInput.n_PLATE" name="n_PLATE" required (change)='getCarViewDetailsByNPlate()'>
+                                        <span class="input-group-btn">
+                                                <button type="button" class="btn btn-primary"
+                                                    (click)="carMasterModal?.show()">...</button>
+                                            </span>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Mã tài sản -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("AssetCode")}}</label>
+                                    <input class="form-control" name="asseT_CODE" disabled [ngModel]="carViewDetail.asseT_CODE">
+                                </div>
+                            </div>
+
+                            <!-- Tên tài sản -->
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>{{l("AssetName")}}</label>
+                                    <input class="form-control" name="asseT_NAME" disabled [ngModel]="assViewDetail.asseT_NAME">
+                                </div>
+                            </div>
+
+                            <!-- Loại tài sản -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("AssType")}}</label>
+                                    <input class="form-control" name="asS_TYPE" disabled [ngModel]="assViewDetail.typE_NAME">
+                                </div>
+                            </div>
+
+                            <!-- Nhóm tài sản -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("AssGroup")}}</label>
+                                    <input class="form-control" name="grouP_CODE" disabled [ngModel]="assViewDetail.grouP_CODE">
+                                </div>
+                            </div>
+
+                            <!-- Thông tin mô tả -->
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>{{l("Description")}}</label>
+                                    <textarea class="form-control" name="notes" rows="5" type="text" disabled [ngModel]="assViewDetail.notes"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Nguyên giá tài sản -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("OriginalPrice")}}</label>
+                                    <money-input name="buY_PRICE" [disabled]='true' [ngModel]="assViewDetail.buY_PRICE">
+                                    </money-input>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6"></div>
+
+                            <!-- Đơn vị sử dụng -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("BranchNameUse")}}</label>
+                                    <input class="form-control" name="brancH_NAME" disabled [ngModel]="assViewDetail.brancH_NAME">
+                                </div>
+                            </div>
+
+                            <!-- Người sử dụng -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("EmpName")}}</label>
+                                    <input class="form-control" name="emP_NAME" disabled [ngModel]="assViewDetail.emP_NAME">
+                                </div>
+                            </div>
+
+                            <!-- Tình trạng tài sản -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("AssStatusName")}}</label>
+                                    <input class="form-control" name="asS_STATUS_NAME" disabled [ngModel]="assViewDetail.asS_STATUS_NAME">
+                                </div>
+                            </div>
+
+                            <!-- Tình trạng khấu hao -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("AmortStatusName")}}</label>
+                                    <input class="form-control" name="amorT_STATUS_NAME" disabled [ngModel]="assViewDetail.amorT_STATUS_NAME">
+                                </div>
+                            </div>
+
+                            <h5 class="popup-title col-md-12">{{l("CarInfo")}}</h5>
+
+                            <!-- Số xe -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("N_Plate")}}</label>
+                                    <input class="form-control" name="n_PLATE" disabled [ngModel]="carViewDetail.n_PLATE">
+                                </div>
+                            </div>
+
+                            <!-- Nước sản xuất -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("Procountry")}}</label>
+                                    <input class="form-control" name="procountrY_NAME" disabled [ngModel]="carViewDetail.procountrY_NAME">
+                                </div>
+                            </div>
+
+                            <!-- Loại xe -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("CarType")}}</label>
+                                    <input class="form-control" name="caR_TYPE_NAME" disabled [ngModel]="carViewDetail.caR_TYPE_NAME">
+                                </div>
+                            </div>
+
+
+                            <!-- Hãng sản xuất -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("Manufacturer")}}</label>
+                                    <input class="form-control" name="manufactureR_NAME" disabled [ngModel]="carViewDetail.manufactureR_NAME">
+                                </div>
+                            </div>
+
+                            <!-- Model -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("Model")}}</label>
+                                    <input class="form-control" name="model" disabled [ngModel]="carViewDetail.model">
+                                </div>
+                            </div>
+
+                            <!-- Loại nhiên liệu -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("FuelsType")}}</label>
+                                    <input class="form-control" name="fuelS_TYPE_NAME" disabled [ngModel]="carViewDetail.fuelS_TYPE_NAME">
+                                </div>
+                            </div>
+
+                            <!-- Năm sản xuất -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("ManufacturerYear")}}</label>
+                                    <input class="form-control" name="manufacturE_YEAR" disabled [ngModel]="carViewDetail.manufacturE_YEAR">
+                                </div>
+                            </div>
+
+                            <!-- Màu xe -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("CarColor")}}</label>
+                                    <input class="form-control" name="caR_COLOR" disabled [ngModel]="carViewDetail.caR_COLOR">
+                                </div>
+                            </div>
+
+                            <!-- Đơn vị sử dụng -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("BranchNameUse")}}</label>
+                                    <input class="form-control" name="brancH_NAME" disabled [ngModel]="carViewDetail.brancH_NAME">
+                                </div>
+                            </div>
+
+                            <!-- Tên chủ phương tiện -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("VehicleOwner")}}</label>
+                                    <input class="form-control" name="owner" disabled [ngModel]="carViewDetail.owner">
+                                </div>
+                            </div>
+
+                            <!-- Mục đích sử dụng -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("UsePurpose")}}</label>
+                                    <input class="form-control" name="purposE_NAME" disabled [ngModel]="carViewDetail.purposE_NAME">
+                                </div>
+                            </div>
+
+                            <!-- Ngày đăng ký ban đầu -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("RegisterStartDate")}}</label>
+                                    <date-control [disabled]='true' [inpCss]="'form-control'" type="text" name="starT_DT" [ngModel]="carViewDetail.starT_DT">
+                                    </date-control>
+                                </div>
+                            </div>
+
+                            <!-- Số máy -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("MachinesId")}}</label>
+                                    <input class="form-control" name="machineS_ID" disabled [ngModel]="carViewDetail.machineS_ID">
+                                </div>
+                            </div>
+
+                            <!-- Số sườn -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("SlopesId")}}</label>
+                                    <input class="form-control" name="slopeS_ID" disabled [ngModel]="carViewDetail.slopeS_ID">
+                                </div>
+                            </div>
+
+                            <!-- Cỡ lốp sử dụng -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("TireSize")}}</label>
+                                    <input class="form-control" name="tirE_SIZE" disabled [ngModel]="carViewDetail.tirE_SIZE">
+                                </div>
+                            </div>
+
+                            <!-- Kiểu động cơ -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("EngineType")}}</label>
+                                    <input class="form-control" name="enginE_TYPE" disabled [ngModel]="carViewDetail.enginE_TYPE">
+                                </div>
+                            </div>
+
+                            <!-- Loại hộp số -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("GearBoxType")}}</label>
+                                    <input class="form-control" name="gearboX_TYPE_NAME" disabled [ngModel]="carViewDetail.gearboX_TYPE_NAME">
+                                </div>
+                            </div>
+
+                            <!-- Định mức nhiên liệu -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("PowerRate")}}</label>
+                                    <div class="user-group">
+                                        <input class="form-control" name="poweR_RATE" disabled [ngModel]="carViewDetail.poweR_RATE" type="number">
+                                        <label class="ml-1 mt-2">{{l("PowerRateUnit")}}</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Thể tích động cơ -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("Volume")}}</label>
+                                    <div class="user-group">
+                                        <input class="form-control" name="volume" disabled [ngModel]="carViewDetail.volume">
+                                        <label class="ml-1 mt-2">{{l("VolumeUnit")}}</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Chiều dài -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("Length")}}</label>
+                                    <div class="user-group">
+                                        <input class="form-control" name="length" disabled [ngModel]="carViewDetail.length">
+                                        <label class="ml-1 mt-2">{{l("Milimet")}}</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Chiều cao -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("Height")}}</label>
+                                    <div class="user-group">
+                                        <input class="form-control" name="height" disabled [ngModel]="carViewDetail.height">
+                                        <label class="ml-1 mt-2">{{l("Milimet")}}</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Chiều ngang -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("Width")}}</label>
+                                    <div class="user-group">
+                                        <input class="form-control" name="width" disabled [ngModel]="carViewDetail.width">
+                                        <label class="ml-1 mt-2">{{l("Milimet")}}</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Xe đặc biệt -->
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <checkbox-control name="performance" [label]="l('SpecialCar')" [TrueValue]="1" [FalseValue]="0" [ngModel]="carViewDetail.iS_SPECIAL"></checkbox-control>
+                                </div>
+                            </div>
+
+                            <!-- Thiết bị kèm theo -->
+                            <h5 class="popup-title col-md-12">{{l("Accessories")}}</h5>
+                            <div class="primeng-datatable-container">
+                                <editable-table #accessoriesTable class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <th><span style="width: 50px">{{l("No")}}</span></th>
+                                            <th sortField="accessorY_NAME"><span style="width: 150px">{{l("Accessories")}}</span></th>
+                                            <th sortField="quantity"><span style="width: 100px">{{l("Quantity")}}</span></th>
+                                            <th sortField="notes"><span style="width: 150px">{{l("DescriptionInfo")}}</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="selectable" *ngFor="let item of accessoriesTable.dataInPage; let in = index" [hidden]="item.page != accessoriesTable.currentPage">
+                                            <td>{{item.no}}</td>
+                                            <!-- Thiết bị kèm theo -->
+                                            <td>{{item.accessorY_NAME}}</td>
+                                            <!-- Số lượng -->
+                                            <td>{{item.quantity}}</td>
+                                            <!-- Diễn giải/Ghi chú -->
+                                            <td>{{item.notes}}</td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+
+                            <!-- Thông tin vận hành xe -->
+                            <h5 class="popup-title col-md-12">{{l("CarDriveList")}}</h5>
+                            <div class="primeng-datatable-container">
+                                <editable-table #carDriveTable class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <th sortField="inpuT_DT"><span style="width: 120px">{{l("UpdatedDate")}}</span></th>
+                                            <th sortField="indeX_NUMBER"><span style="width: 150px">{{l("KilometerNumber")}}</span></th>
+                                            <th sortField="curR_POWER_RATE"><span style="width: 150px">{{l("CurrentPowerRate")}}</span></th>
+                                            <th sortField="caR_AMT"><span style="width: 150px">{{l("CarAMT")}}</span></th>
+                                            <th sortField="invoicE_NO"><span style="width: 170px">{{l("InvoiceNoReceiptNo")}}</span></th>
+                                            <th sortField="autH_STATUS_NAME"><span style="width: 150px">{{l("AuthStatus")}}</span></th>
+                                            <th sortField="notes"><span style="width: 200px">{{l("Notes")}}</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="selectable" *ngFor="let item of carDriveTable.dataInPage; let in = index" [hidden]="item['page'] != carDriveTable.currentPage">
+                                            <td>{{item['no']}}</td>
+                                            <!-- Ngày cập nhật -->
+                                            <td>{{item.inpuT_DT | dateFormatPipe}}</td>
+                                            <!-- Số Km -->
+                                            <td>{{item.indeX_NUMBER}}</td>
+                                            <!-- Xăng tiêu thụ -->
+                                            <td>{{item.curR_POWER_RATE}}</td>
+                                            <!-- Số tiền thanh toán -->
+                                            <td>{{item.caR_AMT | moneyFormatPipe}}</td>
+                                            <td>{{item.invoicE_NO}}</td>
+                                            <td>{{item.autH_STATUS_NAME}}</td>
+                                            <td>{{item.notes}}</td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+
+                            <!-- Thông tin bảo dưỡng xe -->
+                            <h5 class="popup-title col-md-12">{{l("CarMaintainList")}}</h5>
+                            <div class="primeng-datatable-container">
+                                <editable-table #carMaintainTable class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <!-- Ngày bảo dưỡng -->
+                                            <th sortField="creatE_DT"><span style="width: 150px">{{l("MaintDate")}}</span></th>
+                                            <!-- Ngày bảo dưỡng tiếp theo -->
+                                            <th sortField="mainT_DT"><span style="width: 200px">{{l("NextMaintDate")}}</span></th>
+                                            <!-- Số tiền thanh toán -->
+                                            <th sortField="mainT_AMT"><span style="width: 150px">{{l("MainAMT")}}</span></th>
+                                            <!-- Hạng mục bảo dưỡng -->
+                                            <th sortField="mainT_ITEM"><span style="width: 200px">{{l("MaintItem")}}</span></th>
+                                            <!-- Đơn vị bảo dưỡng -->
+                                            <th sortField="mainT_PROVIDER_NAME"><span style="width: 150px">{{l("MaintProviderName")}}</span></th>
+                                            <th sortField="autH_STATUS"><span style="width: 150px">{{l("AuthStatus")}}</span></th>
+                                            <th sortField="notes"><span style="width: 250px">{{l("Notes")}}</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="selectable" *ngFor="let item of carMaintainTable.dataInPage; let in = index" [hidden]="item['page'] != carMaintainTable.currentPage">
+                                            <td>{{item['no']}}</td>
+                                            <td>{{item.creatE_DT | dateFormatPipe}}</td>
+                                            <td>{{item.mainT_DT | dateFormatPipe}}</td>
+                                            <td>{{item.mainT_AMT | moneyFormatPipe}}</td>
+                                            <td>{{item.mainT_ITEM}}</td>
+                                            <td>{{item.mainT_PROVIDER_NAME}}</td>
+                                            <td>{{item.autH_STATUS_NAME}}</td>
+                                            <td>{{item.notes}}</td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+
+                            <!-- Thông tin đăng kiểm -->
+                            <h5 class="popup-title col-md-12">{{l("CarRegister")}}</h5>
+                            <div class="primeng-datatable-container">
+                                <editable-table #carRegisterTable class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <!-- Ngày đăng kiểm -->
+                                            <th sortField="reG_DT"><span style="width: 150px">{{l("RegDate")}}</span></th>
+                                            <!-- Ngày hết hạn đăng kiểm -->
+                                            <th sortField="reG_MAT_DT"><span style="width: 200px">{{l("RegMatDate")}}</span></th>
+                                            <!-- Thời hạn đăng kiểm -->
+                                            <th sortField="reG_TERMS"><span style="width: 170px">{{l("RegTerms")}}</span></th>
+                                            <!-- Cơ quan đăng kiểm -->
+                                            <th sortField="reG_AGENCY"><span style="width: 150px">{{l("RegAgency")}}</span></th>
+                                            <th sortField="autH_STATUS"><span style="width: 150px">{{l("AuthStatus")}}</span></th>
+                                            <th sortField="notes"><span style="width: 200px">{{l("Notes")}}</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="selectable" *ngFor="let item of carRegisterTable.dataInPage; let in = index" [hidden]="item['page'] != carRegisterTable.currentPage">
+                                            <td>{{item['no']}}</td>
+                                            <td>{{item.reG_DT | dateFormatPipe}}</td>
+                                            <td>{{item.reG_MAT_DT | dateFormatPipe}}</td>
+                                            <td>{{item.reG_TERMS}}</td>
+                                            <td>{{item.reG_AGENCY}}</td>
+                                            <td>{{item.autH_STATUS_NAME}}</td>
+                                            <td>{{item.notes}}</td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+
+                            <!-- Thông tin bảo hiểm -->
+                            <h5 class="popup-title col-md-12">{{l("CarInsure")}}</h5>
+                            <div class="primeng-datatable-container">
+                                <editable-table #carInsureTable class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <!-- Ngày cập nhật -->
+                                            <th sortField="inpuT_DT"><span style="width: 150px">{{l("UpdatedDate")}}</span></th>
+                                            <!-- Loại bảo hiểm -->
+                                            <th sortField="insU_TYPE"><span style="width: 150px">{{l("InsuType")}}</span></th>
+                                            <!-- Ngày mua bảo hiểm -->
+                                            <th sortField="insU_DT"><span style="width: 160px">{{l("InsuDate")}}</span></th>
+                                            <!-- Ngày hết hạn bảo hiểm -->
+                                            <th sortField="insU_MAT_DT"><span style="width: 180px">{{l("InsuMTDate")}}</span></th>
+                                            <!-- Thời hạn bảo hiểm -->
+                                            <th sortField="insU_TERMS"><span style="width: 150px">{{l("InsuTerm")}}</span></th>
+                                            <!-- Công ty bảo hiểm -->
+                                            <th sortField="insU_COMPANY_NAME"><span style="width: 140px">{{l("InsuCompany")}}</span></th>
+                                            <!-- Số tiền thanh toán -->
+                                            <th sortField="insU_AMT"><span style="width: 150px">{{l("InsuAMT")}}</span></th>
+                                            <th sortField="autH_STATUS"><span style="width: 150px">{{l("AuthStatus")}}</span></th>
+                                            <th sortField="notes"><span style="width: 150px">{{l("Notes")}}</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="selectable" *ngFor="let item of carInsureTable.dataInPage; let in = index" [hidden]="item['page'] != carInsureTable.currentPage">
+                                            <td>{{item['no']}}</td>
+                                            <td>{{item.inpuT_DT | dateFormatPipe}}</td>
+                                            <td>{{item.insU_TYPE}}</td>
+                                            <td>{{item.insU_DT | dateFormatPipe}}</td>
+                                            <td>{{item.insU_MAT_DT | dateFormatPipe}}</td>
+                                            <td>{{item.insU_TERMS}}</td>
+                                            <td>{{item.insU_COMPANY_NAME}}</td>
+                                            <td>{{item.insU_AMT | moneyFormatPipe}}</td>
+                                            <td>{{item.autH_STATUS_NAME}}</td>
+                                            <td>{{item.notes}}</td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+
+                            <!-- Thông tin phí đường bộ -->
+                            <h5 class="popup-title col-md-12">{{l("CarChargeInfo")}}</h5>
+                            <div class="primeng-datatable-container">
+                                <editable-table #carChargeTable class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <th sortField="inpuT_DT"><span style="width: 150px">{{l("UpdatedDate")}}</span></th>
+                                            <!-- Ngày đóng phí -->
+                                            <th sortField="charG_DT"><span style="width: 150px">{{l("ChargeDate")}}</span></th>
+                                            <!-- Ngày hết hạn đóng phí -->
+                                            <th sortField="charG_MAT_DT"><span style="width: 165px">{{l("ChargeMATDT")}}</span></th>
+                                            <!-- Thời hạn sử dụng -->
+                                            <th sortField="charG_TERMS"><span style="width: 150px">{{l("ChargeTerms")}}</span></th>
+                                            <!-- Số tiền thanh toán -->
+                                            <th sortField="charG_AMT"><span style="width: 150px">{{l("ChargeAMT")}}</span></th>
+                                            <!-- Công ty thu phí -->
+                                            <th sortField="charG_COMPANY"><span style="width: 150px">{{l("ChargeCompany")}}</span></th>
+                                            <!-- Loại phí -->
+                                            <th sortField="charG_TYPE_NAME"><span style="width: 150px">{{l("ChargeType")}}</span></th>
+                                            <th sortField="autH_STATUS"><span style="width: 150px">{{l("AuthStatus")}}</span></th>
+                                            <th sortField="notes"><span style="width: 150px">{{l("Notes")}}</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="selectable" *ngFor="let item of carChargeTable.dataInPage; let in = index" [hidden]="item['page'] != carChargeTable.currentPage">
+                                            <td>{{item['no']}}</td>
+                                            <td>{{item.inpuT_DT | dateFormatPipe}}</td>
+                                            <td>{{item.charG_DT | dateFormatPipe}}</td>
+                                            <td>{{item.charG_MAT_DT | dateFormatPipe}}</td>
+                                            <td>{{item.charG_TERMS}}</td>
+                                            <td>{{item.charG_AMT | moneyFormatPipe}}</td>
+                                            <td>{{item.charG_COMPANY}}</td>
+                                            <td>{{item.charG_TYPE_NAME}}</td>
+                                            <td>{{item.autH_STATUS_NAME}}</td>
+                                            <td>{{item.notes}}</td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+
+                            <!-- Danh sách đề xuất & sửa chữa -->
+                            <h5 class="popup-title col-md-12">{{l("CarOfferList")}}</h5>
+                            <div class="primeng-datatable-container">
+                                <editable-table #carOfferTable class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <th sortField="n_PLATE"><span style="width: 100px">{{l("N_Plate")}}</span></th>
+                                            <!-- Ngày đề xuất -->
+                                            <th sortField="offeR_DT"><span style="width: 150px">{{l("OfferDate")}}</span></th>
+                                            <!-- Ngày sửa chữa -->
+                                            <th sortField="repaiR_DT"><span style="width: 150px">{{l("RepairDate")}}</span></th>
+                                            <!-- Ngày dự kiến sửa xong -->
+                                            <th sortField="finisH_DT"><span style="width: 170px">{{l("FinishDate")}}</span></th>
+                                            <!-- Đơn vị đề xuất -->
+                                            <th sortField="brancH_NAME"><span style="width: 150px">{{l("OfferBranch")}}</span></th>
+                                            <!-- Chi phí sửa chữa -->
+                                            <th sortField="repaiR_AMT"><span style="width: 150px">{{l("RepairAMT")}}</span></th>
+                                            <!-- Nội dung sửa chữa thực tế -->
+                                            <th sortField="repaiR_CONTENT"><span style="width: 200px">{{l("RepairContent")}}</span></th>
+                                            <th sortField="autH_STATUS"><span style="width: 200px">{{l("AuthStatus")}}</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="selectable" *ngFor="let item of carOfferTable.dataInPage; let in = index" [hidden]="item['page'] != carOfferTable.currentPage">
+                                            <td>{{item['no']}}</td>
+                                            <td>{{item.n_PLATE}}</td>
+                                            <td>{{item.offeR_DT | dateFormatPipe}}</td>
+                                            <td>{{item.repaiR_DT | dateFormatPipe}}</td>
+                                            <td>{{item.finisH_DT | dateFormatPipe}}</td>
+                                            <td>{{item.brancH_NAME}}</td>
+                                            <td>{{item.repaiR_AMT | moneyFormatPipe}}</td>
+                                            <td>{{item.repaiR_CONTENT}}</td>
+                                            <td>{{item.autH_STATUS_NAME}}</td>
+
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                                <h6 class="popup-title col-md-12" style="text-decoration: underline; text-align: right" *ngIf='sumRepairAMT > 0'>
+                                    Tổng chi phí sửa chữa: {{sumRepairAMT | moneyFormatPipe}}
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- </form> -->
+                </div>
+
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<car-master-modal (onSelect)="onSelectCar($event)" [multiple]='false' #carMasterModal></car-master-modal>

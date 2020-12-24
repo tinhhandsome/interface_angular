@@ -1,0 +1,270 @@
+<div class="editable-title-group">
+    <h5 class="popup-title col-md-12">{{l("GoodsDetail")}}</h5>
+    <div class="action-button">
+        <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="trRequestGoodsModal.show();"><i class="pi pi-plus"></i>{{l('Add')}}</button>
+        <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="editTableGoodsDetail.removeAllCheckedItem();"><i class="pi pi-times"></i>{{l("Delete")}}</button>
+    </div>
+</div>
+
+<form novalidate #myForm="ngForm">
+
+    <div class="primeng-datatable-container">
+        <editable-table [requiredFields]="['quantity','price','vat','pricE_VAT','asseT_NAME', 'receivE_BRANCH']" [editTableName]="'1'" #editTableGoodsDetailView class="custom-table ui-table">
+            <thead>
+                <tr>
+                    <!-- Checkbox -->
+                    <th>
+                        <span style="width: 40px">
+                            <checkbox-control (onchange)="editTableGoodsDetail.checkAll($event.target.checked)"
+                                [checked]="editTableGoodsDetail.isCheckAll"></checkbox-control>
+                        </span>
+                    </th>
+                    <!-- STT -->
+                    <th><span style="width: 40px">{{l("No")}}</span></th>
+                    <!-- Tên hàng hóa -->
+                    <th style="width: 35%" sortField="gD_NAME"><span style="width: 200px">{{l("GoodsName")}}</span>
+                    </th>
+                    <!-- Tên thực tế -->
+                    <th style="width: 35%" sortField="goodS_NAME"><span style="width: 200px">{{l("NameReal")}}</span></th>
+                    <!-- Loại hàng hóa -->
+                    <th style="width: 30%" sortField="goodstypE_REAL_NAME"><span style="width: 200px">{{l("GoodsType")}}</span></th>
+                    <!-- Số lượng -->
+                    <th sortField="quantity"><span style="width: 100px">{{l("Quantity")}}</span></th>
+                    <!-- Đơn giá -->
+                    <th sortField="price"><span style="width: 150px">{{l("UnitPrice")}}</span></th>
+                    <!-- % VAT -->
+                    <th sortField="vat"><span style="width: 100px">{{l("VatPercent")}}</span></th>
+                    <!-- VAT -->
+                    <th sortField="pricE_VAT"><span style="width: 200px">{{l("Vat")}}</span></th>
+                    <!-- Tổng số tiền -->
+                    <th sortField="totaL_AMT"><span style="width: 150px">{{l("TotalMoney")}}</span></th>
+                    <!-- Ngày dự kiến giao hàng -->
+                    <th sortField="exP_DELIVERY_DT"><span style="width: 200px">{{l("ExpectedDeliveryDate")}}</span></th>
+                    <!-- Đơn vị nhận -->
+                    <th sortField="receivE_BRANCH"><span style="width: 300px">{{l("BranchNameReceive")}}</span></th>
+                    <!-- Mã tài sản -->
+                    <th sortField="asseT_ID"><span style="width: 300px">{{l("AssetCode")}}</span></th>
+                    <!-- Tài sản -->
+                    <th sortField="asseT_NAME"><span style="width: 300px">{{l("Asset")}}</span></th>
+                    <!-- Địa chỉ nhận -->
+                    <th sortField="receivE_ADDR"><span style="width: 300px">{{l("AddressReceive")}}</span></th>
+                    <!-- Hội sở thanh toán -->
+                    <th sortField="iS_HQ_PAYMENT"><span style="width: 200px">{{l("HqPay")}}</span></th>
+                    <!-- Người liên hệ -->
+                    <th sortField="receivE_PERSON"><span style="width: 200px">{{l("ContactPerson")}}</span></th>
+                    <!-- Số điện thoại -->
+                    <th sortField="receivE_TEL"><span style="width: 200px">{{l("PhoneNumber")}}</span>
+                    </th>
+                    <!-- Đơn vị sử dụng -->
+                    <th sortField="description"><span style="width: 200px">{{l("BranchNameUse")}}</span>
+                    </th>
+                    <!-- Nhật ký sửa chữa -->
+                    <!-- <th sortField="REPAIR_LOG"><span style="width: 200px">{{l('RepairLog')}}</span></th> -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of editTableGoodsDetail.dataInPage; let in = index" class="selectable {{item['editableIsSelected']? 'selected' : ''}}" [hidden]="item['page'] != editTableGoodsDetail.currentPage" (click)="editTableGoodsDetail.selectRow($event,item); updateView();">
+                    <!-- Checkbox -->
+                    <td class="center">
+                        <span class="mo-header"></span>
+                        <checkbox-control [disabled]="disableInput" name="{{editTableGoodsDetail.name('isChecked',in)}}" [(ngModel)]="editTableGoodsDetail.dataInPage[in]['isChecked']"></checkbox-control>
+                    </td>
+                    <!-- STT -->
+                    <td class="center"><span class="mo-header"></span>
+                        <input class="label" [(ngModel)]="editTableGoodsDetail.dataInPage[in]['no']" name="{{editTableGoodsDetail.name('no',in)}}">
+                    </td>
+                    <!-- Tên hàng hóa -->
+                    <td><span class="mo-header"></span>
+                        <input class="label" [(ngModel)]="editTableGoodsDetail.dataInPage[in].gD_NAME" name="{{editTableGoodsDetail.name('gD_NAME',in)}}">
+                    </td>
+                    <!-- Tên thực tế -->
+                    <td><span class="mo-header"></span><textarea [disabled]="disableInput" (focusout)="updateView()" class="form-control transparent" type="text" name="{{editTableGoodsDetail.name('goodS_NAME',in)}}" [(ngModel)]="editTableGoodsDetail.dataInPage[in].goodS_NAME"></textarea>
+                    </td>
+                    <!-- Loại hàng hóa -->
+                    <td><span class="mo-header"></span>
+                        <auto-complete [disabled]="disableInput" [fieldName]="'typE_NAME'" [list]="gdTypeReals" [inputCss]="'form-control transparent'" [(ngModel)]="editTableGoodsDetail.dataInPage[in].goodstypE_REAL_NAME" name="{{editTableGoodsDetail.name('goodstypE_REAL_NAME',in)}}"></auto-complete>
+                    </td>
+                    <!-- Số lượng -->
+                    <td><span class="mo-header"></span>
+                        <input [disabled]="disableInput" (focusout)="onQuatityFocusOut(item)" class="form-control transparent" type="number" name="{{editTableGoodsDetail.name('quantity',in)}}" [(ngModel)]="editTableGoodsDetail.dataInPage[in].quantity" />
+                    </td>
+                    <!-- Đơn giá -->
+                    <td>
+                        <span class="mo-header"></span>
+                        <money-input [disabled]="disableInput" (focusout)="onUnitPriceFocusOut(item)" name="{{editTableGoodsDetail.name('price',in)}}" class="transparent" [(ngModel)]="editTableGoodsDetail.dataInPage[in].price">
+                        </money-input>
+                    </td>
+                    <!-- % VAT -->
+                    <td><span class="mo-header"></span>
+                        <money-input [disabled]="disableInput" (focusout)="onVatFocusOut(item)" name="{{editTableGoodsDetail.name('vat',in)}}" class="transparent" [isDecimal]="true" [(ngModel)]="editTableGoodsDetail.dataInPage[in].vat">
+                        </money-input>
+                    </td>
+                    <!-- VAT -->
+                    <td><span class="mo-header"></span>
+                        <money-input [disabled]="disableInput" (focusout)="onPriceVatFocusOut(item)" name="{{editTableGoodsDetail.name('pricE_VAT',in)}}" class="transparent" [(ngModel)]="editTableGoodsDetail.dataInPage[in].pricE_VAT">
+                        </money-input>
+                    </td>
+                    <!-- Tổng số tiền -->
+                    <td><span class="mo-header"></span>
+                        <money-input class="label" [(ngModel)]="editTableGoodsDetail.dataInPage[in].totaL_AMT" name="{{editTableGoodsDetail.name('totaL_AMT',in)}}">
+                        </money-input>
+                    </td>
+                    <!-- Ngày dự kiến giao hàng -->
+                    <td><span class="mo-header"></span>
+                        <date-control class="transparent" [disabled]="disableInput" [inpCss]="'form-control'" type="text" name="{{editTableGoodsDetail.name('exP_DELIVERY_DT',in)}}" [(ngModel)]="editTableGoodsDetail.dataInPage[in].exP_DELIVERY_DT"></date-control>
+                    </td>
+                    <!-- Đơn vị nhận -->
+                    <td><span class="mo-header"></span>
+                        <div class="user-group">
+                            <input [readOnly]="true" class="form-control transparent" type="text" name="{{editTableGoodsDetail.name('receivE_BRANCH',in)}}" [(ngModel)]="editTableGoodsDetail.dataInPage[in].r_BRANCH_NAME" />
+                            <button [disabled]="disableInput" (click)="currentPoDetail = item; branchModal.show();" type="button" class="btn btn-primary"> ... </button>
+                        </div>
+                    </td>
+                    <!-- Mã tài sản -->
+                    <td>
+                        <input class="label" [(ngModel)]="editTableGoodsDetail.dataInPage[in].asseT_CODE" name="{{editTableGoodsDetail.name('asseT_CODE',in)}}">
+                    </td>
+                    <!-- Tài sản -->
+                    <td><span class="mo-header"></span>
+                        <div class="user-group">
+                            <input [readOnly]="true" class="form-control transparent" type="text" name="{{editTableGoodsDetail.name('asseT_NAME',in)}}" [(ngModel)]="editTableGoodsDetail.dataInPage[in].asseT_NAME" />
+                            <button [disabled]="disableInput" (click)="assetModal.show();" type="button" class="btn btn-primary"> ... </button>
+                        </div>
+                    </td>
+                    <!-- Địa chỉ nhận -->
+                    <td><span class="mo-header"></span>
+                        <textarea [disabled]="disableInput" name="{{editTableGoodsDetail.name('receivE_ADDR',in)}}" class="form-control transparent" min="0" [(ngModel)]="editTableGoodsDetail.dataInPage[in].receivE_ADDR"></textarea>
+                    </td>
+                    <!-- Hội sở thanh toán -->
+                    <td class="center"><span class="mo-header"></span>
+                        <checkbox-control [disabled]="disableInput" [TrueValue]="'1'" [FalseValue]="'0'" name="{{editTableGoodsDetail.name('iS_HQ_PAY',in)}}" [(ngModel)]="editTableGoodsDetail.dataInPage[in].iS_HQ_PAY"></checkbox-control>
+                    </td>
+                    <!-- Người liên hệ -->
+                    <td><span class="mo-header"></span>
+                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="{{editTableGoodsDetail.name('receivE_PERSON',in)}}" [(ngModel)]="editTableGoodsDetail.dataInPage[in].receivE_PERSON" />
+                    </td>
+                    <!-- Số điện thoại -->
+                    <td><span class="mo-header"></span>
+                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="{{editTableGoodsDetail.name('receivE_TEL',in)}}" [(ngModel)]="editTableGoodsDetail.dataInPage[in].receivE_TEL" />
+                    </td>
+                    <!-- Đơn vị sử dụng -->
+                    <td><span class="mo-header"></span>
+                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="{{editTableGoodsDetail.name('description',in)}}" [(ngModel)]="editTableGoodsDetail.dataInPage[in].description" />
+                    </td>
+
+                    <!-- Nhật ký sửa chữa -->
+                    <!-- <td><span class="mo-header"></span>
+                        <input class="label" [(ngModel)]="editTableGoodsDetail.dataInPage[in].repaiR_LOG" name="{{editTableGoodsDetail.name('gD_NAME',in)}}">
+                    </td> -->
+                </tr>
+            </tbody>
+        </editable-table>
+    </div>
+
+    <div class="editable-footer">
+        <div>
+            <label style="font-weight: 500; margin-top: 10px; font-size: 13px;">{{l('TotalAmt')}}
+                {{l('Goods') | lowercase}}
+                <display-result #totalAmtElement></display-result>
+            </label>
+        </div>
+    </div>
+
+
+    <!-- #region Lịch theo dõi thanh toán -->
+
+    <div *ngIf="editPageState != EditPageState.add" class="editable-title-group">
+        <h5 class="popup-title col-md-12">{{l("PaymentTracking")}}</h5>
+    </div>
+
+    <div *ngIf="editPageState != EditPageState.add" class="primeng-datatable-container">
+        <editable-table [requiredFields]="['amounT_PAID']" #editTablePaymentTrackingView class="custom-table ui-table">
+            <thead>
+                <tr>
+                    <!-- STT -->
+                    <th><span style="width: 40px">{{l("No")}}</span></th>
+                    <!-- Tên hàng hóa -->
+                    <th style="width:40%" sortField="gD_NAME"><span style="width: 200px">{{l("GoodsName")}}</span>
+                    </th>
+                    <!-- Ngày giao hàng -->
+                    <th style="width:30%" sortField="deliverY_DT"><span style="width: 200px">{{l("DateDelivery")}}</span></th>
+                    <!-- Đã đặt hàng -->
+                    <th style="width:30%" class="center" sortField="iS_DELIVERY"><span style="width: 200px">{{l("IsDelivery")}}</span></th>
+                    <!-- Tình trạng thanh toán -->
+                    <th sortField="paymenT_STATUS"><span style="width: 200px">{{l("PaymentStatus")}}</span></th>
+                    <!-- Số tiền thanh toán -->
+                    <th sortField="amounT_PAID"><span style="width: 200px">{{l("InsuAMT")}}</span></th>
+                    <!-- Số tiền còn lại -->
+                    <th sortField="remaiN_AMT"><span style="width: 200px">{{l("RemainAmt")}}</span></th>
+                    <!-- Ngày thanh toán -->
+                    <th sortField="paiD_DT"><span style="width: 200px">{{l("DatePaid")}}</span></th>
+                    <!-- Ngày hóa đơn -->
+                    <th sortField="invoicE_DT"><span style="width: 200px">{{l("DateInvoice")}}</span></th>
+                    <!-- Số hóa đơn -->
+                    <th sortField="invoiceno"><span style="width: 200px">{{l("InvoiceNo")}}</span></th>
+                    <!-- Số tiền thanh toán thực tế -->
+                    <th sortField="amt"><span style="width: 200px">{{l("RealPaymentAmt")}}</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of editTablePaymentTracking.dataInPage; let in = index" class="selectable {{item['editableIsSelected'] ? 'selected' : ''}}" [hidden]="item['page'] != editTableGoodsDetail.currentPage" (click)="editTableGoodsDetail.selectRow($event,item); updateView();">
+                    <!-- STT -->
+                    <td class="center"><span class="mo-header"></span>
+                        <input class="label" [(ngModel)]="editTablePaymentTracking.dataInPage[in]['no']" name="{{editTablePaymentTracking.name('no',in)}}">
+                    </td>
+                    <!-- Tên hàng hóa -->
+                    <td><span class="mo-header"></span>
+                        <input class="label" [(ngModel)]="editTablePaymentTracking.dataInPage[in]['gD_NAME']" name="{{editTablePaymentTracking.name('gD_NAME',in)}}">
+                    </td>
+                    <!-- Ngày giao hàng -->
+                    <td><span class="mo-header"></span>
+                        <date-control class="transparent" [disabled]="disableInput" [inpCss]="'form-control'" type="text" name="{{editTablePaymentTracking.name('deliverY_DT',in)}}" [(ngModel)]="editTablePaymentTracking.dataInPage[in].deliverY_DT"></date-control>
+                    </td>
+                    <!-- Đã đặt hàng -->
+                    <td class="center"><span class="mo-header"></span>
+                        <checkbox-control class="transparent" [disabled]="disableInput" [TrueValue]="'1'" [FalseValue]="'0'" type="text" name="{{editTablePaymentTracking.name('iS_DELIVERY',in)}}" [(ngModel)]="editTablePaymentTracking.dataInPage[in].iS_DELIVERY"></checkbox-control>
+                    </td>
+                    <!-- Tình trạng thanh toán -->
+                    <td><span class="mo-header"></span>
+                        <all-code-select [disabled]="disableInput" name="{{editTablePaymentTracking.name('paymenT_STATUS',in)}}" [cdName]="'PAYMENT_STATUS'" [cdType]="'TR'" [(ngModel)]="editTablePaymentTracking.dataInPage[in].paymenT_STATUS">
+                        </all-code-select>
+                    </td>
+                    <!-- Số tiền thanh toán -->
+                    <td>
+                        <span class="mo-header"></span>
+                        <money-input [disabled]="disableInput" (focusout)="onAmountPaidFocusOut(item)" name="{{editTablePaymentTracking.name('amounT_PAID',in)}}" class="transparent" [(ngModel)]="editTablePaymentTracking.dataInPage[in].amounT_PAID">
+                        </money-input>
+                    </td>
+                    <!-- Số tiền còn lại -->
+                    <td><span class="mo-header"></span>
+                        <money-input disabled [(ngModel)]="editTablePaymentTracking.dataInPage[in].remaiN_AMT" name="{{editTableGoodsDetail.name('remaiN_AMT',in)}}">
+                        </money-input>
+                    </td>
+                    <!-- Ngày thanh toán -->
+                    <td><span class="mo-header"></span>
+                        <date-control class="transparent" [disabled]="disableInput" [inpCss]="'form-control'" type="text" name="{{editTablePaymentTracking.name('paiD_DT',in)}}" [(ngModel)]="editTablePaymentTracking.dataInPage[in].paiD_DT"></date-control>
+                    </td>
+                    <!-- Ngày hóa đơn -->
+                    <td><span class="mo-header"></span>
+                        <date-control class="transparent" [disabled]="disableInput" [inpCss]="'form-control'" type="text" name="{{editTablePaymentTracking.name('invoicE_DT',in)}}" [(ngModel)]="editTablePaymentTracking.dataInPage[in].invoicE_DT"></date-control>
+                    </td>
+                    <!-- Số hóa đơn -->
+                    <td><span class="mo-header"></span>
+                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="{{editTablePaymentTracking.name('invoiceno',in)}}" [(ngModel)]="editTablePaymentTracking.dataInPage[in].invoiceno" />
+                    </td>
+                    <!-- Số tiền thanh toán thực tế -->
+                    <td><span class="mo-header"></span>
+                        <money-input name="{{editTablePaymentTracking.name('amt',in)}}" disabled [(ngModel)]="editTablePaymentTracking.dataInPage[in].amt">
+                        </money-input>
+                    </td>
+                </tr>
+            </tbody>
+        </editable-table>
+    </div>
+</form>
+
+<!-- #endregion -->
+
+<branch-modal (onSelect)="onSelectBranch($event)" [multiple]="false" #branchModal></branch-modal>
+<goods-modal (onSelect)="onSelectTrRequestGoods($event)" #trRequestGoodsModal></goods-modal>
+<asset-modal [multiple]="false" (onSelect)="onSelectAsset($event)" #assetModal></asset-modal>

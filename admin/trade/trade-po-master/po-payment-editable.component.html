@@ -1,0 +1,74 @@
+<!-- #region Bảng con lịch thanh toán -->
+
+<form #poPaymentForm="ngForm" novalidate>
+
+<div class="editable-title-group">
+    <h5 class="popup-title col-md-12">{{l("PoPayment")}}</h5>
+    <div class="action-button">
+        <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="addNewTrPoPayment()"><i class="pi pi-plus"></i>{{l("Add")}}</button>
+        <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="editTablePoPayment.removeAllCheckedItem()"><i
+                                        class="pi pi-times"></i>{{l("Delete")}}</button>
+    </div>
+</div>
+
+<div class="primeng-datatable-container">
+    <editable-table [requiredFields]="['percent','amount']" #editTablePoPayment class="custom-table ui-table">
+        <thead>
+            <tr>
+                <!-- Checkbox -->
+                <th>
+                    <span style="width: 40px">
+                        <checkbox-control [disabled]="disableInput" (onchange)="editTablePoPayment.checkAll($event.target.checked)" [checked]="editTablePoPayment.isCheckAll"></checkbox-control>
+                    </span>
+                </th>
+                <!-- STT -->
+                <th><span style="width: 40px">{{l("No")}}</span></th>
+                <!-- Đợt -->
+                <th sortField="paY_PHASE"><span style="width: 80px">{{l("PayPhase")}}</span></th>
+                <!-- Ngày dự kiến thanh toán -->
+                <th style="width:25%" sortField="expecteD_DT"><span style="width: 200px">{{l("ExpectedPaymentDate")}}</span></th>
+                <!-- % -->
+                <th style="width:25%" sortField="percent"><span style="width: 70px">{{l("Percent")}}</span></th>
+                <!-- Số tiền -->
+                <th style="width:25%" sortField="amount"><span style="width: 200px">{{l("Amount")}}</span></th>
+                <!-- Diễn giải -->
+                <th style="width:25%" sortField="notes"><span style="width: 200px">{{l("DescriptionInfo")}}</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of editTablePoPayment.dataInPage; let in = index" [hidden]="item.page != editTablePoPayment.currentPage">
+                <!-- Checkbox -->
+                <td>
+                    <span class="mo-header"></span>
+                    <checkbox-control [disabled]="disableInput" (onchange)="item.isChecked = $event.target.checked" [checked]="item['isChecked']"></checkbox-control>
+                </td>
+                <!-- STT -->
+                <td class="center"><span class="mo-header"></span>{{item.no}}</td>
+                <!-- Đợt -->
+                <td><span class="mo-header"></span>
+                    <input [disabled]="disableInput" class="form-control transparent left" type="number" min="0" name="paY_PHASE-{{in}}-2" [(ngModel)]="item.paY_PHASE" />
+                </td>
+                <!-- Ngày dự kiến thanh toán -->
+                <td ><span class="mo-header"></span>
+                    <date-control class="transparent" [disabled]="disableInput" [inpCss]="'form-control'" type="text" name="expecteD_DT-{{in}}-2" [(ngModel)]="item.expecteD_DT"></date-control>
+                </td >
+                <!-- % -->
+                <td><span class="mo-header"></span>
+                    <input [disabled]="disableInput" (focusout)="item.percent = $event.target.value; percent_change(item)" class="form-control transparent" type="number" min="0" max="100" name="percent-{{in}}-2" [(ngModel)]="item.percent" />
+                </td>
+                <!-- Số tiền -->
+                <td>
+                    <span class="mo-header"></span>
+                    <money-input [disabled]="disableInput" (focusout)="amount_change(item)" name="amount-{{in}}-2" class="transparent" [(ngModel)]="item.amount">
+                    </money-input>
+                </td>
+                <!-- Diễn giải -->
+                <td><span class="mo-header"></span>
+                    <textarea [disabled]="disableInput" name="notes-{{in}}-2" class="form-control transparent" min="0" [(ngModel)]="item.notes"></textarea>
+                </td>
+            </tr>
+        </tbody>
+    </editable-table>
+</div>
+</form>
+<!-- #endregion -->

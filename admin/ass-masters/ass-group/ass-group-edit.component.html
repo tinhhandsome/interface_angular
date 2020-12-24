@@ -1,0 +1,239 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("AssGroup_Title")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin chi tiết -->
+                        <div class="col-md-12">
+                            <h5 class="popup-title">{{l("DetailInfo")}}</h5>
+                        </div>
+
+                        <!-- Mã nhóm tài sản -->
+                        <div class="col-md-3">
+                            <div class="form-group required">
+                                <label>{{l("AssGroupCode")}}</label>
+                                <input class="form-control" maxlength="15" type="text" required #grouP_CODE="ngModel" [disabled]="disableInput" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}" name="grouP_CODE" [(ngModel)]="inputModel.grouP_CODE">
+                                <div class="error-message" *ngIf="grouP_CODE.invalid && isShowError">
+                                    <span *ngIf="grouP_CODE?.errors.required">{{l('AssGroupCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="grouP_CODE?.errors.pattern">{{l('AssGroupCode')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+
+                        <!-- Tên nhóm tài sản -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("AssGroupName")}}</label>
+                                <input required class="form-control" maxlength="200" type="text" #grouP_NAME="ngModel" name="grouP_NAME" [disabled]="disableInput" [(ngModel)]="inputModel.grouP_NAME">
+                                <div class="error-message" *ngIf="grouP_NAME.invalid && isShowError">
+                                    <span *ngIf="grouP_NAME?.errors.required">{{l('AssGroupName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+
+                        <!-- Loại tài sản -->
+                        <div class="col-md-6 required">
+                            <div class="form-group">
+                                <label>{{l("AssType")}}</label>
+                                <select2-custom required name="typE_ID" [disabled]="disableInput" #typE_ID="ngModel" [(ngModel)]="inputModel.typE_ID" [(list)]="assTypes" [emptyText]="l('NullSelect')" [valueMember]="'typE_ID'" [displayMember]="'typE_CODE|typE_NAME'">
+                                </select2-custom>
+                                <div class="error-message" *ngIf="typE_ID.invalid && isShowError">
+                                    <span *ngIf="typE_ID?.errors.required">{{l('AssType')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+
+                        <!-- Danh mục tài sản -->
+                        <div class="col-md-6 required">
+                            <div class="form-group">
+                                <label>{{l("AssetCategory")}}</label>
+                                <all-code-select name="asS_CAT" required [disabled]="disableInput" #asS_CAT="ngModel" [(ngModel)]="inputModel.asS_CAT" [emptyText]="l('NullSelect')" [cdName]="'ASS_CAT'" [cdType]="'ASS_GROUP'">
+                                </all-code-select>
+                                <div class="error-message" *ngIf="asS_CAT.invalid && isShowError">
+                                    <span *ngIf="asS_CAT?.errors.required">{{l('AssetCategory')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+
+                        <!-- Mã nhóm cha -->
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>{{l("AssGroupParentId")}}</label>
+
+                                <div class="user-group">
+                                    <input class="form-control" type="text" #contracT_CODE="ngModel" name="contracT_CODE" [disabled]="disableInput" (focusout)="onAssGroupParentChange()" [(ngModel)]="inputModel.parenT_CODE">
+                                    <button [disabled]="disableInput" (click)="assGroupModal.show()" type="button" class="btn btn-primary">...</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+                        <!-- Tên nhóm tài sản cha -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("AssGroupParentName")}}</label>
+                                <input class="form-control" disabled type="text" #parenT_NAME="ngModel" name="parenT_NAME" [(ngModel)]="inputModel.parenT_NAME">
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- Tỷ lệ khấu hao -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("AmortRate")}}</label>
+                                <div class="group">
+                                    <money-input class="align-left" [isDecimal]="true" [inputCss]="'form-control'" (focusout)="amortRateChange()" [disabled]="disableInput" #amorT_RATE="ngModel" name="amorT_RATE" [(ngModel)]="inputModel.amorT_RATE"></money-input>
+                                    <!-- <input class="form-control ng-pristine ng-valid ng-touched left" min="0" name="amorT_RATE" [disabled]="disableInput" type="number" (focusout)="amortRateChange()" #amorT_RATE="ngModel" [(ngModel)]="inputModel.amorT_RATE"> -->
+                                    <span>{{l("PercentAmortOfYear")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- Số tháng khấu hao -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("AmortMonth")}}</label>
+                                <input class="form-control" disabled type="text" #amorT_MONTH="ngModel" [disabled]="disableInput" name="amorT_MONTH" [(ngModel)]="inputModel.amorT_MONTH">
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- Ghi chú -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("Note")}}</label>
+                                <textarea class="form-control" type="text" #notes="ngModel" name="notes" [disabled]="disableInput" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Tài khoản hạch toán -->
+                        <div class="col-md-12">
+                            <h5 class="popup-title">{{l("AccountingAccount")}}</h5>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- Tài khoản tài sản -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("AssetAccountNo")}}</label>
+                                <input class="form-control" type="text" #asseT_ACCTNO="ngModel" name="asseT_ACCTNO" [disabled]="disableInput" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}" [(ngModel)]="inputModel.asseT_ACCTNO">
+                                <div class="error-message" *ngIf="asseT_ACCTNO.invalid && isShowError">
+                                    <span *ngIf="asseT_ACCTNO?.errors.pattern">{{l('AssetAccountNo')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- Tài khoản khấu hao -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("AmortAcountNo")}}</label>
+                                <input class="form-control" type="text" #amorT_ACCTNO="ngModel" [disabled]="disableInput" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}" name="amorT_ACCTNO" [(ngModel)]="inputModel.amorT_ACCTNO">
+                                <div class="error-message" *ngIf="amorT_ACCTNO.invalid && isShowError">
+                                    <span *ngIf="amorT_ACCTNO?.errors.pattern">{{l('ExpenseAccountNo')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- Tài khoản chi phí -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("ExpenseAccountNo")}}</label>
+                                <input class="form-control" type="text" #exP_ACCTNO="ngModel" [disabled]="disableInput" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}" name="exP_ACCTNO" [(ngModel)]="inputModel.exP_ACCTNO">
+                                <div class="error-message" *ngIf="exP_ACCTNO.invalid && isShowError">
+                                    <span *ngIf="exP_ACCTNO?.errors.pattern">{{l('ExpenseAccountNo')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- Tài khoản thu nhập thanh lý -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("LiquidationIncomeAccountNo")}}</label>
+                                <input class="form-control" type="text" #inC_ACCTNO="ngModel" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}" name="inC_ACCTNO" [disabled]="disableInput" [(ngModel)]="inputModel.inC_ACCTNO">
+                                <div class="error-message" *ngIf="inC_ACCTNO.invalid && isShowError">
+                                    <span *ngIf="inC_ACCTNO?.errors.pattern">{{l('LiquidationIncomeAccountNo')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- Tài khoản chi phí thanh lý -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("LiquidationExpenseAccountNo")}}</label>
+                                <input class="form-control" type="text" #liQ_ACCTNO="ngModel" [disabled]="disableInput" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}" name="liQ_ACCTNO" [(ngModel)]="inputModel.liQ_ACCTNO">
+                                <div class="error-message" *ngIf="liQ_ACCTNO.invalid && isShowError">
+                                    <span *ngIf="liQ_ACCTNO?.errors.pattern">{{l('LiquidationExpenseAccountNo')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- Tài khoản tài sản NHNN -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("AssetAccountNHNNNo")}}</label>
+                                <input class="form-control" type="text" #asseT_ACCTNO_NHNN="ngModel" [disabled]="disableInput" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}" name="asseT_ACCTNO_NHNN" [(ngModel)]="inputModel.asseT_ACCTNO_NHNN">
+                                <div class="error-message" *ngIf="asseT_ACCTNO_NHNN.invalid && isShowError">
+                                    <span *ngIf="asseT_ACCTNO_NHNN?.errors.pattern">{{l('AssetAccountNHNNNo')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>
+<ass-group-modal [multiple]="false" #assGroupModal (onSelect)="onSelectAssGroup($event)"></ass-group-modal>

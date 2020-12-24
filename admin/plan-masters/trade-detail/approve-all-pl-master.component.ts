@@ -1,0 +1,131 @@
+import { ListComponentBase } from "@app/ultilities/list-component-base";
+import { Injector, Component, OnInit, ViewEncapsulation, AfterViewInit } from "@angular/core";
+import { UltilityServiceProxy, PL_APPROVE_MASTER_ENTITY, PlMasterServiceProxy } from "@shared/service-proxies/service-proxies";
+import { IUiAction } from "@app/ultilities/ui-action";
+import { appModuleAnimation } from "@shared/animations/routerTransition";
+import { finalize } from "rxjs/operators";
+import * as moment from 'moment';
+import { MoneyInputComponent } from "@app/admin/core/controls/money-input/money-input.component";
+
+@Component({
+    templateUrl: './approve-all-pl-master.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+
+export class ApproveAllPlMaster extends ListComponentBase<PL_APPROVE_MASTER_ENTITY> implements IUiAction<PL_APPROVE_MASTER_ENTITY>, OnInit, AfterViewInit {
+    filterInput: PL_APPROVE_MASTER_ENTITY = new PL_APPROVE_MASTER_ENTITY();
+    inputmodel: PL_APPROVE_MASTER_ENTITY = new PL_APPROVE_MASTER_ENTITY();
+    totalcount: number;
+    checkAll: boolean;
+    isApproveFunct: boolean;
+    years: any[];
+    constructor(injector: Injector,
+        private ultilityService: UltilityServiceProxy,
+        private plMasterService: PlMasterServiceProxy,
+    ) {
+        super(injector);
+        this.initFilter();
+        this.initIsApproveFunct();
+    }
+    onResetSearch(): void {
+    }
+
+    ngAfterViewInit(): void {
+        this.updateView();
+    }
+
+    ngOnInit(): void {
+        this.years = this.getYearsCombobox();
+        this.appToolbar.setRole('ApproveAllPlMaster', false, false, false, false, false, true, true, false);
+        this.appToolbar.isList = false;
+        this.appToolbar.isEdit = false;
+        this.filterInput.year = moment().year();
+        this.appToolbar.setButtonApproveEnable(false);
+        this.appToolbar.setButtonSearchEnable(true);
+        this.appToolbar.setVisible(false, false, false, false, false, true, true, false)
+        this.appToolbar.setUiAction(this);
+    }
+
+    initIsApproveFunct() {
+        this.ultilityService.isApproveFunct(this.getCurrentFunctionId()).subscribe(isApproveFunct => {
+            this.isApproveFunct = isApproveFunct;
+            this.updateView();
+        })
+    }
+    formatDateTime(item: any){
+    }
+
+    search(): void {
+        this.showTableLoading();
+        this.setSortingForFilterModel(this.filterInput);
+        this.plMasterService.pL_APPROVE_MASTER_ByYear(this.filterInput.year,this.appSession.user.userName)
+            .pipe(finalize(() => this.hideTableLoading()))
+            .subscribe(result => {
+                this.inputmodel = result;
+                if (this.inputmodel.autH_STATUS == 'A') {
+                    this.appToolbar.setButtonApproveEnable(false);
+                    this.refreshTotalPrice();
+                }
+                else {
+                    this.appToolbar.setButtonApproveEnable(true);
+                    this.refreshTotalPrice();
+                }
+                if(this.inputmodel.year== 0){
+                    this.appToolbar.setButtonApproveEnable(false);
+                }
+                this.updateView();
+            });
+
+    }
+    refreshTotalPrice() {
+        if (this.inputmodel.lisPlDetail != null) {
+            this.inputmodel.totalTSCD = this.inputmodel.lisPlDetail.sum(x => x.tscd);
+            this.inputmodel.totalCCLD = this.inputmodel.lisPlDetail.sum(x => x.ccld);
+            this.inputmodel.totalCTBTSC = this.inputmodel.lisPlDetail.sum(x => x.ctbtsc);
+            this.inputmodel.totalTOTAL = this.inputmodel.lisPlDetail.sum(x => x.total);
+        }
+    }
+
+    onSelectRow(): void {
+    }
+
+    onAdd(): void {
+    }
+
+    onUpdate(): void {
+    }
+
+    onDelete(): void {
+    }
+
+    onApprove(): void {
+        this.message.confirm(
+            this.l('SendApp') + " " + this.filterInput.year,
+            this.l('AreYouSureApprove'),
+            (isConfirmed) => {
+                if (isConfirmed) {
+                    this.approveInput()
+                }
+            }
+        )
+    }
+    onViewDetail(): void {
+    }
+    approveInput() {
+        this.plMasterService.pL_APPROVE_MASTE_App(this.inputmodel.year, this.appSession.user.userName)
+            .pipe(finalize(() => { this.saving = false; }))
+            .subscribe((response) => {
+                if (response['Result'] != '0') {
+                    this.showErrorMessage(response['ErrorDesc']);
+                }
+                else {
+                    this.approveSuccess();
+                }
+                this.updateView();
+            });
+    }
+    onSave(): void {
+
+    }
+}

@@ -1,0 +1,51 @@
+<tabset class="tab-container tabbable-line" *ngIf="settings">
+    <tab heading="{{'UiCustomization_Layout' | localize}}" customClass="m-tabs__item">
+        <form id="LayoutSettingsForm">
+            <div class="form-group m-form__group">
+                <label for="ContentSkin">{{"UiCustomization_ContentSkin" | localize}}</label>
+                <select id="ContentSkin" name="ContentSkin" class="form-control" required [(ngModel)]="settings.layout.contentSkin">
+                    <option value="light2">{{"UiCustomization_LightGrey" | localize}}</option>
+                    <option value="light">{{"UiCustomization_White" | localize}}</option>
+                </select>
+            </div>
+        </form>
+    </tab>
+    <tab heading="{{'UiCustomization_Header' | localize}}" customClass="m-tabs__item">
+        <form id="HeaderSettingsForm">
+            <h5>{{'UiCustomization_Desktop' | localize}}</h5>
+            <div class="form-group m-form__group">
+                <label class="m-checkbox col-lg-12">
+                    <input type="checkbox" name="DesktopFixedHeader" [(ngModel)]="settings.header.desktopFixedHeader">
+                    {{"UiCustomization_DesktopFixedHeader" | localize}}
+                    <span></span>
+                </label>
+            </div>
+
+            <h5>{{'UiCustomization_Mobile' | localize}}</h5>
+            <div class="form-group m-form__group">
+                <label class="m-checkbox col-lg-12">
+                    <input type="checkbox" name="MobileFixedHeader" [(ngModel)]="settings.header.mobileFixedHeader">
+                    {{"UiCustomization_MobileFixedHeader" | localize}}
+                    <span></span>
+                </label>
+            </div>
+        </form>
+    </tab>
+    <tab heading="{{'UiCustomization_Menu' | localize}}" customClass="m-tabs__item">
+        <form id="MenuSettingsForm">
+            <div class="form-group m-form__group">
+                <label for="AsideSkin">{{"UiCustomization_MenuSkin" | localize}}</label>
+                <select id="AsideSkin" name="AsideSkin" class="form-control" [(ngModel)]="settings.menu.asideSkin">
+                    <option value="light">{{"UiCustomization_Light" | localize}}</option>
+                    <option value="dark">{{"UiCustomization_Dark" | localize}}</option>
+                </select>
+            </div>
+        </form>
+    </tab>
+</tabset>
+
+<div class="m--margin-top-40">
+    <button *ngIf="'Pages.Administration.UiCustomization' | permission" (click)="updateDefaultUiManagementSettings()" class="btn btn-primary"><i class="fa fa-save"></i> {{"SaveAsSystemDefault" | localize}}</button>
+    <button *ngIf="!('Pages.Administration.UiCustomization' | permission)" (click)="updateUiManagementSettings()" class="btn btn-primary"><i class="fa fa-save"></i> {{"Save" | localize}}</button>
+    <button *ngIf="!('Pages.Administration.UiCustomization' | permission)" (click)="useSystemDefaultSettings()" class="btn btn-metal"> {{"UseSystemDefaults" | localize}}</button>
+</div>

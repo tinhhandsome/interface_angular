@@ -1,0 +1,214 @@
+import { Injector, Component, OnInit, ViewEncapsulation, AfterViewInit, ViewChild, ElementRef } from "@angular/core";
+import { ReportInfo, AsposeServiceProxy, CM_BRANCH_ENTITY, CM_TERM_ENTITY, TermServiceProxy, CM_EMPLOYEE_ENTITY, ASS_GROUP_ENTITY, CM_SUPPLIER_ENTITY } from "@shared/service-proxies/service-proxies";
+import { appModuleAnimation } from "@shared/animations/routerTransition";
+import { FileDownloadService } from "@shared/utils/file-download.service";
+import { ReportTypeConsts } from "@app/admin/core/ultils/consts/ReportTypeConsts";
+import { DefaultComponentBase } from "@app/ultilities/default-component-base";
+import * as moment from 'moment';
+import { Select2CustomComponent } from "@app/admin/core/controls/custom-select2/select2-custom.component";
+import { DateFormatPipe } from "@app/admin/core/pipes/date-format.pipe";
+import { PreviewTemplateService } from "@app/admin/common/preview-template/preview-template.service";
+
+@Component({
+    templateUrl: './ass-list-liquid-asset.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+
+export class AssListLiquidAssetComponent extends DefaultComponentBase implements OnInit, AfterViewInit {
+
+    didsableInput: boolean = true;
+    terms: CM_TERM_ENTITY[] = [];
+    filterInput: any = {};
+
+    termName: string = '';
+    levels: any[];
+    assTypes: any;
+    isBranchUseSelected: boolean = false;
+    isShowError: boolean = false;
+    @ViewChild('exportForm') exportForm: ElementRef;
+    @ViewChild('branchUseSelect') branchUseSelect: Select2CustomComponent;
+    
+    ngAfterViewInit(): void {
+        this.stopAutoUpdateView();
+    }
+
+    constructor(injector: Injector,
+        private fileDownloadService: FileDownloadService,
+        private asposeService: AsposeServiceProxy,
+        private cm_TermService: TermServiceProxy,
+        private previewTemplateService: PreviewTemplateService) {
+        super(injector);
+    }
+
+    ngOnInit(): void {
+        this.levels = this.getLevelsCombobox();
+        this.assTypes = [{TYPE_ID: 'TSCD', TYPE_NAME: 'TSCD'}, {TYPE_ID: 'CCLD', TYPE_NAME: 'CCLD'}];
+        this.filterInput.BRANCH_LOGIN = this.appSession.user.subbrId;
+        this.filterInput.LEVEL = 'ALL';
+        this.filterInput.BRANCH_ID = this.appSession.user.subbrId;
+        this.filterInput.BRANCH_NAME = this.appSession.user.branchName;
+        this.filterInput.FROMDATE = moment().startOf('month');
+        this.filterInput.TODATE = moment().endOf('month');
+        this.filterInput.PRICEFROM = 0;
+        this.filterInput.PRICETO = 0;
+        
+    }
+    
+    exportToExcel() {
+        if ((this.exportForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();    
+            return;
+        }
+        if(this.filterInput.FROMDATE > this.filterInput.TODATE){
+            this.showErrorMessage(this.l('FromDateMustSmallerThanToDate'));
+            this.updateView();
+            return;
+        }
+        if(this.filterInput.FROMPRICE > this.filterInput.TOPRICE){
+            this.showErrorMessage(this.l('FromPriceMustSmallerThanToPrice'));
+            this.updateView();
+            return;
+        }
+
+        this.didsableInput = true;
+
+        if(!this.filterInput.SUPPLIERID)
+            this.filterInput.SUPPLIERID = '';
+        if(!this.filterInput.ASSET_GROUP_ID)
+            this.filterInput.ASSET_GROUP_ID = '';
+        if(!this.filterInput.ASSET_TYPE)
+            this.filterInput.ASSET_TYPE = '';
+        if(!this.filterInput.USER_ID)
+            this.filterInput.USER_ID = '';
+        if(!this.filterInput.PRICEFROM)
+            this.filterInput.PRICEFROM = 0;
+        if(!this.filterInput.FROMDATE)
+            this.filterInput.FROMDATE = '';
+        if(!this.filterInput.PRICETO)
+            this.filterInput.PRICETO = 0;
+        if(!this.filterInput.BRANCH_ID_USE)
+            this.filterInput.BRANCH_ID_USE = 0;
+        
+        let reportInfo = new ReportInfo();
+        reportInfo.typeExport = ReportTypeConsts.Excel;
+        
+        reportInfo.values = this.GetParamsFromFilter({
+            branchId: this.appSession.user.subbrId,
+            branchName: this.appSession.user.branchName,
+            fromDateToDateInput:
+            (this.l('FromDate') + ' ' + ((this.filterInput.FROMDATE != '') ? this.filterInput.FROMDATE.format('DD/MM/YYYY') : '')
+             + ' ' + this.l('ToDate') + ' ' + this.filterInput.TODATE.format('DD/MM/YYYY')).toUpperCase(),
+            userEmailInput: this.appSession.user.emailAddress,
+            datePrintInput: moment().format('DD/MM/YYYY'),
+            levelInput: this.levels.filter(x => x.value == this.filterInput.LEVEL)[0].display
+        });
+
+
+        reportInfo.parameters = this.GetParamsFromFilter(this.filterInput);
+
+        reportInfo.pathName = "/REPORT/TSCD_BC17.xlsx";
+        reportInfo.storeName = "rpt_TSCD_BC017_Excel";
+
+        this.asposeService.getReport(reportInfo).subscribe(x => {
+            this.fileDownloadService.downloadTempFile(x);
+            this.showSuccessMessage(this.l('ExportFileSuccess'));
+            this.updateView();
+        });
+    }
+    printPreview()
+    {
+        if ((this.exportForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();    
+            return;
+        }
+        if(this.filterInput.FROMDATE > this.filterInput.TODATE){
+            this.showErrorMessage(this.l('FromDateMustSmallerThanToDate'));
+            this.updateView();
+            return;
+        }
+        if(this.filterInput.FROMPRICE > this.filterInput.TOPRICE){
+            this.showErrorMessage(this.l('FromPriceMustSmallerThanToPrice'));
+            this.updateView();
+            return;
+        }
+
+        if(!this.filterInput.SUPPLIERID)
+            this.filterInput.SUPPLIERID = '';
+        if(!this.filterInput.ASSET_GROUP_ID)
+            this.filterInput.ASSET_GROUP_ID = '';
+        if(!this.filterInput.ASSET_TYPE)
+            this.filterInput.ASSET_TYPE = '';
+        if(!this.filterInput.USER_ID)
+            this.filterInput.USER_ID = '';
+        if(!this.filterInput.PRICEFROM)
+            this.filterInput.PRICEFROM = 0;
+        if(!this.filterInput.FROMDATE)
+            this.filterInput.FROMDATE = '';
+        if(!this.filterInput.PRICETO)
+            this.filterInput.PRICETO = 0;
+        if(!this.filterInput.BRANCH_ID_USE)
+            this.filterInput.BRANCH_ID_USE = 0;
+        var str = '';
+        var datePipe = new DateFormatPipe();
+        if(this.filterInput.FROMDATE) 
+        str += ' ' + this.l('FromDate') + ' ' + datePipe.transform(this.filterInput.FROMDATE)
+             + ' ' + this.l('ToDate').toLowerCase() + ' ' + datePipe.transform(this.filterInput.TODATE);
+        else
+        str +=  ' ' + this.l('ToDate') + ' ' + datePipe.transform(this.filterInput.TODATE);
+
+        let parameters = this.GetParamsFromFilter({
+            Branch_ID: this.filterInput.BRANCH_ID,
+            fromdate: datePipe.transform(this.filterInput.FROMDATE),
+            todate: datePipe.transform(this.filterInput.TODATE),
+            Branch_Login: this.appSession.user.subbrId,
+            Level: this.filterInput.LEVEL,
+            ASSET_TYPE: this.filterInput.ASSET_TYPE,
+            PriceFrom: this.filterInput.PRICEFROM,
+            PriceTo: this.filterInput.PRICETO,
+            SupplierId: this.filterInput.SUPPLIERID,
+            ASSET_GROUP_ID: this.filterInput.ASSET_GROUP_ID,
+            Branch_ID_Use: this.filterInput.BRANCH_ID_USE,
+            User_ID: this.filterInput.USER_ID
+        });
+        let values = this.GetParamsFromFilter({ 
+            level: this.filterInput.LEVEL == 'UNIT' ? this.l('Branch') : this.l('AllGoods'),
+            fullName : this.appSession.user.userName,
+            datePrint : datePipe.transform(moment()),
+            branchCode: this.appSession.user.branchCode,
+            branchName: this.appSession.user.branchName,
+            A5 : str,
+        });
+
+        this.previewTemplateService.printReportTemplate('AssListLiquidAsset_Report', parameters, values);
+    }
+
+    initTerms(): void {
+        this.cm_TermService.cM_TERM_Search(this.getFillterForCombobox()).subscribe(Result => {
+            this.didsableInput = false;
+            this.terms = Result.items;
+            this.updateView();
+        });
+        
+    }
+
+    getItemName(event: CM_TERM_ENTITY){
+        this.termName = event.terM_NAME;
+        this.filterInput.terM_ID = event.terM_ID;
+    }
+
+    onSelectBranch(branch: CM_BRANCH_ENTITY) {
+        if(this.isBranchUseSelected)
+            this.branchUseSelect.setSingleValue(branch.brancH_ID, branch.brancH_NAME);
+        else
+        {
+            this.filterInput.BRANCH_ID = branch.brancH_ID;
+            this.filterInput.BRANCH_NAME = branch.brancH_NAME;
+        }
+    }
+
+}

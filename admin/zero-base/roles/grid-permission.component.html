@@ -1,0 +1,105 @@
+<div class='form-group'>
+    <input type='text' autofocus (ngSubmit)="$event.stopPropagation();" [(ngModel)]="filter"
+        class='form-control grid-filter' placeholder='{{"SearchWithThreeDot" | localize}}'>
+    <button type="submit" (click)="$event.stopPropagation();filterPermissions($event)"
+        class="btn btn-primary">{{ 'Search' | localize }}</button>
+</div>
+<!-- BEGIN: Aside Menu -->
+<div *ngIf="roleForEdit" class="app-menu-actions-title">
+    <span *ngFor="let item of roleForEdit.actions">
+        {{item | localize}}
+    </span>
+</div>
+
+
+<div #menuAside mMenuAside (mouseenter)="mouseEnter($event)" (mouseleave)="mouseLeave($event)" id="m_ver_menu"
+    data-menu-vertical="false" class="{{ui.getSideBarMenuClass()}}" [attr.m-menu-dropdown-timeout]="500"
+    [attr.m-menu-scrollable]="ui.getIsMenuScrollable() ? 1 : 0"
+    [attr.m-menu-dropdown]="ui.getIsMenuScrollable() ? 0 : 1" [attr.aria-label]="l('LeftMenu')">
+    <ul *ngIf="treeView" class="m-menu__nav m-menu__nav--dropdown-submenu-arrow">
+        <ng-container *ngFor="let child of treeView.items">
+            <ng-container [ngTemplateOutlet]="mMenuItem" [ngTemplateOutletContext]="{ item: child, parentItem: item }">
+            </ng-container>
+        </ng-container>
+    </ul>
+</div>
+
+<ng-template #mMenuItem let-item="item" let-parentItem="parentItem">
+    <li *ngIf="item.isDisplay" class="m-menu__item m-menu__item--submenu m-menu__item--open" aria-haspopup="true"
+        m-menu-submenu-toggle="hover">
+
+        <!-- if menu item hasn't submenu -->
+        <span *ngIf="!item.items.length" class="m-menu__link m-menu__toggle app-menu-leaf">
+            <ng-container [ngTemplateOutlet]="mMenuItemText"
+                [ngTemplateOutletContext]="{ item: item, parentItem: parentItem }"></ng-container>
+        </span>
+
+
+        <!-- if menu item has submenu child  -->
+        <span href="javascript:;" *ngIf="item.items.length" class="m-menu__link m-menu__toggle"
+            [class.app-menu-leaf]="item.isLeaf">
+            <!-- <span href="javascript:;" *ngIf="item.items.length" data-toggle="collapse" [attr.data-target]="'#collapse' + item.displayName" class="m-menu__link m-menu__toggle"> -->
+
+            <ng-container [ngTemplateOutlet]="mMenuItemText"
+                [ngTemplateOutletContext]="{ item: item, parentItem: parentItem }"></ng-container>
+        </span>
+
+        <!-- if menu item has submenu child then recursively call new menu item component -->
+        <div *ngIf="item.items.length" class="m-menu__submenu">
+            <span class="m-menu__arrow"></span>
+            <ul class="m-menu__subnav" id="{{'collapse' + item.name}}">
+                <ng-container *ngFor="let child of item.items">
+                    <ng-container [ngTemplateOutlet]="mMenuItem"
+                        [ngTemplateOutletContext]="{ item: child, parentItem: item }"></ng-container>
+                </ng-container>
+            </ul>
+        </div>
+    </li>
+</ng-template>
+
+<ng-template #mMenuItemText let-item="item" let-parentItem="parentItem">
+    <span class="m-menu__item-here"></span>
+    <!-- if menu item has icon -->
+
+    <i *ngIf="item.items.length && !item.isLeaf" class="m-menu__ver-arrow la la-angle-right"></i>
+
+    <ng-container>
+        <!-- menu item title text -->
+        <span class="app-menu-item grid-table">
+            <span>
+                <span>
+                    <label class="m-checkbox" (change)="onCheckedParent(item)" for="{{item.name}}">
+                        <input type="checkbox" id="{{item.name}}" name="{{item.name}}" [(ngModel)]="item.checked">
+                        <span></span>
+                    </label>
+                </span>
+                <span class="app-menu-name">
+                    {{item.displayName}}
+                </span>
+            </span>
+
+
+            <span *ngIf="item.isRootAction" class="app-menu-actions">
+                <ng-container *ngFor="let action of item.items, let i = index">
+                    <span *ngIf="!action.isDisplay" class="form-group">
+                        <span
+                            class="app-menu-actions-name">{{action.name.split('.')[action.name.split('.').length - 1] | localize}}</span>
+                        <label class="m-checkbox" (change)="onCheckedParentActions($event,item,action)"
+                            for="{{action.name}}">
+                            <!-- [checked]="item.checked" (change)="item.checked = $event.target.checked" -->
+                            <input type="checkbox" id="{{action.name}}" name="{{action.name}}"
+                                [(ngModel)]="item.items[i].checked">
+                            <span></span>
+                        </label>
+                    </span>
+
+                </ng-container>
+
+            </span>
+        </span>
+    </ng-container>
+
+
+    <!-- if menu item has submenu child then put arrow icon -->
+</ng-template>
+<!-- END: Left Aside -->

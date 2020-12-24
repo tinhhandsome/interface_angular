@@ -1,0 +1,144 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("Branch")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Create")}} {{l('Branch') | lowercase}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Edit")}} {{l('Branch') | lowercase}} :
+                        {{inputModel.brancH_NAME}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("View")}} {{l('Branch') | lowercase}} :
+                        {{inputModel.brancH_NAME}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form id="editForm" #editForm="ngForm" novalidate>
+                    <div class="modal-body row">
+                        <input hidden class="form-control" type="text" #brancH_ID name="brancH_ID" [(ngModel)]="inputModel.brancH_ID">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("BranchCode")}}</label>
+                                <input maxlength="15" class="form-control" [disabled]="disableInput" type="text" required #brancH_CODE="ngModel" name="brancH_CODE" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}" [(ngModel)]="inputModel.brancH_CODE">
+                                <div class="error-message" *ngIf="brancH_CODE.invalid && isShowError">
+                                    <span *ngIf="brancH_CODE?.errors.required">{{l('BranchCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="brancH_CODE?.errors.pattern">{{l('BranchCode')}}
+                                            {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("BranchName")}}</label>
+                                <input required class="form-control" [disabled]="disableInput" type="text" #brancH_NAME="ngModel" name="brancH_NAME" [(ngModel)]="inputModel.brancH_NAME" maxlength="200">
+                                <div class="error-message" *ngIf="brancH_NAME.invalid && isShowError">
+                                    <span *ngIf="brancH_NAME?.errors.required">{{l('BranchName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required ">
+                                <label>{{l("RegionId")}} </label>
+                                <select2-custom (onChangeSelect2)="reloadFatherList()" [disabled]="disableInput" required name="regioN_ID" #regioN_ID="ngModel" [(ngModel)]="inputModel.regioN_ID" [(list)]="regions" [emptyText]="" [valueMember]="'regioN_ID'" [displayMember]="'regioN_CODE|regioN_NAME'">
+                                </select2-custom>
+                                <div class="error-message" *ngIf="regioN_ID.invalid && isShowError">
+                                    <span *ngIf="regioN_ID?.errors.required">{{l('RegionId')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("BranchType")}} </label>
+                                <all-code-select [changeSelect2OnLoad]="false" [disabled]="disableInput" required (onChangeSelect2)="reloadFatherList()" #brancH_TYPE="ngModel" name="BranchType" [cdName]="'BRANCH_TYPE'" [(ngModel)]="inputModel.brancH_TYPE">
+                                </all-code-select>
+                                <div class="error-message" *ngIf="brancH_TYPE.invalid && isShowError">
+                                    <span *ngIf="brancH_TYPE?.errors.required">{{l('BranchType')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("FatherId")}} </label>
+                                <select2-custom [changeSelect2OnLoad]="false" [disabled]="disableInput" required name="fatheR_ID" #fatheR_ID="ngModel" [(ngModel)]="inputModel.fatheR_ID" [(list)]="fatherLists" [valueMember]="'brancH_ID'" [displayMember]="'brancH_ID|brancH_NAME'">
+                                </select2-custom>
+                                <div class="error-message" *ngIf="fatheR_ID.invalid && isShowError">
+                                    <span *ngIf="fatheR_ID?.errors.required">{{l('FatherId')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("Address")}}</label>
+                                <textarea class="form-control" [disabled]="disableInput" #Addr="ngModel" type="text" name="Addr" [(ngModel)]="inputModel.addr">
+                                    </textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="PhoneNumber">{{l("PhoneNumber")}}</label>
+                                <input id="PhoneNumber" [disabled]="disableInput" #phoneNumber="ngModel" type="text" name="PhoneNumber" class="form-control" pattern="{{s('gAMSProCore.PhoneNumberRegexValidation')}}" [(ngModel)]="inputModel.tel" maxlength="24">
+                                <div class="error-message" *ngIf="phoneNumber.invalid && phoneNumber?.errors.pattern && isShowError">
+                                    <span *ngIf="phoneNumber?.errors.pattern">
+                                        {{l("PhoneNumberInvalid")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("TaxNo")}}</label>
+                                <input class="form-control" [disabled]="disableInput" [disabled]="disableInput" pattern="{{s('gAMSProCore.TaxNoRegexValidation')}}" #taX_NO="ngModel" type="text" name="taxNo" [(ngModel)]="inputModel.taX_NO">
+                                <div class="error-message" *ngIf="taX_NO.invalid && taX_NO?.errors.pattern && isShowError">
+                                    <span *ngIf="taX_NO?.errors.pattern">
+                                        {{l("TaxNo")}} {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 outer-vertical-center outter-vertical-center">
+                            <div class="form-group inner-vertical-center">
+                                <label class="m-checkbox" for="iS_POTENTIAL">{{l("BranchIsPotential")}}
+                                    <input type="checkbox" [disabled]="disableInput"  [checked]="inputModel.iS_POTENTIAL == 'Y'" id="iS_POTENTIAL"
+                                        #iS_POTENTIAL name="iS_POTENTIAL"
+                                        (change)="inputModel.iS_POTENTIAL = iS_POTENTIAL.checked? 'Y' : 'N';">
+                                    <span></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <textarea class="form-control" [disabled]="disableInput" [disabled]="disableInput" #Notes="ngModel" type="text" name="Notes" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+                        <button type="submit" hidden (click)="saveInput()"></button>
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>

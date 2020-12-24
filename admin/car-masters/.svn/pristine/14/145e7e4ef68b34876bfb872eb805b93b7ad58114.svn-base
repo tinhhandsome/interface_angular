@@ -1,0 +1,162 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("CarRegister")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Create")}} {{l("CarRegister") | lowercase}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Edit")}} {{l("CarRegister") | lowercase}} :
+                        {{inputModel.n_PLATE}} 
+                    </span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("View")}} {{l("CarRegister") | lowercase}} :
+                        {{inputModel.n_PLATE}}
+                    </span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- Số xe -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("N_Plate")}}</label>
+                                <div class="user-group">
+                                    <input class="form-control" style="display: inline;" maxlength="15" type="text" #n_PLATE="ngModel" [disabled]="disableInput" name="n_PLATE" [(ngModel)]="inputModel.n_PLATE" required>
+                                    <span class="input-group-btn">
+                                        <button [disabled]="disableInput" type="button" class="btn btn-primary ng-star-inserted" (click)="carMasterModal.show()">...</button>
+                                    </span>
+                                </div>
+                                <div class="error-message" *ngIf="n_PLATE.invalid && isShowError">
+                                    <span *ngIf="n_PLATE?.errors.required">{{l('N_Plate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mẫu mã -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("Model")}}</label>
+                                <input disabled maxlength="200" class="form-control" type="text" #model="ngModel" [disabled]="disableInput" name="model" [(ngModel)]="inputModel.model">
+                            </div>
+                        </div>
+
+                        <!-- Loại xe -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("CarType")}}</label>
+                                <input disabled maxlength="200" class="form-control" type="text" #caR_TYPE_NAME="ngModel" [disabled]="disableInput" name="caR_TYPE_NAME" [(ngModel)]="inputModel.caR_TYPE_NAME">
+                            </div>
+                        </div>
+
+                        <!-- Loại nhiên liệu -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("FuelstypeName")}}</label>
+                                <input maxlength="200" class="form-control" type="text" #fuelS_TYPE="ngModel" [disabled]="disableInput" name="fuelS_TYPE" [(ngModel)]="inputModel.fuelS_TYPE" disabled>
+                            </div>
+                        </div>
+
+
+                        <!-- Nước sản xuất -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("ProductCountryName")}}</label>
+                                <input maxlength="200" class="form-control" type="text" #procountry="ngModel" [disabled]="disableInput" name="procountry" [(ngModel)]="inputModel.procountry" disabled>
+                            </div>
+                        </div>
+
+                        <!-- Đơn vị sử dụng -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("Owner")}}</label>
+                                <input maxlength="200" class="form-control" type="text" #brancH_NAME="ngModel" [disabled]="disableInput" name="brancH_NAME" [(ngModel)]="inputModel.brancH_NAME" disabled>
+                            </div>
+                        </div>
+
+                        <!-- Ngày đăng kiểm -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("RegDate")}}</label>
+                                <date-control #reG_DT="ngModel" name="reG_DT" [(ngModel)]="inputModel.reG_DT " [disabled]="disableInput" [inpCss]="'form-control'" type="text" (change)="onRegDateChange($event)">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Thời hạn đăng kiểm -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("RegTerms")}}</label>
+                                <input maxlength="200" class="form-control" type="text" #reG_TERMS="ngModel" [disabled]="disableInput" name="reG_TERMS" [(ngModel)]="inputModel.reG_TERMS" (keyup)="onRegDateChange($event)">
+                            </div>
+                        </div>
+
+                        <!-- Ngày hết hạn đăng kiểm -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("OutOfRegDate")}}</label>
+                                <date-control #reG_MAT_DT="ngModel" name="reG_MAT_DT" [(ngModel)]="inputModel.reG_MAT_DT " (change)="onRegMatDateChange($event)" [disabled]="disableInput" [inpCss]="'form-control'" type="text">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Chi phí đăng kiểm -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("RegAMT")}}</label>
+                                <money-input #reG_AMT="ngModel" name="reG_AMT" [(ngModel)]="inputModel.reG_AMT" [disabled]="disableInput" required></money-input>
+                                <div class="error-message" *ngIf="reG_AMT.invalid && isShowError">
+                                    <span *ngIf="reG_AMT?.errors.required">{{l('RegAMT')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cơ quan đăng kiểm -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("RegAgency")}}</label>
+                                <div class="row outter-vertical-center">
+                                    <div class="col-md-10">
+                                        <input class="form-control" #reG_AGENCY="ngModel" type="text" name="reG_AGENCY" [(ngModel)]="inputModel.reG_AGENCY" [disabled]="disableInput" min="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ghi chú -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <input maxlength="200" class="form-control" type="text" #notes="ngModel" [disabled]="disableInput" name="notes" [(ngModel)]="inputModel.notes">
+                            </div>
+                        </div>
+                        <button hidden (click)="saveInput()"></button>
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+    <car-master-modal [multiple]="false" (onSelect)="onSelectCar($event)" #carMasterModal></car-master-modal>
+
+</div>

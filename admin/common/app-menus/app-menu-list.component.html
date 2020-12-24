@@ -1,0 +1,160 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+
+                        <!-- Begin Title -->
+                        <span>{{l("AppMenu")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-group dropdown mr-2">
+                        <button class=" btn btn-outline-success" *ngIf="appToolbar.buttonSearchEnable" (click)="exportExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+                                <!-- Tên trang -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("MenuName")}}</label>
+                                        <input [(ngModel)]="filterInput.menU_NAME" name="menU_NAME" autoFocus class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+                                <!-- Mã trang cha -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("MenuParent")}}</label>
+                                        <select2-custom name="menU_PARENT" [(ngModel)]="filterInput.menU_PARENT" [(list)]="menuItems" [emptyText]="l('SelectAll')" [valueMember]="'menU_ID'" [displayMember]="'menU_ID|menU_NAME'">
+                                        </select2-custom>
+                                    </div>
+                                </div>
+                                <!-- Trạng thái duyệt -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("AuthStatus")}}</label>
+                                        <all-code-select name="autH_STATUS" [(ngModel)]="filterInput.autH_STATUS" [emptyText]="l('SelectAll')" [cdName]="'AUTH_STATUS'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+                                <!-- End Filter -->
+                                <div style="display: none;" class="col-md-12">
+                                    <div class="form-group">
+                                        <button *ngIf="appToolbar.buttonSearchEnable" class="btn btn-primary btn-search" (click)="onSearch()">{{l('Search')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <!-- STT -->
+                                        <th class="center">
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <!-- Mã trang -->
+                                        <th sortField="menU_ID">
+                                            <span style="width: 150px">{{l("MenuId")}}</span>
+                                        </th>
+                                        <!-- Tên trang -->
+                                        <th sortField="MENU_NAME">
+                                            <span style="width: 350px">{{l("MenuName")}}</span>
+                                        </th>
+                                        <!-- Tên tiếng anh -->
+                                        <th sortField="MENU_NAME_EL">
+                                            <span style="width: 250px">{{l("MenuKey")}}</span>
+                                        </th>
+                                        <!-- Biểu tượng -->
+                                        <th sortField="MENU_ICON">
+                                            <span style="width: 150px">{{l("MenuIcon")}}</span>
+                                        </th>
+                                        <!-- Đường dẫn -->
+                                        <th sortField="MENU_LINK">
+                                            <span style="width: 150px">{{l("MenuRoute")}}</span>
+                                        </th>
+                                        <!-- Mã trang cha -->
+                                        <th sortField="MENU_PARENT">
+                                            <span style="width: 150px">{{l("MenuParent")}}</span>
+                                        </th>
+                                        <!-- Thứ tự -->
+                                        <th sortField="MENU_ORDER">
+                                            <span style="width: 150px">{{l("MenuOrder")}}</span>
+                                        </th>
+                                        <!-- Chức năng duyệt -->
+                                        <th sortField="ISAPPROVE_FUNC">
+                                            <span style="width: 150px">{{l("IsApproveFunct")}}</span>
+                                        </th>
+                                        <!-- Trạng thái duyệt -->
+                                        <th sortField="AUTH_STATUS_NAME">
+                                            <span style="width: 150px">{{l("AuthStatus")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onDblclick(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <!-- STT -->
+                                        <td class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <!-- Mã trang -->
+                                        <td><span class="mo-header"></span>{{record.menU_ID}}</td>
+                                        <!-- Tên trang -->
+                                        <td><span class="mo-header"></span>{{record.menU_NAME}}</td>
+                                        <!-- Tên tiếng anh -->
+                                        <td><span class="mo-header"></span>{{record.menU_NAME_EL}}</td>
+                                        <!-- Biểu tượng -->
+                                        <td><span class="mo-header"></span>{{record.menU_ICON}}</td>
+                                        <!-- Đường dẫn -->
+                                        <td><span class="mo-header"></span>{{record.menU_LINK}}</td>
+                                        <!-- Mã trang cha -->
+                                        <td><span class="mo-header"></span>{{record.menU_PARENT}}</td>
+                                        <!-- Thứ tự -->
+                                        <td><span class="mo-header"></span>{{record.menU_ORDER}}</td>
+                                        <!-- Chức năng duyệt -->
+                                        <td class="center">
+                                            <span class="mo-header"></span>
+                                            <label class="m-checkbox checkbox-table" for="isapprovE_FUNC-{{record.menU_ID}}">
+                                                <input type="checkbox" id="isapprovE_FUNC-{{record.menU_ID}}"
+                                                    [checked]="record.isapprovE_FUNC == '1'">
+                                                <span></span>
+                                            </label>
+                                        </td>
+                                        <!-- Trạng thái duyệt -->
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

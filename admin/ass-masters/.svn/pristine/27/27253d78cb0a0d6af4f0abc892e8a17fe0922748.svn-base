@@ -1,0 +1,148 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+
+                        <!-- Begin Title -->
+                        <span>{{l("AssInventory")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-group dropdown mr-2">
+                        <button class=" btn btn-outline-success" (click)="exportToExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30 col-md-8">
+                                <!-- Begin Filter -->
+
+                                <!-- Ngày kiểm kê -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("InventoryDate")}}</label>
+                                        <date-control [inpCss]="'form-control'" type="text" name="inventorY_DT" [(ngModel)]="filterInput.inventorY_DT">
+                                        </date-control>
+                                    </div>
+                                </div>
+
+                                <!-- Trạng thái duyệt -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AuthStatus")}}</label>
+                                        <all-code-select name="autH_STATUS" [(ngModel)]="filterInput.autH_STATUS" [emptyText]="l('SelectAll')" [cdName]="'AUTH_STATUS'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+
+                                <!-- Đơn vị -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("Branch")}}</label>
+                                        <div class="input-group">
+                                            <input style="width:80%" class="form-control" type="text" name="brancH_CODE" [(ngModel)]="filterInput.brancH_CODE">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-primary"
+                                                    (click)="branchModal.show()">...</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Đợt kiểm kê -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("InventTerm")}}</label>
+                                        <select2-custom name="term" [(ngModel)]="filterInput.term" [(list)]="terms" [emptyText]="l('SelectAll')" [valueMember]="'terM_ID'" [displayMember]="'terM_NAME'">
+                                        </select2-custom>
+                                    </div>
+                                </div>
+
+                                <!-- End Filter -->
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th class="center">
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <th style="width: 10%" class="center" sortField="inventorY_DT">
+                                            <span style="width: 120px">{{l("InventoryDate")}}</span>
+                                        </th>
+                                        <th style="width: 15%" class="center" sortField="brancH_NAME">
+                                            <span style="width: 150px">{{l("Branch")}}</span>
+                                        </th>
+                                        <th style="width: 5%" class="center" sortField="term">
+                                            <span style="width: 120px">{{l("InventTerm")}}</span>
+                                        </th>
+                                        <th style="width: 25%" class="center" sortField="notes">
+                                            <span style="width: 150px">{{l("Notes")}}</span>
+                                        </th>
+                                        <th style="width: 10%" class="center" sortField="creatE_DT">
+                                            <span style="width: 100px">{{l("CreateDate")}}</span>
+                                        </th>
+                                        <th style="width: 10%" class="center" sortField="makeR_ID">
+                                            <span style="width: 130px">{{l("MakerId")}}</span>
+                                        </th>
+                                        <th style="width: 5%" class="center" sortField="approvE_DT">
+                                            <span style="width: 110px">{{l("ApproveDt")}}</span>
+                                        </th>
+                                        <th style="width: 10%" class="center" sortField="checkeR_ID">
+                                            <span style="width: 110px">{{l("ApproveId")}}</span>
+                                        </th>
+                                        <th style="width: 5%" class="center" sortField="autH_STATUS">
+                                            <span style="width: 150px">{{l("AuthStatus")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onDblclick(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <td class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <td><span class="mo-header"></span>{{record.inventorY_DT | dateFormatPipe}}</td>
+                                        <td><span class="mo-header"></span>{{record.brancH_NAME}}</td>
+                                        <td><span class="mo-header"></span>{{record.terM_NAME}}</td>
+                                        <td><span class="mo-header"></span>{{record.notes}}</td>
+                                        <td><span class="mo-header"></span>{{record.creatE_DT | dateFormatPipe}}</td>
+                                        <td><span class="mo-header"></span>{{record.makeR_ID}}</td>
+                                        <td><span class="mo-header"></span>{{record.approvE_DT | dateFormatPipe}}</td>
+                                        <td><span class="mo-header"></span>{{record.checkeR_ID}}</td>
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<branch-modal #branchModal [multiple]='false' (onSelect)="getBranch($event)"></branch-modal>

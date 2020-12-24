@@ -1,0 +1,22 @@
+@media screen and (max-width: 40em) {
+    span.mo-header {
+        display: inline-block!important;
+        font-weight: bold!important;
+    }
+    editable-table table>thead {
+        display: none;
+    }
+    editable-table table>tbody>tr {
+        display: block;
+    }
+    editable-table table>tbody>tr>td {
+        display: block;
+    }
+    editable-table table>tbody>tr>td.center {
+        text-align: left;
+    }
+}
+
+span.mo-header {
+    display: none;
+}

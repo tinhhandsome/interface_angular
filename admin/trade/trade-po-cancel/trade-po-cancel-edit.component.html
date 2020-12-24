@@ -1,0 +1,125 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <!-- Begin Title -->
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("TradePoCancel")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                    <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                    <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()"
+                    autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin chi tiết -->
+                        <div class="col-md-12">
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("PoCancelDetail")}} </h5>
+                            </div>
+                        </div>
+
+                        <!--BEGIN PO'S INFORMATION-->
+                        <div class='col-md-4'>
+                            <div class="form-group required">
+                                <label>{{l("PoCode")}}</label>
+                                <div class="user-group">
+                                    <input class="form-control" type="text" #pO_CODE="ngModel" name="pO_CODE"
+                                        [disabled]="false" [(ngModel)]="inputModel.pO_CODE" required>
+                                    <button class="btn btn-primary ng-star-inserted" (click)="tradePoMasterModal.show()"
+                                        [disabled]="disableInput" type='button'>{{l("...")}}</button>
+                                </div>
+                                <div class="error-message" *ngIf="pO_CODE.invalid && isShowError">
+                                    <span *ngIf="pO_CODE?.errors.required">{{l('PoCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col-md-8'></div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("ContractCode")}}</label>
+                                <input class="form-control" name="contracT_CODE" #contracT_CODE="ngModel" type="text"
+                                    [disabled]="true" [ngModel]="inputModel.contracT_CODE" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("TotalMoney")}}</label>
+                                <money-input #totaL_AMT="ngModel" name="totaL_AMT" [(ngModel)]="inputModel.totaL_AMT"
+                                    [disabled]="true">
+                                </money-input>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("SupplierName")}}</label>
+                                <input class="form-control" name="s_SUP_NAME" #s_SUP_NAME="ngModel" type="text"
+                                    [disabled]="true" [ngModel]="inputModel.s_SUP_NAME" />
+                            </div>
+                        </div>
+                        <!--END PO'S INFORMATION-->
+
+
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Reason")}}</label>
+                                <textarea class="form-control" type="text" name="reasoN_CANCEL" #reasoN_CANCEL="ngModel"
+                                    [disabled]="false" [(ngModel)]="inputModel.reasoN_CANCEL"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("PersonRequest")}}</label>
+                                <input class="form-control" name="requesT_CANCEL" #requesT_CANCEL="ngModel" type="text"
+                                    [disabled]="false" [(ngModel)]="inputModel.requesT_CANCEL" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("DateRequest")}}</label>
+                                <date-control [inpCss]="'form-control'" type="text" #requesT_DT="ngModel"
+                                    [disabled]="false" name="requesT_DT" [(ngModel)]="inputModel.requesT_DT">
+                                </date-control>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+                    </div>
+                </form>
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<trade-po-master-modal (onSelect)="onSelectTradePoMaster($event)" [multiple]="false" #tradePoMasterModal>
+</trade-po-master-modal>

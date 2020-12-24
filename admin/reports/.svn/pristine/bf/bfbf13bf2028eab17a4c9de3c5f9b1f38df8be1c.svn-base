@@ -1,0 +1,131 @@
+<div [@routerTransition]>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a> -->
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 class="m-subheader__title m-subheader__title--separator">
+                    <!-- Begin Title -->
+                    <span>{{l("RatSupplierReport")}}</span>
+                    <!-- End Title -->
+                </h3>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <form #editForm="ngForm" novalidate class="horizontal-form filter-form" autocomplete="off">
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-30">
+                            <!-- Begin Filter -->
+                            <div class="col-md-8 row">
+                                <!-- Đợt đánh giá -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("RateNo")}}</label>
+                                        <select2-custom [(ngModel)]="filterInput.RAT_ID" #RAT_ID="ngModel" name="RAT_ID"
+                                            required (onChangeSelect2)="onRateTermChange($event)"
+                                            [(list)]="ratTermMasters" [valueMember]="'raT_ID'"
+                                            [displayMember]="'ratE_TERM'">
+                                        </select2-custom>
+                                        <div class="error-message" *ngIf="RAT_ID.invalid && isShowError">
+                                            <span *ngIf="RAT_ID?.errors.required">{{l('RateNo')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ngày tạo -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("CreationTime")}}</label>
+                                        <date-control [inpCss]="'form-control'" type="text" [disabled]="true"
+                                            [ngModelOptions]="{standalone: true}" [(ngModel)]="filterInput.INPUT_DT">
+                                        </date-control>
+                                    </div>
+                                </div>
+
+                                <!-- Từ ngày - Đến ngày -->
+                                <div class="col-md-12">
+                                    <fieldset>
+                                        <legend>{{l("Period")}}</legend>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label>{{l("FromDate")}}</label>
+                                                <date-control [inpCss]="'form-control'" type="text" [disabled]="true"
+                                                    [ngModelOptions]="{standalone: true}"
+                                                    [(ngModel)]="filterInput.FROM_DT">
+                                                </date-control>
+                                            </div>
+                                            <div class="col-md-6 required">
+                                                <label>{{l("ToDate")}}</label>
+                                                <date-control [inpCss]="'form-control'" type="text" name="TODATE"
+                                                    [disabled]="true" #TODATE="ngModel" [(ngModel)]="filterInput.TO_DT">
+                                                </date-control>
+
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+
+                                <!-- Ghi chú -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("Note")}}</label>
+                                        <textarea class="form-control" [disabled]="true"
+                                            [ngModelOptions]="{standalone: true}"
+                                            [ngModel]="filterInput.NOTE"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Đơn vị sử dụng-->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("BranchNameUse")}}</label>
+                                        <div class="user-group">
+                                            <input class="form-control" (focusout)="onBranchUseFocusOut()"
+                                                [ngModelOptions]="{standalone: true}"
+                                                [(ngModel)]="filterInput.BRANCH_CODE">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-primary"
+                                                    (click)="branchModal.show()">...</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6"></div>
+
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label></label>
+                                        <div>
+                                            <!-- <button class="btn btn-primary">{{l('Report')}}</button> -->
+                                            <button (click)="exportToExcel(1)"
+                                                class="btn btn-primary">{{l('RatioReport')}}</button>
+                                            <button (click)="exportToExcel(2)"
+                                                class="btn btn-primary">{{l('QuantityReport')}}</button>
+                                            <button (click)="exportToExcel(3)"
+                                                class="btn btn-primary">{{l('BranchReport')}}</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<branch-modal (onSelect)="onSelectBranch($event)" [multiple]="false" #branchModal></branch-modal>

@@ -1,0 +1,3 @@
+<select #control [disabled]="disabled" name="{{name}}" class="form-control {{inputCss}}" [(ngModel)]="_ngModel">
+    <option *ngFor="let item of items" value="{{item.cdval}}">{{item.content}}</option>
+</select>

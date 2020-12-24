@@ -1,0 +1,26 @@
+<div bsModal #popupFrameModal="bs-modal" (onShown)="onShown()" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="popupFrameModal" aria-hidden="true" [config]="{backdrop: 'static' }">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    <span>{{title}}</span>
+                </h4>
+                <button type="button" class="close" (click)="close()" [attr.aria-label]="l('Close')" [disabled]="waiting">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ng-content></ng-content>
+            </div>
+            <div class="modal-footer">
+                <button *ngIf="showSearchButton" [disabled]="waiting" type="button" class="btn btn-primary" (click)="onSearch()"><i class="fa fa-search" aria-hidden="true"></i>
+                    <span>{{l("Search")}}</span></button>
+                <button type="button" class="btn btn-primary" [buttonBusy]="true" (click)="onSelect();" [busyText]="l('SavingWithThreeDot')"><i class="fa fa-check"></i>
+                    <span>{{l("Accept")}}</span></button>
+                <button [disabled]="waiting" type="button" class="btn btn-danger" (click)="onCancel();"><i
+                        class="fa fa-ban" aria-hidden="true"></i>
+                    <span>{{l("Cancel")}}</span></button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,116 @@
+<popup-frame [title]="l('Search') + ' ' + l('TradeDetail')" (onSearchEvent)="buttonSearch()" (onSelectEvent)="accept()" #popupFrame>
+    <form class="horizontal-form filter-form" autocomplete="off">
+        <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+                <!-- Begin Filter -->
+                <!-- <h5 class="popup-title col-md-12">{{l("SearchContains")}}</h5> -->
+                <!-- Tên kế hoạch -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("PlanMasterName")}}</label>
+                        <input [(ngModel)]="filterInput.plaN_NAME" [ngModelOptions]="{standalone: true}" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <!-- Năm thực hiện -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("PlanYear")}}</label>
+                        <input [(ngModel)]="filterInput.year" min="0" type="number" [ngModelOptions]="{standalone: true}" class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <!-- Mã đơn vị -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("BranchCode")}}</label>
+                        <input [(ngModel)]="filterInput.brancH_CODE" [ngModelOptions]="{standalone: true}" class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <!-- End Filter -->
+
+
+                <div style="display:none;" class="col-md-12">
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-search" (click)="search()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row align-items-center">
+        <div class="primeng-datatable-container popup-modal-container {{dataTable.isLoading}}">
+            <div class="spinner-border m-5" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <core-table [reloadPageOnInit]="false" #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                <thead>
+                    <tr>
+                        <!-- Begin Table Column -->
+                        <!-- multiple -->
+                        <!-- Checkbox -->
+                        <th *ngIf="multiple">
+                            <checkbox-control #checkAllElement (change)="onCheckAll(checkAllElement.inputRef.nativeElement)" [checked]="checkAll"></checkbox-control>
+                        </th>
+                        <!-- STT -->
+                        <th>
+                            <span style="width: 40px">{{l("No")}}</span>
+                        </th>
+                        <!-- Tên kế hoạch -->
+                        <th sortField="PLAN_NAME">
+                            <span style="width: 200px">{{l("PlanMasterName")}}</span>
+                        </th>
+                        <!-- Đơn vị đề xuất -->
+                        <th sortField="pgd">
+                            <span style="width: 150px">{{l("OfferBranch")}}</span>
+                        </th>
+                        <!-- Phòng ban -->
+                        <th sortField="DEP_NAME">
+                            <span style="width: 150px">{{l("DepId")}}</span>
+                        </th>
+                        <!-- Ngày hiệu lực -->
+                        <th sortField="EFFECT_DT">
+                            <span style="width: 150px">{{l("EffectDt")}}</span>
+                        </th>
+                        <!-- Kinh phí được duyệt -->
+                        <th sortField="APPROVE_VALUE">
+                            <span style="width: 200px">{{l("ApproveValue")}}</span>
+                        </th>
+                        <!-- Năm thực hiện -->
+                        <th sortField="YEAR">
+                            <span style="width: 150px">{{l("PlanYear")}}</span>
+                        </th>
+
+
+                        <!-- End Table Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onDoubleClick(record)" (click)="selectRow($event,record)">
+                        <!-- Begin Table Value -->
+                        <!-- multiple -->
+                        <td *ngIf="multiple">
+                            <span class="mo-header"></span>
+                            <checkbox-control (onchange)="setChecked($event.target.checked, record)" [checked]="record['isChecked']"></checkbox-control>
+                        </td>
+                        <!-- STT -->
+                        <td><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                        </td>
+                        <!-- Tên kế hoạch -->
+                        <td><span class="mo-header"></span>{{record.plaN_NAME}}</td>
+                        <!-- Đơn vị đề xuất -->
+                        <td><span class="mo-header"></span>{{record.pgd}}</td>
+                        <!-- Phòng ban -->
+                        <td><span class="mo-header"></span>{{record.deP_NAME}}</td>
+                        <!-- Ngày hiệu lực -->
+                        <td><span class="mo-header"></span>{{record.effecT_DT | dateFormatPipe}}</td>
+                        <!-- Kinh phí được duyệt -->
+                        <td class="right"><span class="mo-header"></span>{{record.approvE_VALUE | moneyFormatPipe}}
+                        </td>
+                        <!-- Năm thực hiện -->
+                        <td class="center"><span class="mo-header"></span>{{record.year}}</td>
+
+                    </tr>
+                </tbody>
+            </core-table>
+        </div>
+    </div>
+</popup-frame>

@@ -1,0 +1,144 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <a [routerLink]="rootPage()"
+                        class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <!-- Begin Title -->
+                        <span>{{l("ApproveAllPlMaster")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <div class="col-md-12 align-right">
+                                    <div class="form-group">
+                                        <auth-status-input-page [authStatus]="inputmodel.autH_STATUS"></auth-status-input-page>
+                                    </div>
+                                </div>
+                                <div class="row col-md-10">
+                                    <!-- Begin Filter -->
+                                    <!--Năm thực hiện-->
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>{{l("TradeDetailYear")}}</label>
+                                            <select2-custom [(ngModel)]="filterInput.year"
+                                                [ngModelOptions]="{standalone: true}" [(list)]="years"
+                                                [valueMember]="'value'" [displayMember]="'display'">
+                                            </select2-custom>
+                                        </div>
+                                    </div>
+                                    <!--Người duyệt-->
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>{{l("PersonApprove")}}</label>
+                                            <input class="form-control" type="text" #checkeR_ID="ngModel" name="checkeR_ID" [disabled]="true" [(ngModel)]="inputmodel.checkeR_ID">
+                                        </div>
+                                    </div>
+                                    <!--Ngày duyệt-->
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>{{l("ApprovalDate")}}</label>
+                                            <input class="form-control" type="text" #approvE_DT="ngModel" name="approvE_DT" [disabled]="true" [(ngModel)]="inputmodel.approvE_DT">
+                                        </div>
+                                    </div>
+                                    <!-- End Filter -->
+                                    <div style="display:none;" class="col-md-12">
+                                        <div class="form-group">
+                                            <button class="btn btn-primary btn-search"
+                                                (click)="onSearch()">{{l('Search')}}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th style="width: 10%" class="center">
+                                            <span style="width: 90px">{{l("No")}}</span>
+                                        </th>
+                                        <!--Đơn vị-->
+                                        <th class="center" style="width: 18%"
+                                            sortField="ASSET_NAME">
+                                            <span >{{l("BranchName")}}</span>
+                                        </th>
+                                        <!--TSCD-->
+                                        <th class="center" style="width: 18%" sortField="QTY">
+                                            <span >{{l("TSCD")}}</span>
+                                        </th>
+                                        <!--CCLD-->
+                                        <th class="center" style="width: 18%" sortField="BUY_PRICE">
+                                            <span >{{l("CCLD")}}</span>
+                                        </th>
+                                        <!--CTBTSC-->
+                                        <th class="center" style="width: 18%" sortField="BUY_PRICE">
+                                            <span >{{l("CTBTSC")}}</span>
+                                        </th>
+                                        <!--TOTAL-->
+                                        <th class="center" style="width: 20%" sortField="TO">
+                                            <span >{{l("TOTAL")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of inputmodel.lisPlDetail">
+                                        <!-- Begin Table Value -->
+                                        <td class="center"><span
+                                                class="mo-header"></span>{{(inputmodel.lisPlDetail.indexOf(record)) + 1}}
+                                        </td> 
+                                        <!--Đơn vị-->
+                                        <td><span class="mo-header"></span>{{record.brancH_NAME}}</td>
+                                        <!--TSCD-->
+                                        <td class="right"><span class="mo-header"></span>{{record.tscd| moneyFormatPipe}}</td>
+                                        <!--CCLD-->
+                                        <td class="right"><span class="mo-header"></span>{{record.ccld| moneyFormatPipe}}</td>
+                                        <!--CTBTSC-->
+                                        <td class="right"><span class="mo-header"></span>{{record.ctbtsc| moneyFormatPipe}}</td>
+                                        <!--TOTAL-->
+                                        <td class="right"><span class="mo-header"></span>{{record.total| moneyFormatPipe}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="center"><span
+                                            class="mo-header"></span>{{l("Total")}}
+                                    </td> 
+                                    <!--Đơn vị-->
+                                    <td><span class="mo-header"></span></td>
+                                    <!--TSCD-->
+                                    <td class="right"><span class="mo-header"></span>{{inputmodel.totalTSCD| moneyFormatPipe}}</td>
+                                    <!--CCLD-->
+                                    <td class="right"><span class="mo-header"></span>{{inputmodel.totalCCLD| moneyFormatPipe}}</td>
+                                    <!--CTBTSC-->
+                                    <td class="right"><span class="mo-header"></span>{{inputmodel.totalCTBTSC| moneyFormatPipe}}</td>
+                                    <!--TOTAL-->
+                                    <td class="right"><span class="mo-header"></span>{{inputmodel.totalTOTAL| moneyFormatPipe}}</td>
+                                    </tr>
+                                </tbody>
+                            </core-table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

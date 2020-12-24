@@ -1,0 +1,117 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <!-- Begin Title -->
+                        <span>{{l("Branch")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-group dropdown mr-2">
+                        <button class=" btn btn-outline-success" (click)="exportToExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("BranchCode")}}</label>
+                                        <input [(ngModel)]="filterInput.brancH_CODE" name="brancH_CODE" autoFocus class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("BranchName")}}</label>
+                                        <input [(ngModel)]="filterInput.brancH_NAME" name="brancH_NAME" class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("AuthStatus")}}</label>
+                                        <all-code-select name="autH_STATUS" [(ngModel)]="filterInput.autH_STATUS" [emptyText]="l('SelectAll')" [cdName]="'AUTH_STATUS'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+                                <!-- End Filter -->
+                                <button hidden (click)="onSearch()"></button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div isLoading="dataTable.isLoading" class="primeng-datatable-container">
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="getBranchs()">
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th>
+                                            <span style="width: 60px">{{l("No")}}</span>
+                                        </th>
+                                        <th sortField="BRANCH.brancH_CODE">
+                                            <span style="width: 150px">{{l("BranchCode")}}</span>
+                                        </th>
+                                        <th sortField="BRANCH.brancH_NAME">
+                                            <span style="width: 250px">{{l("BranchName")}}</span>
+                                        </th>
+                                        <th sortField="BRANCH.addr">
+                                            <span style="width: 250px">{{l("Address")}}</span>
+                                        </th>
+                                        <th sortField="BRANCH.tel">
+                                            <span style="width: 150px">{{l("Tel")}}</span>
+                                        </th>
+                                        <th sortField="BRANCH.recorD_STATUS">
+                                            <span style="width: 150px">{{l("RecordStatus")}}</span>
+                                        </th>
+                                        <th sortField="BRANCH.autH_STATUS">
+                                            <span style="width: 150px">{{l("AuthStatus")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onUpdate(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <td><span class="mo-header"></span>{{(filterInput.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <td><span class="mo-header"></span>{{record.brancH_CODE}}</td>
+                                        <td><span class="mo-header"></span>{{record.brancH_NAME}}</td>
+                                        <td><span class="mo-header"></span>{{record.addr}}</td>
+                                        <td><span class="mo-header"></span>{{record.tel}}</td>
+                                        <td><span class="mo-header"></span>{{record.recorD_STATUS_NAME}}</td>
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+                            <div class="primeng-no-data" *ngIf="dataTable.records.length == 0">
+                                {{l('NoData')}}
+                            </div>
+                            <div class="primeng-paging-container">
+                                <p-paginator [rows]="filterInput.maxResultCount || dataTable.defaultRecordsCountPerPage" #paginator (onPageChange)="getBranchs($event)" [totalRecords]="dataTable.totalRecordsCount" [rowsPerPageOptions]="dataTable.predefinedRecordsCountPerPage">
+
+                                </p-paginator>
+                                <span class="total-records-count">
+                                    {{l('TotalRecordsCount')}} {{dataTable.totalRecordsCount}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

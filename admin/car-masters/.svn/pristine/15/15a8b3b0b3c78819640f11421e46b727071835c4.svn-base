@@ -1,0 +1,251 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <!-- Begin Title -->
+                        <span>{{l("CarChargeInfo")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-group dropdown mr-2">
+                        <button class=" btn btn-success" (click)="exportToExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+
+                                <!-- Số xe -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("N_Plate")}}</label>
+                                        <div class="input-group">
+                                            <input style="width:80%" class="form-control" maxlength="20" type="text" name="n_PLATE" [ngModel]="carMasterFilter?.n_PLATE" #n_PLATE='ngModel' (ngModelChange)='carMasterFilter?.n_PLATE ? carMasterFilter.n_PLATE = $event : null'>
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-primary"
+                                                    (click)="inputModelModal?.show()">...</button>
+                                            </span>
+                                        </div>
+                                        <div class="error-message" *ngIf="n_PLATE?.invalid">
+                                            <span *ngIf="n_PLATE?.errors.pattern">{{l('N_Plate')}}
+                                                {{l("Invalidation")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Model -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("Model")}}</label>
+                                        <input [ngModel]="carMasterFilter?.model" name="model" disabled class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- ---------- Loại xe ---------- -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("CarType")}}</label>
+                                        <input [ngModel]="carMasterFilter?.caR_TYPE_NAME" name="caR_TYPE_NAME" disabled class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- ---------- Hãng sản xuất ---------- -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("Manufacturer")}}</label>
+                                        <all-code-select name="manufacturer" [emptyText]="l('NullSelect')" disabled #manufacturer='ngModel' [ngModel]='carMasterFilter?.manufacturer' [cdName]="'MANUFACTURER'" [cdType]="'CAR'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+
+                                <!-- ---------- Nước sản xuất ---------- -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("ProductCountryName")}}</label>
+                                        <all-code-select name="producT_COUNTRY_NAME" disabled [ngModel]="carMasterFilter?.producT_COUNTRY_NAME" #producT_COUNTRY_NAME='ngModel' [emptyText]="l('NullSelect')" [cdName]="'PRODUCT_COUNTRY'" [cdName]="'CAR'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+
+                                <!-- Năm sản xuất -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("ManufactureYear")}}</label>
+                                        <input [ngModel]="carMasterFilter?.manufacturE_YEAR" name="manufacturE_YEAR" disabled class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- ---------- Loại hộp số ---------- -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("GearboxType")}}</label>
+                                        <all-code-select name="gearboX_TYPE" #gearboX_TYPE='ngModel' disabled [ngModel]="carMasterFilter?.gearboX_TYPE" [emptyText]="l('NullSelect')" [cdName]="'GEARBOX_TYPE'" [cdName]="'CAR'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+
+                                <!-- ---------- Loại nhiên liệu ---------- -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("FuelstypeName")}}</label>
+                                        <all-code-select name="fuelS_TYPE" #fuelS_TYPE='ngModel' disabled [ngModel]="carMasterFilter?.fuelS_TYPE" [emptyText]="l('NullSelect')" [cdName]="'FUELSTYPE'" [cdName]="'CAR'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+
+                                <!-- ---------- Định mức nhiên liệu ---------- -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("PowerRate")}}</label>
+                                        <input [ngModel]="carMasterFilter?.poweR_RATE" name="poweR_RATE" disabled class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Thể tích động cơ -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("EngineVolume")}}</label>
+                                        <input [ngModel]="carMasterFilter?.volume" name="volume" disabled class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Số máy -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("MachinesId")}}</label>
+                                        <input [ngModel]="carMasterFilter?.machineS_ID" name="machineS_ID" disabled class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Số sườn -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("SlopesId")}}</label>
+                                        <input [ngModel]="carMasterFilter?.slopeS_ID" name="slopeS_ID" disabled class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Tình trạng duyệt -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("AuthStatus")}}</label>
+                                        <all-code-select name="autH_STATUS" [(ngModel)]="filterInput.autH_STATUS" [emptyText]="l('SelectAll')" [cdName]="'AUTH_STATUS'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+                                <!-- End Filter -->
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="getCarCharges()">
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th>
+                                            <span style="width: 50px">{{l("No")}}</span>
+                                        </th>
+                                        <!-- Số xe -->
+                                        <th sortField="n_PLATE">
+                                            <span style="width: 80px">{{l("N_Plate")}}</span>
+                                        </th>
+                                        <!-- Ngày cập nhật -->
+                                        <th sortField="inpuT_DT">
+                                            <span style="width: 150px">{{l("InputDate")}}</span>
+                                        </th>
+                                        <!-- Ngày đóng phí -->
+                                        <th sortField="charG_DT">
+                                            <span style="width: 150px">{{l("ChargeDate")}}</span>
+                                        </th>
+                                        <!-- Ngày hết hạn -->
+                                        <th sortField="charG_MAT_DT">
+                                            <span style="width: 150px">{{l("ChargeMatDate")}}</span>
+                                        </th>
+                                        <!-- Thời hạn sử dụng -->
+                                        <th sortField="charG_TERMS">
+                                            <span style="width: 150px">{{l("ChargeTerms")}}</span>
+                                        </th>
+                                        <!-- Số tiền thanh toán -->
+                                        <th sortField="charG_AMT">
+                                            <span style="width: 150px">{{l("ChargeAMT")}}</span>
+                                        </th>
+                                        <!-- Công ty thu phí -->
+                                        <th sortField="charG_COMPANY">
+                                            <span style="width: 150px">{{l("ChargeCompany")}}</span>
+                                        </th>
+                                        <!-- Loại phí -->
+                                        <th sortField="charG_TYPE">
+                                            <span style="width: 150px">{{l("ChargeType")}}</span>
+                                        </th>
+                                        <!-- Tình trạng duyệt -->
+                                        <th sortField="autH_STATUS">
+                                            <span style="width: 150px">{{l("AuthStatus")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onUpdate(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <td><span class="mo-header"></span>{{(filterInput.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <!-- Số xe -->
+                                        <td><span class="mo-header"></span>{{record.n_PLATE}}</td>
+                                        <!-- Ngày cập nhật -->
+                                        <td><span class="mo-header"></span>{{record.inpuT_DT | dateFormatPipe}}</td>
+                                        <!-- Ngày đóng phí -->
+                                        <td><span class="mo-header"></span>{{record.charG_DT | dateFormatPipe}}</td>
+                                        <!-- Ngày hết hạn -->
+                                        <td><span class="mo-header"></span>{{record.charG_MAT_DT | dateFormatPipe}}</td>
+                                        <!-- Thời hạn sử dụng -->
+                                        <td><span class="mo-header"></span>{{record.charG_TERMS}}</td>
+                                        <!-- Số tiền thanh toán -->
+                                        <td><span class="mo-header"></span>{{record.charG_AMT | moneyFormatPipe}}</td>
+                                        <!-- Công ty thu phí -->
+                                        <td><span class="mo-header"></span>{{record.charG_COMPANY}}</td>
+                                        <!-- Loại phí -->
+                                        <td><span class="mo-header"></span>{{record.charG_TYPE_NAME}}</td>
+                                        <!-- Tình trạng duyệt -->
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+
+                            <div class="primeng-no-data" *ngIf="dataTable.records.length == 0">
+                                {{l('NoData')}}
+                            </div>
+                            <div class="primeng-paging-container">
+                                <p-paginator [rows]="filterInput.maxResultCount || dataTable.defaultRecordsCountPerPage" #paginator (onPageChange)="getCarCharges($event)" [totalRecords]="dataTable.totalRecordsCount" [rowsPerPageOptions]="dataTable.predefinedRecordsCountPerPage">
+                                </p-paginator>
+
+                                <span class="total-records-count">
+                                    {{l('TotalRecordsCount')}} {{dataTable.totalRecordsCount}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<car-master-modal [multiple]="false" (onSelect)="onSelectCar($event)" #inputModelModal></car-master-modal>

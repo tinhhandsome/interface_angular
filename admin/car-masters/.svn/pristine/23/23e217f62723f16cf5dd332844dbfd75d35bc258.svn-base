@@ -1,0 +1,241 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <a [routerLink]="rootPage()"
+                        class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+
+                        <!-- Begin Title -->
+                        <span>{{l("CarMaintainList")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-group dropdown mr-2">
+                        <button class=" btn btn-outline-success" *ngIf="appToolbar.buttonSearchEnable"
+                            (click)="exportExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+
+                                <!-- Số xe -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("N_Plate")}}</label>
+                                        <div class="user-group">
+                                            <input [disabled]="false" #n_PLATE="ngModel"
+                                                [(ngModel)]="filterInput.n_PLATE" name="n_PLATE" autoFocus
+                                                class="form-control m-input" style="display: inline; " type="text">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-primary ng-star-inserted"
+                                                    (click)="carMasterModal.show()">...</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Mẫu mã -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("Model")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.model" name="model" autoFocus
+                                            class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Loại xe -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("CarType")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.caR_TYPE_NAME" name="caR_TYPE_NAME"
+                                            autoFocus class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Hãng sản xuất -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("Manufacturer")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.manufacturer" name="manufacturer"
+                                            autoFocus class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Nước sản xuất -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("ProductCountryName")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.procountry" name="procountry" autoFocus
+                                            class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Năm sản xuất -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("ManufacturerYear")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.manufacturE_YEAR"
+                                            name="manufacturE_YEAR" autoFocus class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Loại hộp số -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("GearboxType")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.gearboX_TYPE" name="gearboX_TYPE"
+                                            autoFocus class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Loại nhiên liệu -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("FuelstypeName")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.fuelS_TYPE" name="fuelS_TYPE" autoFocus
+                                            class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Định mức nhiên liệu -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("PowerRate")}}</label>
+
+                                        <div class="user-group">
+                                            <input disabled [(ngModel)]="filterInput.poweR_RATE" name="poweR_RATE"
+                                                autoFocus class="form-control m-input decimal" type="number">
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- Thể tích động cơ -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("EngineVolume")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.volume" name="volume" autoFocus
+                                            class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Số máy -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("MachinesNo")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.machineS_ID" name="machineS_ID"
+                                            autoFocus class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Số sườn -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("SlopesNo")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.slopeS_ID" name="slopeS_ID" autoFocus
+                                            class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+                                <!-- End Filter -->
+                                <div style="display:none;" class="col-md-12">
+                                    <div class="form-group">
+                                        <button *ngIf="appToolbar.buttonSearchEnable" class="btn btn-primary btn-search"
+                                            (click)="onSearch()">{{l('Search')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                                <thead>
+                                    <tr>
+
+                                        <!-- Begin Table Column -->
+                                        <!-- Số thứ tự -->
+                                        <th class="center">
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <!-- Số xe -->
+                                        <th class="center" style="width: 5%" sortField="N_PLATE">
+                                            <span style="width: 150px">{{l("N_Plate")}}</span>
+                                        </th>
+                                        <!-- Ngày bảo dưỡng -->
+                                        <th class="center" style="width: 15%" sortField="MAINT_DT">
+                                            <span style="width: 200px">{{l("MaintDate")}}</span>
+                                        </th>
+                                        <!-- Ngày bảo dưỡng tiếp theo -->
+                                        <th class="center" style="width: 15%" sortField="MAINT_DT">
+                                            <span style="width: 200px">{{l("NextMaintDate")}}</span>
+                                        </th>
+                                        <!-- Số tiền thanh toán -->
+                                        <th class="center" style="width: 15%" sortField="MAINT_AMT">
+                                            <span style="width: 150px">{{l("MainAMT")}}</span>
+                                        </th>
+                                        <!-- Hạng mục bảo dưỡng -->
+                                        <th class="center" style="width: 30%" sortField="MAINT_ITEM">
+                                            <span style="width: 180px">{{l("MaintItem")}}</span>
+                                        </th>
+                                        <!-- Đơn vị bảo dưỡng -->
+                                        <th class="center" style="width: 15%" sortField="MAINT_PROVIDER">
+                                            <span style="width: 180px">{{l("MaintProviderName")}}</span>
+                                        </th>
+                                        <!-- Trạng thái duyệt -->
+                                        <th class="center" style="width: 5%" sortField="AUTH_STATUS_NAME">
+                                            <span style="width: 150px">{{l("AuthStatus")}}</span>
+                                        </th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable"
+                                        (dblclick)="onDblclick(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <td class="center"><span
+                                                class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <td><span class="mo-header"></span>{{record.n_PLATE}}</td>
+                                        <td><span class="mo-header"></span>{{record.mainT_DT | dateFormatPipe}}</td>
+                                        <td><span class="mo-header"></span>{{record.mainT_DT | dateFormatPipe}}</td>
+                                        <td class="right"><span
+                                                class="mo-header"></span>{{formatMoney(record.mainT_AMT)}}</td>
+                                        <td><span class="mo-header"></span>{{record.mainT_ITEM}}</td>
+
+                                        <td><span class="mo-header"></span>{{record.mainT_PROVIDER_NAME}}</td>
+
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <car-master-modal [multiple]="false" (onSelect)="onSelectCar($event)" #carMasterModal></car-master-modal>
+    </div>
+</div>

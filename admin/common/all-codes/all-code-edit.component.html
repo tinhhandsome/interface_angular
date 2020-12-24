@@ -1,0 +1,83 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("AllCode")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Create")}} {{l("AllCode") | lowercase}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Edit")}} {{l("AllCode") | lowercase}} :
+                        {{inputModel.content}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("View")}} {{l("AllCode") | lowercase}} :
+                        {{inputModel.content}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("CDTYPE")}}</label>
+                                <input maxlength="15" [disabled]="disableInput" class="form-control" type="text" required #cdtype="ngModel" name="cdtype" [(ngModel)]="inputModel.cdtype">
+                                <div class="error-message" *ngIf="cdtype.invalid && isShowError">
+                                    <span *ngIf="cdtype?.errors.required">{{l('CDTYPE')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("CDNAME")}}</label>
+                                <input maxlength="15" [disabled]="disableInput" class="form-control" type="text" required #cdname="ngModel" name="cdname" [(ngModel)]="inputModel.cdname">
+                                <div class="error-message" *ngIf="cdname.invalid && isShowError">
+                                    <span *ngIf="cdname?.errors.required">{{l('CDNAME')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("CDVAL")}}</label>
+                                <input [disabled]="disableInput" class="form-control" type="text" required #cdval="ngModel" name="cdval" [(ngModel)]="inputModel.cdval">
+                                <div class="error-message" *ngIf="cdval.invalid && isShowError">
+                                    <span *ngIf="cdval?.errors.required">{{l('CDVAL')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l('ALLCODECONTENT')}}</label>
+                                <input [disabled]="disableInput" class="form-control" type="text" required #content="ngModel" name="content" [(ngModel)]="inputModel.content">
+                                <div class="error-message" *ngIf="content.invalid && isShowError">
+                                    <span *ngIf="content?.errors.required">{{l('ALLCODECONTENT')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("LSTODR")}}</label>
+                                <input [disabled]="disableInput" class="form-control" type="text" #lstodr="ngModel" name="lstodr" [(ngModel)]="inputModel.lstodr">
+                            </div>
+                        </div>
+                        <button hidden (click)="saveInput()"></button>
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>

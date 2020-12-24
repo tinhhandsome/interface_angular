@@ -1,0 +1,4 @@
+<label [attr.readonly]="readOnly? '1' : '0'" class="m-checkbox" for="{{id}}">{{label}}
+    <input [readOnly]="readOnly" [disabled]="disabled" #control [checked]="_ngModel" type="checkbox" (change)="checkedChange($event.target.checked); onchange.emit($event);" id="{{id}}">
+    <span></span>
+</label>

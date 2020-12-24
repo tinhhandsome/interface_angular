@@ -1,0 +1,43 @@
+.toolbar-component button>i {
+    font-size: 15px!important;
+}
+
+@media (max-width: 1180px) {
+    .toolbar-component button {
+        font-size: 10px!important;
+    }
+}
+
+@media screen and (max-width: 1120px) {
+    apptoolbar button>span {
+        display: none;
+    }
+    apptoolbar {
+        opacity: 1;
+    }
+    header {
+        position: fixed;
+        top: 0;
+        z-index: 9;
+    }
+    apptoolbar ~ .m-subheader ~ div#content {
+        top: 80px;
+        margin-bottom: 80px;
+        position: relative;
+    }
+    apptoolbar>div {
+        position: fixed;
+        top: 60px;
+        width: 100%;
+        display: flex;
+        background: white;
+        z-index: 9;
+    }
+    apptoolbar>div>button {
+        flex: 1;
+    }
+    .toolbar-component button {
+        padding-left: initial!important;
+        padding-right: initial!important;
+    }
+}

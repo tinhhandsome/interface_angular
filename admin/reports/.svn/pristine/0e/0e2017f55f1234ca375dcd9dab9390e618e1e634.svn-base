@@ -1,0 +1,131 @@
+import { Injector, Component, OnInit, ViewEncapsulation, AfterViewInit, ViewChild, ElementRef } from "@angular/core";
+import { ReportInfo, AsposeServiceProxy, CM_DEPARTMENT_ENTITY, BranchServiceProxy, CM_BRANCH_ENTITY, CM_DIVISION_ENTITY, DepartmentServiceProxy, CM_SUPPLIER_ENTITY, CM_GOODS_ENTITY, TLUSER_GETBY_BRANCHID_ENTITY, CM_GOODSTYPE_REAL_ENTITY, ASS_MASTER_ENTITY } from "@shared/service-proxies/service-proxies";
+import { appModuleAnimation } from "@shared/animations/routerTransition";
+import { FileDownloadService } from "@shared/utils/file-download.service";
+import { ReportTypeConsts } from "@app/admin/core/ultils/consts/ReportTypeConsts";
+import { DefaultComponentBase } from "@app/ultilities/default-component-base";
+import * as moment from 'moment';
+import { Select2CustomComponent } from "@app/admin/core/controls/custom-select2/select2-custom.component";
+import { BranchModalComponent } from "@app/admin/core/controls/branch-modal/branch-modal.component";
+import { AssGroupModalComponent } from "@app/admin/core/controls/ass-group-modal/ass-group-modal.component";
+import { AssetModalComponent } from "@app/admin/core/controls/asset-modal/asset-modal.component";
+
+@Component({
+    templateUrl: './history-transfer-list.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+
+export class HistoryTransferListComponent extends DefaultComponentBase implements OnInit, AfterViewInit {
+    filterInput: any = {};
+    isShowError: boolean = false;
+    @ViewChild('reportForm') reportForm: ElementRef;
+
+    currentAssetCode: string;
+
+    levels: any[];
+
+    @ViewChild('branchModal') branchModal: BranchModalComponent;
+    @ViewChild('assetModal') assetModal: AssetModalComponent;
+
+
+    ngAfterViewInit(): void {
+        this.stopAutoUpdateView();
+    }
+
+    constructor(injector: Injector,
+        private fileDownloadService: FileDownloadService,
+        private asposeService: AsposeServiceProxy) {
+        super(injector);
+        
+    }
+
+
+    ngOnInit(): void {
+
+        this.levels = this.getLevelsCombobox();
+
+        this.filterInput.BranchLogin = this.appSession.user.subbrId;
+        this.filterInput.Level = 'ALL';
+        
+        this.filterInput.Fromdate = moment();
+        this.filterInput.Todate = moment();
+        this.filterInput.Asset_Type = 'ALL';
+        this.filterInput.UserLogin = this.appSession.user.userName;
+
+        this.updateView();
+    }
+
+    assetModalShow() {
+        this.assetModal.filterInput.brancH_LOGIN = this.appSession.user.subbrId;
+        this.assetModal.filterInput.brancH_ID = this.appSession.user.subbrId;
+        this.assetModal.filterInput.brancH_NAME = this.appSession.user.branchName;
+        this.assetModal.show();
+
+    }
+    branchModalShow() {
+        this.branchModal.filterInput.brancH_LOGIN = this.appSession.user.subbrId;
+        this.branchModal.show();
+
+    }
+    exportToExcel() {
+        if ((this.reportForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return;
+        }
+        let reportInfo = new ReportInfo();
+        reportInfo.typeExport = ReportTypeConsts.Excel;
+
+        if (!this.filterInput.Asset_Id) {
+            this.filterInput.Asset_Id = '';
+        }
+
+        if (!this.filterInput.Branch_Receive) {
+            this.filterInput.Branch_Receive = '';
+        }
+
+        if (!this.filterInput.Asset_Type) {
+            this.filterInput.Asset_Type = '';
+        }
+
+        if (!this.filterInput.Asset_Group) {
+            this.filterInput.Asset_Group = '';
+        }
+
+        if (!this.filterInput.Level) {
+            this.filterInput.Level = '';
+        }
+        // this.filterInput.Todate = this.filterInput.Todate.format('DD/MM/YYYY');
+        // this.filterInput.Fromdate = this.filterInput.Fromdate.format('DD/MM/YYYY');
+        reportInfo.parameters = this.GetParamsFromFilter(this.filterInput);
+        reportInfo.values = this.GetParamsFromFilter({
+            B3: this.appSession.user.branchName.toUpperCase(),
+            A4: ("danh mục điều chuyển tài sản " + this.l('FromDate') + ' ' + this.filterInput.Fromdate.format('DD/MM/YYYY') + ' ' + this.l('ToDate') + ' ' + this.filterInput.Todate.format('DD/MM/YYYY')).toUpperCase(),
+            P14: this.appSession.user.emailAddress,
+        });
+
+        
+
+
+        reportInfo.pathName = "/REPORT/BM-HC_QLTS_13_DIEU_CHUYEN_TAI_SAN.xlsx";
+        reportInfo.storeName = "rpt_QLTS_13_DMDIEUCHUYEN";
+
+        this.asposeService.getReport(reportInfo).subscribe(x => {
+            this.fileDownloadService.downloadTempFile(x);
+        });
+    }
+
+    onSelectAsset(asset: ASS_MASTER_ENTITY) {
+        this.filterInput[this.currentAssetCode] = asset.asseT_CODE;
+    }
+
+    // printPreview() {
+
+
+
+    //     this.previewTemplateService.printReportTemplate("TSCD_BC16A", parameters, values);
+    // }
+
+}

@@ -1,0 +1,385 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("AssLiqRequest")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                    <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                    <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- Ngày đề xuất -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("OfferDate")}}</label>
+                                <date-control [inpCss]="'form-control'" #reQ_DT="ngModel" name="reQ_DT"
+                                    [disabled]="disableInput" [(ngModel)]="inputModel.reQ_DT" required>
+                                </date-control>
+                                <div class="error-message" *ngIf="reQ_DT.invalid && isShowError">
+                                    <span *ngIf="reQ_DT?.errors?.required">{{l('OfferDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Đợt thanh lý -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("LiquidTerm")}}</label>
+                                <select2-custom [(ngModel)]="inputModel.terM_ID" #terM_ID="ngModel" name="terM_ID"
+                                    [disabled]="disableInput" [(list)]="terms" [emptyText]="l('SelectAll')"
+                                    [valueMember]="'terM_ID'" [displayMember]="'terM_NAME'" required>
+                                </select2-custom>
+                                <div class="error-message" *ngIf="terM_ID.invalid && isShowError">
+                                    <span *ngIf="terM_ID?.errors?.required">{{l('LiquidTerm')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!--Đơn vị đề xuất thanh lý-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AssLiqRequestBranch")}}</label>
+                                <input #brancH_CREATE_NAME="ngModel" name="brancH_CREATE_NAME"
+                                    class="form-control transparent " [(ngModel)]="inputModel.brancH_NAME_CREATE"
+                                    readonly />
+                            </div>
+                        </div>
+
+                        <!-- Loại tài sản -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AssType")}}</label>
+                                <select2-custom [ngModelOptions]="{standalone: true}" [disabled]="disableInput"
+                                    #typE_ID="ngModel" name="typE_ID" [(ngModel)]="inputModel.asS_TYPE_ID"
+                                    [(list)]="assTypes" [emptyText]="l('SelectAll')" [valueMember]="'typE_ID'"
+                                    [displayMember]="'typE_NAME'">
+                                </select2-custom>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!-- Đề xuất cho đơn vị -->
+                        <div class='col-md-4'>
+                            <div class="form-group required">
+                                <label>{{l("RequestForBranch")}}</label>
+                                <div class="user-group">
+                                    <input class="form-control" type="text" #req_brancH_ID="ngModel"
+                                        (focusout)="onBranchFocusOut()" name="req_brancH_ID" [disabled]="disableInput"
+                                        [(ngModel)]="inputModel.brancH_CODE" required>
+                                    <button class="btn btn-primary ng-star-inserted" [disabled]="disableInput"
+                                        (click)="onOpenBranchModal()" type='button'>{{l("...")}}</button>
+                                </div>
+                                <div class="error-message" *ngIf="req_brancH_ID.invalid && isShowError">
+                                    <span *ngIf="req_brancH_ID?.errors?.required">{{l('RequestForBranch')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Tên đơn vị-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("BranchName")}}</label>
+                                <input #brancH_NAME="ngModel" name="brancH_NAME" class="form-control transparent "
+                                    [(ngModel)]="inputModel.brancH_NAME" readonly />
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!-- Ghi chú -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Note")}}</label>
+                                <textarea class="form-control" type="text" #notes="ngModel" name="notes"
+                                    [disabled]="disableInput" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!-- BEGIN DETAIL -->
+                        <div class="col-md-12">
+                            <div class="editable-title-group">
+                                <!-- Danh sách tài sản đề xuất thanh lý -->
+                                <h5 class="popup-title col-md-12">{{l("RequestedLiquidationSubTitle")}}</h5>
+                                <div class="action-button">
+                                    <button type="button" [disabled]="disableInput" class="btn btn-primary"
+                                        (click)="onOpenAssetModal()"><i class="pi pi-plus"></i>{{l('Add')}}</button>
+                                    <button type="button" [disabled]="disableInput" class="btn btn-danger"
+                                        (click)="editTable.removeAllCheckedItem()"><i
+                                            class="pi pi-times"></i>{{l("Delete")}}</button>
+                                </div>
+                            </div>
+
+                            <div class="primeng-datatable-container">
+                                <form #ngFormAssLiq="ngForm">
+                                    <editable-table [editTableName]="'1'" [requiredFields]="['liQ_REASON','reQ_AMT']"
+                                        #editTableView class="custom-table ui-table">
+                                        <thead>
+                                            <tr>
+                                                <!-- Checkbox -->
+                                                <th><span style="width: 40px">
+                                                        <checkbox-control
+                                                            (onchange)="editTable.checkAll($event.target.checked)"
+                                                            [checked]="editTable.isCheckAll"></checkbox-control>
+                                                    </span>
+                                                </th>
+                                                <!-- Begin Table Column -->
+                                                <!-- STT -->
+                                                <th><span style="width: 40px">{{l("No")}}</span></th>
+                                                <!--Mã tài sản-->
+                                                <th sortField="asseT_CODE">
+                                                    <span style="width: 120px">{{l("AssetCode")}}</span>
+                                                </th>
+                                                <!-- Tên tài sản -->
+                                                <th sortField="asseT_NAME">
+                                                    <span style="width: 180px">{{l("AssetName")}}</span>
+                                                </th>
+                                                <!-- Số Serial -->
+                                                <th sortField="asseT_SERIAL_NO">
+                                                    <span style="width: 150px">{{l("SerialNo")}}</span>
+                                                </th>
+                                                <!-- Tình trạng -->
+                                                <th sortField="asS_STATUS_NAME">
+                                                    <span style="width: 150px">{{l("Status")}}</span>
+                                                </th>
+                                                <!-- Ngày sử dụng -->
+                                                <th sortField="usE_DATE">
+                                                    <span style="width: 150px">{{l("UseDate")}}</span>
+                                                </th>
+                                                <!-- Đơn vị -->
+                                                <th sortField="brancH_USE_NAME">
+                                                    <span style="width: 180px">{{l("Branch")}}</span>
+                                                </th>
+                                                <!-- Tên phòng ban -->
+                                                <th sortField="depT_USE_NAME">
+                                                    <span style="width: 180px">{{l("DepartmentName")}}</span>
+                                                </th>
+                                                <!-- Nguyên giá -->
+                                                <th sortField="buY_PRICE">
+                                                    <span style="width: 150px">{{l("OriginalPrice")}}</span>
+                                                </th>
+                                                <!-- Giá trị còn lại -->
+                                                <th sortField="remaiN_VALUE">
+                                                    <span style="width: 150px">{{l("RemainValue")}}</span>
+                                                </th>
+                                                <!-- Lý do đề xuất -->
+                                                <th sortField="liQ_REASON">
+                                                    <span style="width: 250px">{{l("RequestedReason")}}</span>
+                                                </th>
+                                                <!-- Gía trị thu hồi -->
+                                                <th sortField="reQ_AMT">
+                                                    <span style="width: 150px">{{l("RecoveryValue")}}</span>
+                                                </th>
+                                                <!-- Đơn vị nhận thanh lý -->
+                                                <th sortField="liQ_RECEIVE">
+                                                    <span style="width: 200px">{{l("LiqRecievedBranch")}}</span>
+                                                </th>
+                                                <!-- Ghi chú -->
+                                                <th sortField="notes">
+                                                    <span style="width: 200px">{{l("Note")}}</span>
+                                                </th>
+                                                <!-- End Table Column -->
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let item of editTable.dataInPage; let in = index"
+                                                class="selectable {{item['editableIsSelected']? 'selected' : ''}}"
+                                                [hidden]="item['page'] != editTable.currentPage"
+                                                (click)="editTable.selectRow($event,item); updateView();">
+                                                <!-- Checkbox -->
+                                                <td>
+                                                    <span class="mo-header" style="width: 40px"></span>
+                                                    <checkbox-control [disabled]="disableInput"
+                                                        name="{{editTable.name('isChecked',in)}}"
+                                                        [(ngModel)]="editTable.dataInPage[in]['isChecked']">
+                                                    </checkbox-control>
+                                                </td>
+
+                                                <!-- STT -->
+                                                <td class="center"><span class="mo-header" style="width: 40px"></span>
+                                                    <input class="label" [(ngModel)]="editTable.dataInPage[in]['no']"
+                                                        name="{{editTable.name('no',in)}}"></td>
+
+                                                <!--Mã tài sản-->
+                                                <td>
+                                                    <span class="mo-header"></span>
+                                                    <input readonly class="label"
+                                                        [(ngModel)]="editTable.dataInPage[in].asseT_CODE"
+                                                        name="{{editTable.name('asseT_CODE',in)}}" />
+                                                </td>
+
+                                                <!--Tên tài sản-->
+                                                <td>
+                                                    <span class="mo-header"></span>
+                                                    <input readonly class="label"
+                                                        [(ngModel)]="editTable.dataInPage[in].asseT_NAME"
+                                                        name="{{editTable.name('asseT_NAME',in)}}" />
+                                                </td>
+
+                                                <!--Số seri -->
+                                                <td>
+                                                    <span class="mo-header"></span>
+                                                    <input readonly class="label" type="text"
+                                                        name="{{editTable.name('asseT_SERIAL_NO',in)}}"
+                                                        [(ngModel)]="editTable.dataInPage[in].asseT_SERIAL_NO" />
+                                                </td>
+
+                                                <!--Tình trạng -->
+                                                <td>
+                                                    <span class="mo-header"></span>
+                                                    <input readonly class="label" type="text"
+                                                        name="{{editTable.name('asS_STATUS_NAME',in)}}"
+                                                        [(ngModel)]="editTable.dataInPage[in].asS_STATUS_NAME" />
+                                                </td>
+
+                                                <!-- Ngày sử dụng -->
+                                                <td>
+                                                    <span class="mo-header"></span>
+                                                    <date-control [inpCss]="'form-control'" type="text"
+                                                        name="{{editTable.name('usE_DATE',in)}}" [disabled]="true"
+                                                        [(ngModel)]="editTable.dataInPage[in].usE_DATE">
+                                                    </date-control>
+                                                </td>
+
+                                                <!-- Đơn vị-->
+                                                <td>
+                                                    <span class="mo-header"></span>
+                                                    <input readonly class="label" type="text"
+                                                        name="{{editTable.name('brancH_USE_NAME',in)}}"
+                                                        [(ngModel)]="editTable.dataInPage[in].brancH_USE_NAME" />
+                                                </td>
+
+                                                <!--Tên phòng-->
+                                                <td>
+                                                    <span class="mo-header"></span>
+                                                    <input readonly class="label" type="text"
+                                                        name="{{editTable.name('depT_USE_NAME',in)}}"
+                                                        [(ngModel)]="editTable.dataInPage[in].depT_USE_NAME" />
+                                                </td>
+
+
+                                                <!--Nguyên giá -->
+                                                <td>
+                                                    <span class="mo-header"></span>
+                                                    <money-input name="{{editTable.name('buY_PRICE',in)}}"
+                                                        [inputCss]="'label decimal'"
+                                                        [ngModel]="editTable.dataInPage[in].buY_PRICE" readonly>
+                                                    </money-input>
+                                                </td>
+
+                                                <!--Gía trị còn lại -->
+                                                <td>
+                                                    <span class="mo-header"></span>
+                                                    <money-input name="{{editTable.name('remaiN_AMORTIZED_AMT',in)}}"
+                                                        [inputCss]="'label decimal'"
+                                                        [(ngModel)]="editTable.dataInPage[in].remaiN_VALUE" readonly>
+                                                    </money-input>
+                                                </td>
+
+                                                <!-- Lý do đề xuất -->
+                                                <td>
+                                                    <span class="mo-header"></span>
+                                                    <textarea [disabled]="disableInput" class="form-control transparent"
+                                                        name="{{editTable.name('liQ_REASON',in)}}" type="text"
+                                                        [(ngModel)]="editTable.dataInPage[in].liQ_REASON"></textarea>
+                                                </td>
+
+                                                <!-- Gía trị thu hồi -->
+                                                <td>
+                                                    <span class="mo-header"></span>
+                                                    <money-input name="{{editTable.name('reQ_AMT',in)}}" min="0"
+                                                        [inputCss]="'form-control decimal'"
+                                                        [(ngModel)]="editTable.dataInPage[in].reQ_AMT"
+                                                        [disabled]="disableInput">
+                                                    </money-input>
+                                                </td>
+
+                                                <!-- Đơn vị nhận thanh lý -->
+                                                <td>
+                                                    <span class="mo-header"></span>
+                                                    <input [disabled]="disableInput" class="form-control transparent"
+                                                        type="text" name="{{editTable.name('liQ_RECEIVE',in)}}"
+                                                        [(ngModel)]="editTable.dataInPage[in].liQ_RECEIVE" />
+                                                </td>
+
+                                                <!-- Ghi chú -->
+                                                <td>
+                                                    <span class="mo-header"></span>
+                                                    <textarea [disabled]="disableInput" class="form-control transparent"
+                                                        type="text" name="{{editTable.name('notes',in)}}"
+                                                        [(ngModel)]="editTable.dataInPage[in].notes"></textarea>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </editable-table>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- END DETAIL -->
+
+                        <!-- Begin Print button -->
+                        <div class="col-md-12 action-button">
+                            <!-- Import tài sản thanh lý -->
+                            <div class="col-md-12">
+                                <div style="text-align: right">
+                                    <label class='btn btn-primary' for="file-upload"
+                                        style="margin-top: 6px; color:white!important">
+                                        {{this.l('ImportAssLiquidation')}}
+                                        <import-excel [inputCss]="'btn btn-primary'" [id]="'file-upload'"
+                                            [hidden]="true" [startPosition]="importStartPosition"
+                                            [disable]="disableInput" (toArrayObject)='onImportAssLiquidation($event)'>
+                                        </import-excel>
+                                    </label>
+                                    <!-- In danh sách -->
+                                    <button class="btn btn-primary" [hidden]="!isShowPrintAssLiqRequestList"
+                                        style="margin-top: 6px;" name="btn-print" type="button"
+                                        (click)="downloadAssLiqRequestListExcel()">{{l("PrintList")}}</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Print button -->
+
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>
+<asset-modal-sk [hideFields]="'SearchContains,brancH_ID,planLiqTitle,PlanLiqFilter,planMonthTitle,PlanMonthFilter'"
+    [isGroupColMd2]="true" [disableFields]="'asseT_TYPE'" [isDepFieldSelect2]="true" [multiple]="true"
+    [hideColumns]="'DEP_NAME,BUY_DATE,BRANCH_CREATE_NAME,ASSET_SERIAL_NO'" #assetModal
+    (onSelect)="onSelectAssets($event)" [isPagingClient]="true"></asset-modal-sk>
+<branch-modal #branchModal [multiple]="false" (onSelect)="onSelectBranch($event)"></branch-modal>

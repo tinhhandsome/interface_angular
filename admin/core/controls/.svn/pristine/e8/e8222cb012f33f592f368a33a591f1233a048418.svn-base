@@ -1,0 +1,107 @@
+<popup-frame [title]="branchTitle" (onSearchEvent)="buttonSearch()" (onSelectEvent)="accept()" #popupFrame>
+    <form class="horizontal-form filter-form" autocomplete="off">
+        <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+                <!-- Begin Filter -->
+                <!-- <h5 class="popup-title col-md-12">{{l("SearchContains")}}</h5> -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("ProjectCode")}}</label>
+                        <input [(ngModel)]="filterInput.projecT_CODE" name="projecT_CODE" autoFocus
+                            class="form-control m-input" type="text">
+
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("ProjectName")}}</label>
+                        <input [(ngModel)]="filterInput.projecT_NAME" name="projecT_NAME" autoFocus
+                            class="form-control m-input" type="text">
+
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("CreateProjectDate")}}</label>
+                        <date-control #creatE_DT="ngModel" name="creatE_DT" [(ngModel)]="filterInput.creatE_DT"
+                            autoFocus>
+                        </date-control>
+                    </div>
+                </div>
+                <!-- End Filter -->
+                <div style="display:none;" class="col-md-12">
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-search" (click)="search()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row align-items-center">
+        <div isLoading="dataTable.isLoading" class="primeng-datatable-container">
+            <!-- <div class="spinner-border m-5" role="status">
+                <span class="sr-only">Loading...</span>
+            </div> -->
+            <h5 class="popup-title col-md-12">{{l("TradeProject")}}</h5>
+
+            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                <thead>
+                    <tr>
+
+                        <!-- Begin Table Column -->
+                        <!-- multiple -->
+                        <th class="center" *ngIf="multiple">
+                            <span style="width: 40px">
+                                <checkbox-control #checkAllElement
+                                    (change)="onCheckAll(checkAllElement.inputRef.nativeElement)" [checked]="checkAll">
+                                </checkbox-control>
+                            </span>
+
+                        </th>
+                        <th class="center">
+                            <span style="width: 40px">{{l("No")}}</span>
+                        </th>
+                        <th class="center" [hidden]="!showColProjectCode" style="width:33.3%" sortField="PROJECT_CODE">
+                            <span style="width: 150px">{{l("ProjectCode")}}</span>
+                        </th>
+
+                        <th class="center" [hidden]="!showColProjectName" style="width:33.3%" sortField="PROJECT_NAME">
+                            <span style="width: 200px">{{l("ProjectName")}}</span>
+                        </th>
+                        <th class="center" [hidden]="!showColCreateDt" style="width:33.3%" sortField="CREATE_DT">
+                            <span style="width: 150px">{{l("CreateProjectDate")}}</span>
+                        </th>
+
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let record of dataTable.records" class="selectable" (click)="selectRow($event,record)"
+                        (dblclick)="onDoubleClick(record)">
+                        <!-- Begin Table Value -->
+                        <!-- multiple -->
+                        <td class="center" *ngIf="multiple">
+                            <span class="mo-header"></span>
+                            <checkbox-control (onchange)="setChecked($event.target.checked, record)"
+                                [checked]="record['isChecked']"></checkbox-control>
+                        </td>
+                        <td class="center"><span
+                                class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                        </td>
+                        <td [hidden]="!showColProjectCode"><span class="mo-header"></span>{{record.projecT_CODE}}</td>
+                        <td [hidden]="!showColProjectName"><span class="mo-header"></span>{{record.projecT_NAME}}</td>
+                        <td [hidden]="!showColCreateDt"><span
+                                class="mo-header"></span>{{record.creatE_DT | dateFormatPipe}}</td>
+
+
+                        <!-- End Table Value -->
+                    </tr>
+                </tbody>
+            </core-table>
+
+
+        </div>
+    </div>
+</popup-frame>

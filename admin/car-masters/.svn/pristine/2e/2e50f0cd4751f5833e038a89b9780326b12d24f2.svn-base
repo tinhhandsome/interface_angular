@@ -1,0 +1,5 @@
+<p>{{nPlate}}</p>
+
+<button type="button" class="btn btn-primary" (click)="carMasterModal.show()">Chọn số xe</button>
+
+<car-master-modal (onSelectCarMaster)="onSelectCar($event)" #carMasterModal></car-master-modal>

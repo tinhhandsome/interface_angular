@@ -1,0 +1,324 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("AssAddNew")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                        <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page #authStatusMessage [authStatus]="inputModel.autH_STATUS">
+                                </auth-status-input-page>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <ass-add-new-table-edit-po #assAddNewTable (onSelectGood)="onSelectGoods($event)" [isShowError]="isShowError" [disableInput]="disableInput"></ass-add-new-table-edit-po>
+                        </div>
+
+                        <hr>
+
+                        <div class="col-md-12">
+                            <h5 class="popup-title col-md-12">{{l("AssInfo")}}</h5>
+                        </div>
+
+
+                        <div class="col-md-8">
+
+                            <div class="row">
+
+                                <!-- Mã nhóm tài sản -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("AssGroupCode")}} </label>
+                                        <select2-custom [disabled]="disableInput" (onChangeSelect2)="onAssGroupChange($event)" required name="grouP_ID" [disabled]="disableInput" #grouP_ID="ngModel" [(ngModel)]="inputModel.grouP_ID" [(list)]="assGroups" [emptyText]="" [valueMember]="'grouP_ID'"
+                                            [displayMember]="'grouP_CODE|grouP_NAME'">
+                                        </select2-custom>
+                                        <div class="error-message" *ngIf="grouP_ID.invalid && isShowError">
+                                            <span *ngIf="grouP_ID?.errors.required">{{l('AssGroupCode')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ngày nhập -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("InputDate")}}</label>
+                                        <date-control [disabled]="true" required [inpCss]="'form-control'" [disabled]="disableInput" type="text" #buY_DATE="ngModel" name="buY_DATE" [(ngModel)]="inputModel.buY_DATE">
+                                        </date-control>
+
+                                        <div class="error-message" *ngIf="buY_DATE.invalid && isShowError">
+                                            <span *ngIf="buY_DATE?.errors.required">{{l('InputDate')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Số tháng khấu hao -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AmortMonth")}}</label>
+                                        <input class="form-control" [disabled]="inputModel.grouP_ID" (focusout)="assAddNewExportUse.reloadAmortEndDate(); assAddNewExportUse.updateView()" type="text" #amorT_MONTH="ngModel" [disabled]="disableInput" name="amorT_MONTH" [(ngModel)]="inputModel.amorT_MONTH">
+                                    </div>
+                                </div>
+
+                                <!-- Tỷ lệ khấu hao -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AmortRate")}}</label>
+                                        <div class="group">
+                                            <input class="form-control ng-pristine ng-valid ng-touched" disabled min="0" name="amorT_RATE" [disabled]="disableInput" type="number" #amorT_RATE="ngModel" [(ngModel)]="inputModel.amorT_RATE">
+                                            <span>{{l("PercentSymbol")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tên tài sản -->
+                                <div class="col-md-12">
+                                    <div class="form-group required">
+                                        <label>{{l("AssetName")}}</label>
+                                        <input [(ngModel)]="inputModel.asseT_NAME" required name="asseT_NAME" #asseT_NAME="ngModel" [disabled]="disableInput" class="form-control m-input" type="text">
+
+                                        <div class="error-message" *ngIf="asseT_NAME.invalid && isShowError">
+                                            <span *ngIf="asseT_NAME?.errors.required">{{l('AssetName')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Thông tin mô tả -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("Description")}}</label>
+                                        <textarea [disabled]="disableInput" class="form-control" #asseT_DESC="ngModel" name="asseT_DESC" [(ngModel)]="inputModel.asseT_DESC"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Nhập theo lô -->
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>{{l("ImportWithBatch")}}</label>
+                                        <checkbox-control [label]="l('Have')" style="padding-top:0px!important" [TrueValue]="'1'" [FalseValue]="'0'" name="iS_MULTIPLE" #iS_MULTIPLE="ngModel" (onchange)="updateView()" [disabled]="disableInput" [(ngModel)]="inputModel.iS_MULTIPLE"></checkbox-control>
+                                    </div>
+                                </div>
+
+                                <!-- Số lượng -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("Quantity")}}</label>
+                                        <input [disabled]="inputModel.iS_MULTIPLE == '0'" (focusout)="updateView()" [class]="'form-control quatity-input'" #qty="ngModel" type="number" min="0" name="qty" [(ngModel)]="inputModel.qty">
+                                    </div>
+                                </div>
+
+                                <!-- Tổng cộng -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("Total")}}</label>
+                                        <disabled-input class="right" #totalAmt [value]="(quanty*inputModel.buY_PRICE) | moneyFormatPipe">
+                                        </disabled-input>
+
+                                        <div class="error-message" *ngIf="isShowError && (quanty*inputModel.buY_PRICE < valTSCD)">
+                                            <span>{{l('AssAddNewTotalAmtValidation', formatMoney(valTSCD))}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Đơn giá trước thuế -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("PriceBeforeTax")}}</label>
+                                        <money-input #priceTax="ngModel" (focusout)="onChangePrice()" required [disabled]="disableInput" name="price" [(ngModel)]="price">
+                                        </money-input>
+
+                                        <div class="error-message" *ngIf="priceTax.invalid && isShowError">
+                                            <span *ngIf="priceTax?.errors.required">{{l('PriceBeforeTax')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- % VAT -->
+                                <div class="col-md-2">
+                                    <div class="form-group required">
+                                        <label>{{l("VatPercent")}}</label>
+                                        <money-input [disabled]="disableInput" required (focusout)="onChangeVat()" [isDecimal]="true" #vat="ngModel" type="number" min="0" name="vat" [(ngModel)]="inputModel.vat"></money-input>
+
+                                        <div class="error-message" *ngIf="vat.invalid && isShowError">
+                                            <span *ngIf="vat?.errors.required">{{l('VatPercent')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- VAT -->
+                                <div class="col-md-4">
+                                    <div class="form-group required">
+                                        <label>{{l("Vat")}}</label>
+                                        <money-input required #pricE_VAT="ngModel" (focusout)="onChangePriceVat()" [disabled]="disableInput" name="pricE_VAT" [(ngModel)]="inputModel.pricE_VAT">
+                                        </money-input>
+
+                                        <div class="error-message" *ngIf="pricE_VAT.invalid && isShowError">
+                                            <span *ngIf="pricE_VAT?.errors.required">{{l('Vat')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+                            <!-- Số seri -->
+                            <div class="form-group">
+                                <label>{{l("SerialNo")}}</label>
+                                <textarea rows="12" class="form-control" name="asseT_SERIAL_NO" #asseT_SERIAL_NO="ngModel" type="text" [(ngModel)]="inputModel.asseT_SERIAL_NO">
+                                </textarea>
+                            </div>
+                        </div>
+
+
+                        <!-- Nguyên giá TSCĐ -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("TSCDOriginalPrice")}}</label>
+                                <disabled-input class="right" #buY_PRICE [value]="inputModel.buY_PRICE | moneyFormatPipe"></disabled-input>
+                            </div>
+                        </div>
+
+                        <!-- Giá trị khấu hao -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("AmortPrice")}}</label>
+                                <money-input #amorT_AMT="ngModel" required (focusout)="showErrorOnValidation()" [disabled]="disableInput" name="amorT_AMT" [(ngModel)]="inputModel.amorT_AMT">
+                                </money-input>
+
+                                <div class="error-message" *ngIf="amorT_AMT.invalid && isShowError">
+                                    <span *ngIf="amorT_AMT?.errors.required">{{l('AmortPrice')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+
+                                <div class="error-message" *ngIf="inputModel.amorT_AMT < valTSCD && isShowError">
+                                    <span>{{l('AssAddNewAmortPriceInvalidation', formatMoney(valTSCD))}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- File đính kèm -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("FileAttachment")}}</label>
+                                <file-picker [disabled]="disableInput" #filE_ATTACHMENT="ngModel" [folderUpload]="'AssAddNew'" [inpCss]="'form-control'" [(ngModel)]="inputModel['filE_ATTACHMENT']" name="filE_ATTACHMENT"></file-picker>
+                            </div>
+                        </div>
+
+                        <!-- Tăng tài sản -->
+                        <div class="col-md-4">
+                            <label>{{l('AssAddNewEntryBooked')}}</label>
+                            <div class="form-group">
+                                <checkbox-control name="entrY_BOOKED" [label]="l('Have')" [TrueValue]="'Y'" [FalseValue]="'N'" #entrY_BOOKED="ngModel" [disabled]="disableInput" [readOnly]="assAddNewExportUse.isExportUse" [(ngModel)]="inputModel.entrY_BOOKED">
+                                </checkbox-control>
+                            </div>
+                        </div>
+
+                        <!-- Tài khoản GL -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("GlAccount")}}</label>
+                                <input [(ngModel)]="inputModel.accounT_GL" maxlength="12" required name="accounT_GL" #accounT_GL="ngModel" [disabled]="disableInput" class="form-control m-input" type="text">
+
+                                <div class="error-message" *ngIf="(accounT_GL.invalid || inputModel.accounT_GL.toLocaleUpperCase() == 'VND') && isShowError">
+                                    <span *ngIf="accounT_GL?.errors?.required || inputModel.accounT_GL.toLocaleUpperCase() == 'VND'">{{l('GlAccount')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <!-- TODO Công trình XDCB -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("ConstructId")}}</label>
+                                <div class="group">
+                                    <input class="form-control" type="text" #construcT_ID="ngModel" name="construcT_ID" [disabled]="true" [(ngModel)]="inputModel.construcT_ID">
+                                    <button class="btn btn-primary ng-star-inserted" (click)="conMasterModal.show()" type='button' [disabled]="disableInput">{{l("...")}}</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ghi chú -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <textarea [disabled]="disableInput" class="form-control" #notes="ngModel" name="notes" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Diễn giải hạch toán -->
+                        <div class="col-md-8">
+                            <div class="form-group required">
+                                <label>{{l("CoreNote")}}</label>
+                                <input class="form-control" [disabled]="disableInput" name="corE_NOTE" #corE_NOTE="ngModel" type="text" required [(ngModel)]="inputModel.corE_NOTE" pattern="{{s('gAMSProCore.CoreNoteRegexValidation')}}" type="text" />
+                                <div class="error-message" *ngIf="corE_NOTE.invalid && isShowError">
+                                    <span *ngIf="corE_NOTE?.errors.required">{{l('CoreNote')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="corE_NOTE?.errors.pattern">{{l('CoreNote')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">({{l("CoreNoteValidDescription")}})</div>
+
+                        <div class="col-md-12">
+                            <button type="button" [hidden]="!isShowPrintButton" class="btn btn-primary top-space" (click)="printCoreNoteInvoice()">
+                                {{l("PrintCoreNoteInvoice")}}</button>
+                        </div>
+
+                        <hr>
+
+                        <div class="col-md-12">
+                            <!-- Thông tin lịch bảo hành -->
+                            <ass-waranty #assWarEditTable [warrantyMonths]="inputModel.warrantY_MONTHS"></ass-waranty>
+                        </div>
+
+                        <hr>
+
+                        <ass-add-new-export-use #assAddNewExportUse style="width:100%;display: contents;" [disableInput]="disableInput" [isShowError]="isShowError" [inputModel]="inputModel">
+                        </ass-add-new-export-use>
+
+
+
+                    </div>
+                </form>
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<con-master-modal #conMasterModal (onSelect)="onSelectConMaster($event)"></con-master-modal>

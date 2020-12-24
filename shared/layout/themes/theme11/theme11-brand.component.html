@@ -1,0 +1,35 @@
+<!-- BEGIN: Brand -->
+<div class="m-stack m-stack--ver m-stack--general">
+    <div class="m-stack__item m-stack__item--middle m-brand__logo">
+        <a routerLink="/" target="_blank" class="m-brand__logo-wrapper">
+            <img *ngIf="!appSession.tenant || !appSession.tenant.logoId" [src]="defaultLogo" alt="logo" height="38" />
+            <img *ngIf="appSession.tenant && appSession.tenant.logoId" [src]="remoteServiceBaseUrl + '/TenantCustomization/GetTenantLogo?skin=' + currentTheme.baseSettings.menu.asideSkin + '&tenantId=' + appSession.tenant.id + '&id=' + appSession.tenant.logoId" alt="logo" height="38" />
+        </a>
+    </div>
+    <div class="m-stack__item m-stack__item--middle m-brand__tools">
+        <!-- BEGIN: Left Aside Minimize Toggle -->
+        <a href="javascript:;" *ngIf="currentTheme.isLeftMenuUsed && currentTheme.baseSettings.menu.allowAsideHiding" id="m_aside_left_hide_toggle" class="m-brand__icon m-brand__toggler m-brand__toggler--left m--visible-desktop-inline-block">
+            <span></span>
+        </a>
+        <a href="javascript:;" *ngIf="currentTheme.isLeftMenuUsed && currentTheme.baseSettings.menu.allowAsideMinimizing && !currentTheme.baseSettings.menu.allowAsideHiding" mMenuAsideToggle id="m_aside_left_minimize_toggle" class="m-brand__icon m-brand__toggler m-brand__toggler--left m--visible-desktop-inline-block">
+            <span></span>
+        </a>
+        <!-- END -->
+        <!-- BEGIN: Responsive Aside Left Menu Toggler-->
+        <a href="javascript:;" *ngIf="currentTheme.isLeftMenuUsed" id="m_aside_left_offcanvas_toggle" class="m-brand__icon m-brand__toggler m-brand__toggler--left m--visible-tablet-and-mobile-inline-block">
+            <span></span>
+        </a>
+        <!-- END -->
+        <!-- begin::Responsive Header Menu Toggler-->
+        <a href="javascript:;" *ngIf="currentTheme.isTopMenuUsed || currentTheme.isTabMenuUsed" id="m_aside_header_menu_mobile_toggle" class="m-brand__icon m-brand__toggler m--visible-tablet-and-mobile-inline-block">
+            <span></span>
+        </a>
+        <!-- end::Responsive Header Menu Toggler-->
+        <!-- BEGIN: Topbar Toggler -->
+        <a id="m_aside_header_topbar_mobile_toggle" href="javascript:;" (click)="clickTopbarToggle()" class="m-brand__icon m--visible-tablet-and-mobile-inline-block">
+            <i class="flaticon-more" [attr.aria-label]="l('Expand')"></i>
+        </a>
+        <!-- BEGIN: Topbar Toggler -->
+    </div>
+</div>
+<!-- END: Brand -->

@@ -1,0 +1,204 @@
+<div [@routerTransition]>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <h3 class="m-subheader__title m-subheader__title--separator">
+                    <!-- Begin Title -->
+                    <span>{{l("AssListAllAsset")}}</span>
+                    <!-- End Title -->
+                </h3>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <form class="horizontal-form filter-form" #exportForm="ngForm" id='exportForm' autocomplete="off"
+                    novalidate>
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-30">
+                            <!-- Begin Filter -->
+                            <!-- Đơn vị -->
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>{{l("Branch")}}</label>
+                                    <div class="user-group">
+                                        <input class="form-control" [disabled]="true"
+                                            [ngModelOptions]="{standalone: true}" [ngModel]="filterInput.BRANCH_NAME">
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-primary"
+                                                (click)="branchModal.show()">...</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Phòng ban -->
+                            <div [style.display]="branchType != 'HS' ? 'none' : ''" class="col-md-12">
+                                <div class="form-group">
+                                    <label>{{l("DepId")}}</label>
+                                    <div class="user-group">
+                                        <input class="form-control" [ngModelOptions]="{standalone: true}"
+                                            [ngModel]="filterInput.DEPT_ID">
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-primary"
+                                                (click)="depModal.show()">...</button>
+                                        </span>
+                                        <input class="form-control" [disabled]="true"
+                                            [ngModelOptions]="{standalone: true}" [ngModel]="filterInput.DEP_NAME">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Đến ngày -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("ToDate")}}</label>
+                                    <date-control [inpCss]="'form-control'" type="text"
+                                        [ngModelOptions]="{standalone: true}" [(ngModel)]="filterInput.TODATE">
+                                    </date-control>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6"></div>
+
+                            <!-- Loại tài sản -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("AssType")}}</label>
+                                    <select2-custom [(ngModel)]="filterInput.ASSET_TYPE" #TYPE_ID="ngModel"
+                                        name="TYPE_ID" [valueMember]="'TYPE_ID'" [(list)]="assTypes"
+                                        [emptyText]="l('SelectAll')" [displayMember]="'TYPE_NAME'">
+                                    </select2-custom>
+                                </div>
+                            </div>
+
+                            <!-- Cấp độ -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("Level")}}</label>
+                                    <select2-custom [(ngModel)]="filterInput.LEVEL"
+                                        [ngModelOptions]="{standalone: true}" [(list)]="levels" [valueMember]="'value'"
+                                        [displayMember]="'display'">
+                                    </select2-custom>
+                                </div>
+                            </div>
+
+                            <!-- Nguyên giá từ - đến -->
+                            <div class="col-md-12">
+                                <fieldset>
+                                    <legend>{{l("OriginalPrice")}}</legend>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>{{l("From")}}</label>
+                                            <money-input [inputCss]="'form-control'"
+                                                [ngModelOptions]="{standalone: true}"
+                                                [(ngModel)]="filterInput.PRICEFROM"></money-input>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>{{l("To")}}</label>
+                                            <money-input [inputCss]="'form-control'"
+                                                [ngModelOptions]="{standalone: true}" [(ngModel)]="filterInput.PRICETO">
+                                            </money-input>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+
+
+                            <!-- Người sử dụng -->
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label>{{l("EmpName")}}</label>
+                                    <div class="user-group">
+                                        <select2-custom #empNameSelect [(ngModel)]="filterInput.EMPID"
+                                            [emptyText]="l('SelectAll')" [ngModelOptions]="{standalone: true}"
+                                            [list]="[]" [valueMember]="'value'" [displayMember]="'display'">
+                                        </select2-custom>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-primary"
+                                                (click)="employeeModal.show()">...</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4"></div>
+                            <!-- Mã nhóm tài sản -->
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label>{{l("AssGroup")}}</label>
+                                    <div class="user-group">
+                                        <select2-custom #assGroupSelect [(ngModel)]="filterInput.ASSETGROUPID"
+                                            [emptyText]="l('SelectAll')" [ngModelOptions]="{standalone: true}"
+                                            [list]="[]" [valueMember]="'value'" [displayMember]="'display'">
+                                        </select2-custom>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-primary"
+                                                (click)="assGroupModal.show()">...</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4"></div>
+
+                            <!-- Nhà cung cấp -->
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label>{{l("Supplier")}}</label>
+                                    <div class="user-group">
+                                        <select2-custom #supplierSelect [(ngModel)]="filterInput.SUPPLIERID"
+                                            [emptyText]="l('SelectAll')" [ngModelOptions]="{standalone: true}"
+                                            [list]="[]" [valueMember]="'value'" [displayMember]="'display'">
+                                        </select2-custom>
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-primary"
+                                                (click)="supplierModal.show()">...</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Giá trị còn lại -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("RemainValue")}}</label>
+                                    <div class="user-group">
+                                        <select2-custom #priceExists [(ngModel)]="filterInput.PRICEEXISTS"
+                                            [emptyText]="l('SelectAll')" [ngModelOptions]="{standalone: true}"
+                                            [list]="remainValue" [valueMember]="'priceID'"
+                                            [displayMember]="'priceName'">
+                                        </select2-custom>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label></label>
+                                    <div>
+                                        <button hidden class="btn btn-primary">{{l('Report')}}</button>
+                                        <button (click)="exportToExcel()" type="button"
+                                            class="btn btn-primary">{{l('Excel')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <dep-modal (onSelect)="onSelectDep($event)" [multiple]="false" #depModal>
+    </dep-modal>
+    <employee-modal (onSelect)="empNameSelect.setSingleValue(($event).emP_ID,($event).emP_NAME)" [multiple]="false"
+        #employeeModal></employee-modal>
+    <ass-group-modal (onSelect)="assGroupSelect.setSingleValue(($event).grouP_ID,($event).grouP_NAME)"
+        [multiple]="false" #assGroupModal></ass-group-modal>
+    <supplier-modal (onSelect)="supplierSelect.setSingleValue(($event).suP_ID,($event).suP_NAME)" [multiple]="false"
+        #supplierModal></supplier-modal>
+    <branch-modal (onSelect)="onSelectBranch($event)" [multiple]="false" #branchModal></branch-modal>
+</div>

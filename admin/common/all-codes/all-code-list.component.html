@@ -1,0 +1,126 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <!-- Begin Title -->
+                        <span>{{l("AllCode")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-group dropdown mr-2">
+                        <button class=" btn btn-outline-success" (click)="exportToExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <div class="col-md-4">
+                                            <label>{{l("CDTYPE")}}</label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <input [(ngModel)]="filterInput.cdtype" name="cdtypeFilter" autoFocus class="form-control m-input" type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <div class="col-md-4">
+                                            <label>{{l("CDNAME")}}</label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <input [(ngModel)]="filterInput.cdname" name="cdnameFilter"  class="form-control m-input" type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <div class="col-md-4">
+                                            <label>{{l('ALLCODECONTENT')}}</label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <input [(ngModel)]="filterInput.content" name="contentFilter"  class="form-control m-input" type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End Filter -->
+                                <div style="display:none;" class="col-md-12">
+                                    <div class="form-group">
+                                        <button class="btn btn-primary btn-search" (click)="onSearch()">{{l('Search')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="getAllCodes()">
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th>
+                                            <span style="width: 60px">{{l("No")}}</span>
+                                        </th>
+                                        <th sortField="CDTYPE">
+                                            <span style="width: 150px">{{l("CDTYPE")}}</span>
+                                        </th>
+                                        <th sortField="CDNAME">
+                                            <span style="width: 150px">{{l("CDNAME")}}</span>
+                                        </th>
+                                        <th sortField="CDVAL">
+                                            <span style="width: 180px">{{l("CDVAL")}}</span>
+                                        </th>
+                                        <th sortField="CONTENT">
+                                            <span style="width: 150px">{{l('ALLCODECONTENT')}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onUpdate(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <td><span class="mo-header"></span>{{(filterInput.skipCount + dataTable.records.indexOf(record)) + 1}}</td>
+                                        <td><span class="mo-header"></span>{{record.cdtype}}</td>
+                                        <td><span class="mo-header"></span>{{record.cdname}}</td>
+                                        <td><span class="mo-header"></span>{{record.cdval}}</td>
+                                        <td><span class="mo-header"></span>{{record.content}}</td>
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+
+                            <div class="primeng-no-data" *ngIf="dataTable.records.length == 0">
+                                {{l('NoData')}}
+                            </div>
+                            <div class="primeng-paging-container">
+                                <p-paginator [rows]="filterInput.maxResultCount || dataTable.defaultRecordsCountPerPage" #paginator (onPageChange)="getAllCodes($event)" [totalRecords]="dataTable.totalRecordsCount" [rowsPerPageOptions]="dataTable.predefinedRecordsCountPerPage">
+                                </p-paginator>
+
+                                <span class="total-records-count">
+                                    {{l('TotalRecordsCount')}} {{dataTable.totalRecordsCount}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

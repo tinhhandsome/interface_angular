@@ -1,0 +1,93 @@
+<!-- BEGIN: Aside Menu -->
+
+<form id="menu-search" *ngIf="s('gAMSProCore.SearchMenuVisible') == 'True'" #filterForm="ngForm" class="input-group filter-menu">
+    <div>
+        <button (click)="searchMenu()" class="btn btn-primary"><i class="fa fa-search"></i></button>
+        <input name="menuKeyword" required class="form-control" [(ngModel)]="menuKeyword" type="text">
+        <div class="clear-both"></div>
+    </div>
+</form>
+<div #menuAside mMenuAside (mouseenter)="mouseEnter($event)" (mouseleave)="mouseLeave($event)" id="m_ver_menu" data-menu-vertical="true" class="{{ui.getSideBarMenuClass()}}" [attr.m-menu-dropdown-timeout]="500" [attr.m-menu-scrollable]="ui.getIsMenuScrollable() ? 1 : 0"
+    [attr.m-menu-dropdown]="ui.getIsMenuScrollable() ? 0 : 1" [attr.aria-label]="l('LeftMenu')">
+    <ul *ngIf="menu" class="m-menu__nav m-menu__nav--dropdown-submenu-arrow">
+        <ng-container *ngFor="let child of menu.items">
+            <ng-container *ngIf="showMenuItem(child)" [ngTemplateOutlet]="mMenuItem" [ngTemplateOutletContext]="{ item: child, parentItem: item }"></ng-container>
+        </ng-container>
+    </ul>
+</div>
+
+<ng-template #mMenuItem let-item="item" let-parentItem="parentItem">
+    <li *ngIf="showMenuItem(item)" class="{{ui.getSideBarMenuItemClass(item, isMenuItemIsActive(item))}}" aria-haspopup="true" m-menu-submenu-toggle="hover">
+
+        <!-- if menu item hasn't submenu -->
+        <a *ngIf="!item.items.length && !item.external" [queryParams]="item.parameters" [routerLink]="item.route" class="m-menu__link m-menu__toggle">
+            <ng-container [ngTemplateOutlet]="mMenuItemText" [ngTemplateOutletContext]="{ item: item, parentItem: parentItem }"></ng-container>
+        </a>
+        <a *ngIf="!item.items.length && item.external" [attr.href]="item.route" target="_blank" class="m-menu__link m-menu__toggle">
+            <ng-container [ngTemplateOutlet]="mMenuItemText" [ngTemplateOutletContext]="{ item: item, parentItem: parentItem }"></ng-container>
+        </a>
+
+        <!-- if menu item has submenu child  -->
+        <a href="javascript:;" *ngIf="item.items.length" class="m-menu__link m-menu__toggle">
+            <ng-container [ngTemplateOutlet]="mMenuItemText" [ngTemplateOutletContext]="{ item: item, parentItem: parentItem }"></ng-container>
+        </a>
+
+        <!-- if menu item has submenu child then recursively call new menu item component -->
+        <div *ngIf="item.items.length" class="m-menu__submenu">
+            <span class="m-menu__arrow"></span>
+            <ul class="m-menu__subnav">
+                <ng-container *ngFor="let child of item.items">
+                    <ng-container [ngTemplateOutlet]="mMenuItem" [ngTemplateOutletContext]="{ item: child, parentItem: item }"></ng-container>
+                </ng-container>
+            </ul>
+        </div>
+    </li>
+</ng-template>
+
+<ng-template #mMenuItemText let-item="item" let-parentItem="parentItem">
+    <span class="m-menu__item-here"></span>
+    <!-- if menu item has icon -->
+    <i *ngIf="item.icon" class="m-menu__link-icon" [ngClass]="item.icon"></i>
+
+    <!-- if menu item using bullet -->
+    <i *ngIf="parentItem && parentItem.bullet === 'dot'" class="m-menu__link-bullet m-menu__link-bullet--dot">
+        <span></span>
+    </i>
+    <i *ngIf="parentItem && parentItem.bullet === 'line'" class="m-menu__link-bullet m-menu__link-bullet--line">
+        <span></span>
+    </i>
+
+    <ng-container *ngIf="!item.badge; else mMenuLinkBadge">
+        <!-- menu item title text -->
+        <span class="m-menu__link-text" *ngIf="item.name.length > 30" data-toggle="tooltip" data-placement="bottom" title="{{item.name}}">
+            {{item.name}}
+        </span>
+
+        <span class="m-menu__link-text" *ngIf="30 >= item.name.length">
+            {{item.name}}
+        </span>
+    </ng-container>
+
+    <ng-template #mMenuLinkBadge>
+        <!-- menu item with badge -->
+        <span class="m-menu__link-title">
+            <span class="m-menu__link-wrap">
+                <span class="m-menu__link-text" *ngIf="item.name.length > 30" data-toggle="tooltip"
+                    data-placement="bottom" title="{{item.name}}">
+                    {{item.name}}
+                </span>
+
+        <span class="m-menu__link-text" *ngIf="30 >= item.name.length">
+                    {{item.name}}
+                </span>
+        <span class="m-menu__link-badge">
+                    <span class="m-badge" [ngClass]="item.badge.type">{{item.badge.value}}</span>
+        </span>
+        </span>
+        </span>
+    </ng-template>
+
+    <!-- if menu item has submenu child then put arrow icon -->
+    <i class="m-menu__link-icon fa arrow-icon"></i>
+</ng-template>
+<!-- END: Left Aside -->

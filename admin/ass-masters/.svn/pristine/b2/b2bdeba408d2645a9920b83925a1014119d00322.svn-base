@@ -1,0 +1,105 @@
+<div class="col-md-12">
+    <h5 class="popup-title col-md-12">{{l("ExportUse")}}</h5>
+</div>
+
+<div style="margin-bottom:20px" class="col-md-12">
+    <checkbox-control [disabled]="_disableInput" [(ngModel)]="isExportUse" [label]="l('ExportUse')" (change)="exportUseChange();" [ngModelOptions]="{standalone: true}"></checkbox-control>
+</div>
+
+<!-- Đơn vị sử dụng -->
+<div class="col-md-6">
+    <div class="form-group required">
+        <label>{{l("BranchNameUse")}}</label>
+        <div class="group">
+            <input class="form-control" type="text" #brancH_ID="ngModel" (focusout)="onBranchChange($event)" name="brancH_ID" [disabled]="disableInput" [ngModel]="inputModel.brancH_CODE">
+            <button class="btn btn-primary ng-star-inserted" type='button' [disabled]="disableInput" (click)="branchModal.show()">{{l("...")}}</button>
+        </div>
+        <div class="error-message" *ngIf="isNull(inputModel.brancH_ID) && isExportUse && isShowError">
+            <span>{{l('BranchNameUse')}}
+                    {{l("ValidationRequired")}}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Tên đơn vị -->
+<div class="col-md-6">
+    <div class="form-group required">
+        <label>{{l("BranchName")}}</label>
+        <disabled-input #branchName [value]="inputModel.brancH_NAME"></disabled-input>
+    </div>
+</div>
+
+<!-- Mã phòng ban -->
+<div class="col-md-6" [hidden]="hiddenDepartment">
+    <div class="form-group ">
+        <label>{{l("DepartmentCode")}}</label>
+        <div class="group">
+            <input class="form-control" type="text" #depT_ID="ngModel" (focusout)="onFocusoutDepCode($event)" name="depT_ID" [disabled]="disableInput" [ngModel]="inputModel.deP_CODE">
+            <button class="btn btn-primary ng-star-inserted" type='button' [disabled]="disableInput" (click)="depModal.show()">{{l("...")}}</button>
+        </div>
+    </div>
+</div>
+<!-- Tên phòng ban -->
+<div class="col-md-6" [hidden]="hiddenDepartment">
+    <div class="form-group">
+        <label>{{l("DepartmentName")}}</label>
+        <disabled-input #depT_NAME [value]="inputModel.deP_NAME"></disabled-input>
+    </div>
+</div>
+
+
+<!-- Mã địa điểm -->
+<div class="col-md-6">
+    <div class="form-group required">
+        <label>{{l("DivisionCode")}}</label>
+        <div class="group">
+            <input class="form-control" type="text" #diV_CODE="ngModel" name="diV_CODE" (focusout)="onDivisionChange($event)" [disabled]="disableInput" [ngModel]="inputModel.diV_CODE">
+            <button class="btn btn-primary ng-star-inserted" type='button' [disabled]="disableInput" (click)="divisionModal.show()">{{l("...")}}</button>
+        </div>
+
+        <div class="error-message" *ngIf="isNull(inputModel.divisioN_ID) && isExportUse && isShowError">
+            <span>{{l('DivisionCode')}}
+                        {{l("ValidationRequired")}}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Địa điểm -->
+<div class="col-md-6">
+    <div class="form-group required">
+        <label>{{l("Division")}}</label>
+        <input class="form-control" disabled [value]="inputModel.division.diV_NAME || ''">
+    </div>
+</div>
+
+<!-- Địa chỉ -->
+<div class="col-md-12">
+    <div class="form-group required">
+        <label>{{l("Address")}}</label>
+        <input class="form-control" disabled [value]="inputModel.division.addr || ''">
+    </div>
+</div>
+
+<!-- Người sử dụng -->
+<div class="col-md-6">
+    <div class="form-group">
+        <label>{{l("EmpName")}}</label>
+        <div class="group">
+            <input class="form-control" type="text" #emP_CODE="ngModel" (focusout)="onEmpChange($event)" [disabled]="disableInput" name="emP_CODE" [ngModel]="inputModel.emP_CODE">
+            <button class="btn btn-primary ng-star-inserted" type='button' [disabled]="disableInput" (click)="employeeModal.show()">{{l("...")}}</button>
+        </div>
+    </div>
+</div>
+
+<!-- Tên người dùng -->
+<div class="col-md-6">
+    <div class="form-group">
+        <label>{{l("NameOfUser")}}</label>
+        <input class="form-control" disabled [value]="inputModel.emP_NAME || ''">
+    </div>
+</div>
+
+<branch-modal (onSelect)="onSelectBranch($event)" [multiple]="false" #branchModal></branch-modal>
+<division-modal (onSelect)="onSelectDivision($event)" [multiple]="false" #divisionModal></division-modal>
+<employee-modal [disableFields]="'brancH_ID'" (onSelect)="onSelectEmployee($event)" [multiple]="false" #employeeModal></employee-modal>
+<dep-modal (onSelect)="onSelectDepartment($event)" [multiple]="false" #depModal></dep-modal>

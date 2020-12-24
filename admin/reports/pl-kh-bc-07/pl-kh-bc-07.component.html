@@ -1,0 +1,65 @@
+<div [@routerTransition]>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 class="m-subheader__title m-subheader__title--separator">
+
+                    <!-- Begin Title -->
+                    <span>{{l("PlKHBC07")}}</span>
+                    <!-- End Title -->
+                </h3>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <form #editForm="ngForm" novalidate class="horizontal-form filter-form" autocomplete="off">
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-30">
+                            <!-- Begin Filter -->
+
+                            <!-- Mã PO -->
+                            <div class="col-md-4">
+                                <div class="form-group required">
+                                    <label>{{l("PoCode")}}</label>
+                                    <div class="user-group">
+                                        <input class="form-control" [(ngModel)]="po.pO_CODE" required name="PO_CODE" #PO_CODE="ngModel" [readOnly]="true" />
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-primary"
+                                                (click)="showPoMasterModal()">...</button>
+                                        </span>
+                                    </div>
+                                    <div class="error-message" *ngIf="PO_CODE.invalid && isShowError">
+                                        <span *ngIf="PO_CODE?.errors.required">{{l('PoCode')}}
+                                                {{l("ValidationRequired")}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12"></div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label></label>
+                                    <div>
+                                        <button (click)="previewTemplate()" class="btn btn-primary">{{l('Report')}}</button>
+                                        <!-- <button (click)="exportToExcel()" class="btn btn-primary">{{l('Excel')}}</button> -->
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<trade-po-master-modal #poMasterModal [multiple]="false" (onSelect)="onSelectPo($event)"></trade-po-master-modal>

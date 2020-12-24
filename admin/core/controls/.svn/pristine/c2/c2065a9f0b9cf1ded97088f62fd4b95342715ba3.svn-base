@@ -1,0 +1,1 @@
+<input disabled class="form-control" value="{{value}}" />

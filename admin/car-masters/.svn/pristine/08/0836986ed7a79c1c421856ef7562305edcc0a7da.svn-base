@@ -1,0 +1,237 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("CarInsure")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                    <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                    <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()"
+                    autocomplete="off">
+                    <div class="modal-body row col-md-8">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Số xe -->
+                            <div class="form-group required">
+                                <label>{{l("N_Plate")}}</label>
+                                <div class='user-group'>
+                                    <input disabled class="form-control" maxlength="15" required type="text"
+                                        #n_PLATE="ngModel" [disabled]="disableInput" name="n_PLATE"
+                                        [(ngModel)]="inputModel.n_PLATE" required>
+                                    <button [disabled]="disableInput" type="button" class="btn btn-primary"
+                                        (click)="carMasterModal.show()">...</button>
+
+                                </div>
+                                <div class="error-message" *ngIf="n_PLATE.invalid && isShowError">
+                                    <span *ngIf="n_PLATE?.errors.required">{{l('N_Plate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <!-- pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}"  -->
+                                    <!-- <span *ngIf="n_PLATE?.errors.pattern">{{l('TypeCode')}}
+                                                {{l("Invalidation")}}</span> -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Model -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("Model")}}</label>
+                                <input disabled maxlength="200" class="form-control" type="text" #model="ngModel"
+                                    [disabled]="disableInput" name="model" [(ngModel)]="inputModel.caR_MASTER.model">
+
+                            </div>
+                        </div>
+                        <!-- Loại xe -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("CarType")}}</label>
+                                <input disabled maxlength="200" class="form-control" type="text"
+                                    #caR_TYPE_NAME="ngModel" [disabled]="disableInput" name="caR_TYPE_NAME"
+                                    [(ngModel)]="inputModel.caR_MASTER.caR_TYPE_NAME">
+
+                            </div>
+                        </div>
+                        <!-- Loại nhiên liệu -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("FuelsType")}}</label>
+                                <input maxlength="200" class="form-control" type="text" #fuelS_TYPE="ngModel"
+                                    [disabled]="disableInput" name="fuelS_TYPE"
+                                    [(ngModel)]="inputModel.caR_MASTER.fuelS_TYPE" disabled>
+                                <div class="error-message" *ngIf="fuelS_TYPE.invalid && isShowError">
+                                    <span *ngIf="fuelS_TYPE?.errors.required">{{l('FuelsType')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <!-- <span *ngIf="fuelS_TYPE?.errors.pattern">{{l('Model')}}
+                                                    {{l("Invalidation")}}</span> -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Nước sản xuất -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("Procountry")}}</label>
+                                <input maxlength="200" class="form-control" type="text" #procountry="ngModel"
+                                    [disabled]="disableInput" name="procountry"
+                                    [(ngModel)]="inputModel.caR_MASTER.procountry" disabled>
+
+
+                            </div>
+                        </div>
+                        <!-- Đơn vị sử dụng -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("BranchNameUse")}}</label>
+                                <input maxlength="200" class="form-control" type="text" #owner="ngModel"
+                                    [disabled]="disableInput" name="owner" [(ngModel)]="inputModel.caR_MASTER.owner"
+                                    disabled>
+
+                            </div>
+                        </div>
+                        <!-- Loại bảo hiểm -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("InsuType")}}</label>
+                                <all-code-select #insU_TYPE="ngModel" name="insU_TYPE"
+                                    [(ngModel)]="inputModel.insU_TYPE" [disabled]="disableInput"
+                                    [emptyText]="l('SelectAll')" required [cdName]="'INSU_TYPE'">
+                                </all-code-select>
+                                <div class="error-message" *ngIf="insU_TYPE.invalid && isShowError">
+                                    <span *ngIf="insU_TYPE?.errors.required">{{l('InsuType')}}
+                                        {{l("ValidationRequired")}}</span>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tên công ty bảo hiểm -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("InsuCompanyName")}}</label>
+
+                                <select2-custom (onChangeSelect2)="select2Change($event)" required name="insU_COMPANY"
+                                    [disabled]="disableInput" #insU_COMPANY="ngModel"
+                                    [(ngModel)]="inputModel.insU_COMPANY" [(list)]="insuCompanies"
+                                    [emptyText]="l('NullSelect')" [valueMember]="'insU_COMPANY_ID'"
+                                    [displayMember]="'name'">
+                                </select2-custom>
+                                <div class="error-message" *ngIf="insU_COMPANY.invalid && isShowError">
+                                    <span *ngIf="insU_COMPANY?.errors.required">{{l('InsuCompanyName')}}
+                                        {{l("ValidationRequired")}}</span>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ngày mua bảo hiểm -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("InsuDate")}}</label>
+                                <date-control (focusout)="reloadDateFrom()" #insU_DT="ngModel" name="insU_DT"
+                                    [(ngModel)]="inputModel.insU_DT" [disabled]="disableInput" required>
+                                </date-control>
+                                <div class="error-message" *ngIf="insU_DT.invalid && isShowError">
+                                    <span *ngIf="insU_DT?.errors.required">{{l('InsuDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <!-- <span *ngIf="procountry?.errors.pattern">{{l('Model')}}
+                                                                    {{l("Invalidation")}}</span> -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Thời hạn bảo hiểm -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("InsuTerm")}}</label>
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <input (focusout)="reloadDateFrom()" class="form-control" #insU_TERMS="ngModel"
+                                            type="number" name="insU_TERMS" [(ngModel)]="inputModel.insU_TERMS"
+                                            [disabled]="disableInput" min="0">
+                                        <div class="error-message" *ngIf="insU_TERMS.invalid && isShowError">
+                                            <span *ngIf="insU_TERMS?.errors.required">{{l('InsuTerm')}}
+                                                {{l("ValidationRequired")}}</span>
+                                            <!-- <span *ngIf="procountry?.errors.pattern">{{l('Model')}}
+                                                                                {{l("Invalidation")}}</span> -->
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 inner-vertical-center" style="padding:0">
+                                        <label>{{l('Month')}}</label><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ngày hết hạn bảo hiểm -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("InsuMTDate")}}</label>
+                                <date-control (focusout)="reloadDateTo()" #insU_MAT_DT="ngModel" name="insU_MAT_DT"
+                                    [(ngModel)]="inputModel.insU_MAT_DT" [disabled]="disableInput" required>
+                                </date-control>
+                                <div class="error-message" *ngIf="insU_MAT_DT.invalid && isShowError">
+                                    <span *ngIf="insU_MAT_DT?.errors.required">{{l('InsuMTDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <!-- <span *ngIf="procountry?.errors.pattern">{{l('Model')}}
+                                                                        {{l("Invalidation")}}</span> -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Số tiền thanh toán -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("InsuAMT")}}</label>
+                                <money-input #insU_AMT="ngModel" name="insU_AMT" [(ngModel)]="inputModel.insU_AMT"
+                                    [disabled]="disableInput" required></money-input>
+                                <div class="error-message" *ngIf="insU_AMT.invalid && isShowError">
+                                    <span *ngIf="insU_AMT?.errors.required">{{l('InsuAMT')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <!-- <span *ngIf="procountry?.errors.pattern">{{l('Model')}}
+                                                                                {{l("Invalidation")}}</span> -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ghi chú -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <input maxlength="200" class="form-control" type="text" #notes="ngModel"
+                                    [disabled]="disableInput" name="notes" [(ngModel)]="inputModel.notes">
+                                <div class="error-message" *ngIf="notes.invalid && isShowError">
+                                    <span *ngIf="notes?.errors.required">{{l('Notes')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <!-- <span *ngIf="procountry?.errors.pattern">{{l('Model')}}
+                                                            {{l("Invalidation")}}</span> -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+    <car-master-modal [multiple]="false" (onSelect)="onSelectCar($event)" #carMasterModal></car-master-modal>
+
+</div>

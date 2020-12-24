@@ -1,0 +1,202 @@
+<div [@routerTransition]>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 class="m-subheader__title m-subheader__title--separator">
+
+                    <!-- Begin Title -->
+                    <span>{{l("PlPo")}}</span>
+                    <!-- End Title -->
+                </h3>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <form #editForm="ngForm" novalidate class="horizontal-form filter-form" autocomplete="off">
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-30">
+                            <div class="col-md-8">
+                                <div class="row">
+
+                                    <!-- Begin Filter -->
+                                    <!-- Đơn vị -->
+                                    <div class="col-md-10">
+                                        <div class="form-group">
+                                            <label>{{l("Branch")}}</label>
+                                            <div class="user-group">
+                                                <input class="form-control" [disabled]="true" [ngModelOptions]="{standalone: true}" [ngModel]="filterInput.BRANCH_NAME">
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn btn-primary"
+                                                        (click)="currentBranchIdField = 'BRANCH_ID'; currentBranchNameField = 'BRANCH_NAME';branchModal.show()">...</button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <!-- Từ ngày -->
+                                    <div class="col-md-6">
+                                        <label>{{l("FromDate")}}</label>
+                                        <date-control [inpCss]="'form-control'" type="text" [ngModelOptions]="{standalone: true}" [(ngModel)]="filterInput.FROM_DATE">
+                                        </date-control>
+                                    </div>
+
+                                    <!-- Đến ngày -->
+                                    <div class="col-md-6 required">
+                                        <label>{{l("ToDate")}}</label>
+                                        <date-control required [inpCss]="'form-control'" type="text" name="TODATE" #TODATE="ngModel" [(ngModel)]="filterInput.TO_DATE">
+                                        </date-control>
+                                        <div class="error-message" *ngIf="TODATE.invalid && isShowError">
+                                            <span *ngIf="TODATE?.errors.required">{{l('ToDate')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Cấp độ -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("Level")}}</label>
+                                            <select2-custom [(ngModel)]="filterInput.LEVEL" [ngModelOptions]="{standalone: true}" [(list)]="levels" [valueMember]="'value'" [displayMember]="'display'">
+                                            </select2-custom>
+                                        </div>
+                                    </div>
+
+                                    <!-- Kế hoạch -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("Plan")}}</label>
+                                            <select2-custom [(ngModel)]="filterInput.PLAN" [ngModelOptions]="{standalone: true}" [(list)]="plansCombobox" [valueMember]="'value'" [displayMember]="'display'">
+                                            </select2-custom>
+                                        </div>
+                                    </div>
+
+                                    <!-- Nhà cung cấp -->
+                                    <div class="col-md-10">
+                                        <div class="form-group">
+                                            <label>{{l("Supplier")}}</label>
+                                            <div class="user-group">
+                                                <select2-custom #supplierSelect [(ngModel)]="filterInput.SUPPLIER_ID" [emptyText]="l('SelectAll')" [ngModelOptions]="{standalone: true}" [list]="[]" [valueMember]="'value'" [displayMember]="'display'">
+                                                </select2-custom>
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn btn-primary"
+                                                        (click)="supplierModal.show()">...</button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tên hàng hóa -->
+                                    <div class="col-md-10">
+                                        <div class="form-group">
+                                            <label>{{l("GoodsName")}}</label>
+                                            <div class="user-group">
+                                                <select2-custom #goodsSelect [(ngModel)]="filterInput.GOODS_ID" [emptyText]="l('SelectAll')" [ngModelOptions]="{standalone: true}" [list]="[]" [valueMember]="'value'" [displayMember]="'display'">
+                                                </select2-custom>
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn btn-primary"
+                                                        (click)="goodsModal.show()">...</button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Đơn vị tạo -->
+                                    <div class="col-md-10">
+                                        <div class="form-group">
+                                            <label>{{l("BranchMaker")}}</label>
+                                            <div class="user-group">
+                                                <input class="form-control" (focusout)="onBranchFocusOut()" [ngModelOptions]="{standalone: true}" [ngModel]="filterInput.BRANCH_CREATE_NAME">
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn btn-primary"
+                                                        (click)="currentBranchIdField = 'BRANCH_CREATE'; currentBranchNameField = 'BRANCH_CREATE_NAME';branchModal.show()">...</button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Người tạo -->
+                                    <div class="col-md-10">
+                                        <div class="form-group">
+                                            <label>{{l("MakerId")}}</label>
+                                            <div class="user-group">
+                                                <select2-custom #userSelect [(ngModel)]="filterInput.MAKER_ID" [emptyText]="l('SelectAll')" [ngModelOptions]="{standalone: true}" [valueMember]="'value'" [displayMember]="'display'">
+                                                </select2-custom>
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn btn-primary"
+                                                        (click)="userModal.show()">...</button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Loại hàng hóa -->
+                                    <div class="col-md-10">
+                                        <div class="form-group">
+                                            <label>{{l("GoodsType")}}</label>
+                                            <div class="user-group">
+                                                <select2-custom #goodsTypeSelect [(ngModel)]="filterInput.GOODSTYPE_ID" [emptyText]="l('SelectAll')" [ngModelOptions]="{standalone: true}" [list]="[]" [valueMember]="'value'" [displayMember]="'display'">
+                                                </select2-custom>
+                                                <span class="input-group-btn">
+                                                    <button type="button" class="btn btn-primary"
+                                                        (click)="goodsTypeRealModal.show()">...</button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tình trạng giao hàng -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("DeliveryStatus")}}</label>
+                                            <all-code-select [(ngModel)]="filterInput.ISDELIVERY" [ngModelOptions]="{standalone: true}" [emptyText]="l('SelectAll')" [cdName]="'DELIVERY_STATUS'" [cdType]="'REPORT'">
+                                            </all-code-select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tình trạng thanh toán -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("PaymentStatus")}}</label>
+                                            <all-code-select [(ngModel)]="filterInput.ISPAYMENT" [ngModelOptions]="{standalone: true}" [emptyText]="l('SelectAll')" [cdName]="'PAYMENT_STATUS'" [cdType]="'REPORT'">
+                                            </all-code-select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <div class="align-center">
+                                                <button (click)="previewTemplate()" class="btn btn-primary">{{l('Report')}}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <div class="align-center">
+                                                <button (click)="exportToExcel()" class="btn btn-primary">{{l('Excel')}}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <branch-modal (onSelect)="onSelectBranch($event)" [multiple]="false" #branchModal></branch-modal>
+    <supplier-modal (onSelect)="supplierSelect.setSingleValue(($event).suP_ID,($event).suP_NAME)" [multiple]="false" #supplierModal></supplier-modal>
+    <goods-modal (onSelect)="goodsSelect.setSingleValue(($event).gD_ID,($event).gD_NAME)" [multiple]="false" #goodsModal></goods-modal>
+    <user-modal [removeAllCheckOnShow]="false" (onSelect)="userSelect.setValueDisplay($event, 'tlnanme', 'tlFullName')" [multiple]="true" #userModal></user-modal>
+    <goodstype-real-modal (onSelect)="goodsTypeSelect.setValueDisplay($event, 'gD_RETYPE_ID', 'typE_NAME')" [multiple]="true" #goodsTypeRealModal></goodstype-real-modal>
+    <report-template #reportTemplate></report-template>
+
+</div>

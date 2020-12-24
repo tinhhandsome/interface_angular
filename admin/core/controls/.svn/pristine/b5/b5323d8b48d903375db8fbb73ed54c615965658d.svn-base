@@ -1,0 +1,1 @@
+<input class="{{inputCss}}" (focusout)="onChangeInput($event)" [disabled]="disabled" #control type="text" [(ngModel)]="_ngModel">

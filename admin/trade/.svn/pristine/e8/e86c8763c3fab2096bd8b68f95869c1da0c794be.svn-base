@@ -1,0 +1,236 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("TrRequestDoc")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <input hidden class="form-control" type="text" #plaN_ID="ngModel" name="plaN_ID" [(ngModel)]="inputModel.reQ_ID">
+                        <!-- Số tờ trình -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("TradeRequestDocCode")}}</label>
+                                <input [disabled]="disableInput" class="form-control" required type="text" #reQ_CODE="ngModel" name="reQ_CODE" [(ngModel)]="inputModel.reQ_CODE">
+                                <div class="error-message" *ngIf="reQ_CODE.invalid && isShowError">
+                                    <span *ngIf="reQ_CODE?.errors.required">{{l('TradeRequestDocCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ngày nhận tờ trình -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("TradeRequestDocDT")}}</label>
+                                <date-control [disabled]="disableInput" required [inpCss]="'form-control'" type="text" #reQ_DT="ngModel" name="reQ_DT" [(ngModel)]="inputModel.reQ_DT">
+                                </date-control>
+                                <div class="error-message" *ngIf="reQ_DT.invalid && isShowError">
+                                    <span *ngIf="reQ_DT?.errors.required">{{l('TradeRequestDocDT')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+
+                        <!-- Đơn vị -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("Branch")}}</label>
+                                <div class="input-group">
+                                    <input class="form-control" type="text" required [readOnly]="true" #brancH_NAME="ngModel" name="brancH_NAME" [(ngModel)]="inputModel.brancH_NAME">
+                                    <span class="input-group-btn">
+                                        <button type="button"
+                                            class="btn btn-primary"
+                                            (click)="currentBranchFunct = onSelectBranchInputModel; branchModal.show()">...</button>
+                                    </span>
+                                </div>
+                                <div class="error-message" *ngIf="brancH_NAME.invalid && isShowError">
+                                    <span *ngIf="brancH_NAME?.errors.required">{{l('Branch')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- Tên tờ trình -->
+                        <div class="col-md-8">
+                            <div class="form-group required">
+                                <label>{{l("TradeRequestDocName")}}</label>
+                                <input [disabled]="disableInput" class="form-control" required type="text" #reQ_NAME="ngModel" name="reQ_NAME" [(ngModel)]="inputModel.reQ_NAME">
+                                <div class="error-message" *ngIf="reQ_NAME.invalid && isShowError">
+                                    <span *ngIf="reQ_NAME?.errors.required">{{l('TradeRequestDocName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Nội dung tờ trình -->
+                        <div class="col-md-8">
+                            <div class="form-group required">
+                                <label>{{l("TradeRequestDocContent")}}</label>
+                                <textarea [disabled]="disableInput" class="form-control" required type="text" #reQ_CONTENT="ngModel" name="reQ_CONTENT" [(ngModel)]="inputModel.reQ_CONTENT"></textarea>
+                                <div class="error-message" *ngIf="reQ_CONTENT.invalid && isShowError">
+                                    <span *ngIf="reQ_CONTENT?.errors.required">{{l('TradeRequestDocContent')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+                        <!-- File đính kèm -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("FileAttachment")}}</label>
+                                <file-picker [disabled]="disableInput" type="text" #filE_ATTACHMENT="ngModel" [folderUpload]="'tradeRequestDoc'" [inpCss]="'form-control'" [(ngModel)]="inputModel['filE_ATTACHMENT']" name="filE_ATTACHMENT"></file-picker>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bảng con: Thông tin chi tiết tờ trình -->
+                    <div class="editable-title-group">
+                        <h5 class="popup-title col-md-12"></h5>
+                        <div class="action-button">
+                            <button type="button" class="btn btn-primary" (click)="onAddNewAssetsItem()"><i class="pi pi-plus"></i>{{l("Add")}}</button>
+                            <button type="button" class="btn btn-danger" (click)="onRemoveAssetsItem()"><i class="pi pi-times"></i>{{l("Delete")}}</button>
+                        </div>
+                    </div>
+
+                    <div class="primeng-datatable-container">
+                        <editable-table [requiredFields]="['receivE_BRANCH', 'quantity', 'price']" #editTable class="custom-table ui-table">
+                            <thead>
+                                <tr>
+                                    <!-- Checkbox -->
+                                    <th>
+                                        <span style="width: 40px">
+                                            <checkbox-control [disabled]="disableInput"
+                                                (onchange)="editTable.checkAll($event.target.checked)"
+                                                [checked]="editTable.isCheckAll"></checkbox-control>
+                                        </span>
+                                    </th>
+                                    <!-- STT -->
+                                    <th><span style="width: 40px">{{l("No")}}</span></th>
+                                    <!-- Đơn vị -->
+                                    <th style="width:30%" sortField="brancH_NAME"><span style="width: 150px">{{l("BranchName")}}</span>
+                                    </th>
+                                    <!-- Tên kế hoạch -->
+                                    <th style="width:40%" sortField="plaN_NAME"><span style="width: 150px">{{l("PlanMasterName")}}</span>
+                                    </th>
+                                    <!-- Tên hàng hóa -->
+                                    <th style="width:30%" sortField="gD_NAME"><span style="width: 150px">{{l("GoodsName")}}</span></th>
+                                    <!-- Số lượng -->
+                                    <th sortField="quantity"><span style="width: 150px">{{l("Quantity")}}</span></th>
+                                    <!-- Đơn giá -->
+                                    <th sortField="price"><span style="width: 150px">{{l("UnitPrice")}}</span></th>
+                                    <!-- Tổng số tiền -->
+                                    <th sortField="totaL_AMT"><span style="width: 150px">{{l("TotalMoney")}}</span></th>
+                                    <!-- Đơn vị nhận -->
+                                    <th sortField="receivE_BRANCH"><span style="width: 150px">{{l("BranchNameReceive")}}</span></th>
+                                    <!-- Địa chỉ nhận -->
+                                    <th sortField="receivE_ADDR"><span style="width: 200px">{{l("AddressReceive")}}</span></th>
+                                    <!-- Người liên hệ -->
+                                    <th sortField="receivE_PERSON"><span style="width: 150px">{{l("ContactPerson")}}</span></th>
+                                    <!-- Số điện thoại -->
+                                    <th sortField="receivE_TEL"><span style="width: 150px">{{l("PhoneNumber")}}</span>
+                                    </th>
+                                    <!-- Diễn giải -->
+                                    <th sortField="description"><span style="width: 200px">{{l("DescriptionInfo")}}</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of editTable.dataInPage; let in = index" class="selectable {{item['editableIsSelected']? 'selected' : ''}}" [hidden]="item['page'] != editTable.currentPage" (click)="editTable.selectRow($event,item); updateView();">
+                                    <!-- Checkbox -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <checkbox-control [disabled]="disableInput" (onchange)="item.isChecked = $event.target.checked" [checked]="item['isChecked']"></checkbox-control>
+                                    </td>
+                                    <!-- STT -->
+                                    <td class="center"><span class="mo-header"></span>{{item['no']}}</td>
+                                    <!-- Đơn vị -->
+                                    <td>{{item.brancH_NAME}}</td>
+                                    <!-- Tên kế hoạch -->
+                                    <td>{{item.plaN_NAME}}</td>
+                                    <!-- Tên hàng hóa -->
+                                    <td>{{item.gD_NAME}}</td>
+                                    <!-- Số lượng -->
+                                    <td>
+                                        <input [disabled]="disableInput" name="quantity-{{in}}" class="form-control transparent" min="0" max="10" type="number" [(ngModel)]="item.quantity" (focusout)="onChangeValueGreaterThan(item,'quantity',1,$event); refreshPrice(item);" />
+                                    </td>
+                                    <!-- Đơn giá -->
+                                    <td>
+                                        <money-input [disabled]="disableInput" name="price-{{in}}" class="transparent" [(ngModel)]="item.price" (focusout)="refreshPrice(item)">
+                                        </money-input>
+                                    </td>
+                                    <!-- Tổng số tiền -->
+                                    <td class="right">{{item.totaL_AMT|moneyFormatPipe}}</td>
+                                    <!-- Đơn vị nhận -->
+                                    <td>
+                                        <div class="user-group">
+                                            <input class="form-control" [(ngModel)]="item.brancH_NAME" name="receivE_BRANCH-{{in}}">
+                                            <span class="input-group-btn">
+                                                <button type="button"
+                                                    class="btn btn-primary"
+                                                    (click)="currentBranchFunct = onSelectBranchRow; branchModal.show()">...</button>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <!-- Địa chỉ nhận -->
+                                    <td>
+                                        <textarea [disabled]="disableInput" name="receivE_ADDR-{{in}}" class="form-control transparent" [(ngModel)]="item.receivE_ADDR"></textarea>
+                                    </td>
+                                    <!-- Người liên hệ -->
+                                    <td>
+                                        <input [disabled]="disableInput" name="receivE_PERSON-{{in}}" class="form-control transparent" [(ngModel)]="item.receivE_PERSON" />
+                                    </td>
+                                    <!-- Số điện thoại -->
+                                    <td>
+                                        <input [disabled]="disableInput" name="receivE_TEL-{{in}}" class="form-control transparent" [(ngModel)]="item.receivE_TEL" />
+                                    </td>
+                                    <!-- Diễn giải -->
+                                    <td>
+                                        <textarea [disabled]="disableInput" name="description-{{in}}" class="form-control transparent" [(ngModel)]="item.description"></textarea>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </editable-table>
+                    </div>
+                    <h5 *ngIf="inputModel.totaL_AMT" class="popup-title right col-md-12 no-margin no-underline">{{l('TotalMoney')}} : {{inputModel.totaL_AMT | moneyFormatPipe}}</h5>
+                    <!-- Begin Form -->
+                </form>
+                <div [hidden]="!isPrintRequest" class="action-button col-md-4 offset-md-8">
+                    <button type="button" class="btn btn-primary" (click)="requestDocPrint()"><i class="pi pi-print"></i>{{l("PrintRequestDoc")}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<branch-modal #branchModal [multiple]="false" (onSelect)="currentBranchFunct($event)"></branch-modal>
+
+<tr-request-goods-modal (onSelect)="onSelectTrRequestGoods($event)" #trRequestGoodsModal>
+</tr-request-goods-modal>

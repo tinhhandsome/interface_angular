@@ -1,0 +1,34 @@
+<div bsModal #rejectModal="bs-modal" (onShown)="onShown()" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="rejectModal" aria-hidden="true" [config]="{backdrop: 'static' }">
+    <div *ngIf="active" class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    <span>{{title}}</span>
+                </h4>
+                <button type="button" class="close" (click)="close()" [attr.aria-label]="l('Close')" [disabled]="waiting">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="horizontal-form filter-form" #editForm="ngForm" autocomplete="off">
+                    <div class="form-group required">
+                        <label>{{l("Notes")}}</label>
+                        <textarea #rejectModalNotes="ngModel" required class="form-control" [(ngModel)]="notes" name="rejectModalNotes"></textarea>
+                        <div class="error-message" *ngIf="rejectModalNotes.invalid && isShowError">
+                            <span *ngIf="rejectModalNotes?.errors.required">{{l('Notes')}}
+                                {{l("ValidationRequired")}}</span>
+                        </div>
+                    </div>
+                    <button type="submit" hidden (click)="onSubmit();"></button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button [disabled]="waiting" type="button" class="btn btn-primary" (click)="onCancel();"><i
+                        class="fa fa-ban" aria-hidden="true"></i>
+                    <span>{{l("Cancel")}}</span></button>
+                <button type="submit" class="btn btn-primary" [buttonBusy]="waiting" (click)="onSubmit();" [busyText]="l('SavingWithThreeDot')"><i class="fa fa-check"></i>
+                    <span>{{l("Return")}}</span></button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,23 @@
+@media screen and (max-width: 40em) {
+    span.mo-header {
+        display: inline-block!important;
+        font-weight: bold!important;
+        min-width: 100%;
+    }
+    core-table table>thead {
+        display: none;
+    }
+    core-table table>tbody>tr {
+        display: block;
+    }
+    core-table table>tbody>tr>td {
+        display: block;
+    }
+    core-table table>tbody>tr>td.center {
+        text-align: left;
+    }
+}
+
+span.mo-header {
+    display: none;
+}

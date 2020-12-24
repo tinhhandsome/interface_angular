@@ -1,0 +1,120 @@
+<popup-frame [title]="branchTitle" (onSearchEvent)="buttonSearch()" (onSelectEvent)="accept()" #popupFrame>
+    <form class="horizontal-form filter-form" autocomplete="off">
+        <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+                <!-- Begin Filter -->
+                <!-- <h5 class="popup-title col-md-12">{{l("SearchContains")}}</h5> -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{l("BidMasterCode")}}</label>
+                        <input [(ngModel)]="filterInput.biD_CODE" name="biD_CODE" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{l("TermBid")}}</label>
+                        <input [(ngModel)]="filterInput.terM_BID" name="terM_BID" class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{l("BidSubCode")}}</label>
+                        <input [(ngModel)]="filterInput.suP_ID" name="suP_ID" class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{l("BidMasterForm")}}</label>
+                        <all-code-select name="form" [(ngModel)]="filterInput.form" [emptyText]="l('SelectAll')" [cdName]="'FORM'" [cdType]="'TR'">
+                        </all-code-select>
+                    </div>
+                </div>
+                <fieldset class="col-md-12">
+                    <legend>{{l("BidReleaseDate")}}</legend>
+                    <div class="row cold-md-12">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("FromDate")}}</label>
+                                <!-- <input [(ngModel)]="filterInput.froM_DATE" name="froM_DATE" class="form-control m-input" type="text"> -->
+                                <date-control #insU_DT="ngModel" name="froM_DATE" [(ngModel)]="filterInput.froM_DATE"></date-control>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("ToDate")}}</label>
+                                <!-- <input [(ngModel)]="filterInput.tO_DATE" name="tO_DATE" class="form-control m-input" type="text"> -->
+                                <date-control #insU_DT="ngModel" name="tO_DATE" [(ngModel)]="filterInput.tO_DATE"></date-control>
+
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- End Filter -->
+                <div style="display:none;" class="col-md-12">
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-search" (click)="search()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row align-items-center">
+        <div isLoading="dataTable.isLoading"  class="primeng-datatable-container">
+            <h5 class="popup-title col-md-12">{{l("BidMaster")}}</h5>
+            
+            <core-table [reloadPageOnInit]="false" #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                <thead>
+                    <tr>
+                        <!-- Begin Table Column -->
+                        
+                        <!-- multiple -->
+                        <th class="center" *ngIf="multiple">
+                            <span style="width: 40px">
+                                <checkbox-control #checkAllElement (change)="onCheckAll(checkAllElement.inputRef.nativeElement)" [checked]="checkAll"></checkbox-control>
+                            </span>
+
+                        </th>
+                        <th class="center">
+                            <span style="width: 40px">{{l("No")}}</span>
+                        </th>
+                        <th class="center"  [hidden]="!showColBidCode" style="width:25%" sortField="biD_CODE">
+                            <span style="width: 150px">{{l("BidMasterCode")}}</span>
+                        </th>
+                        <th class="center"  [hidden]="!showColTermBid" style="width:25%" sortField="TERM_BID">
+                            <span style="width: 150px">{{l("TermBid")}}</span>
+                        </th>
+                        <th class="center"  [hidden]="!showColInputDt" style="width:25%" sortField="INPUT_DT">
+                            <span style="width: 250px">{{l("BidReleaseDate")}}</span>
+                        </th>
+                        <th class="center"  [hidden]="!showColForm" style="width:25%" sortField="FORM">
+                            <span style="width: 150px">{{l("BidMasterForm")}}</span>
+                        </th>
+
+                        <!-- End Table Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- multiple dblclick -->
+                    <tr *ngFor="let record of dataTable.records" class="selectable" (click)="selectRow($event,record)" (dblclick)="onDoubleClick(record)">
+                        <!-- Begin Table Value -->
+                        <!-- multiple -->
+                        <td class="center" *ngIf="multiple">
+                            <span class="mo-header"></span>
+                            <checkbox-control (onchange)="setChecked($event.target.checked, record)" [checked]="record['isChecked']"></checkbox-control>
+                        </td>
+                        <td  class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                        </td>
+                        <td [hidden]="!showColBidCode"><span class="mo-header"></span>{{record.biD_CODE}}</td>
+                        <td [hidden]="!showColTermBid"><span class="mo-header"></span>{{record.terM_BID}}</td>
+                        <td [hidden]="!showColInputDt"><span class="mo-header"></span>{{record.inpuT_DT | dateFormatPipe}}</td>
+                        <td [hidden]="!showColForm"><span class="mo-header"></span>{{record.content}}</td>
+
+                    </tr>
+                </tbody>
+            </core-table>
+
+
+        </div>
+    </div>
+</popup-frame>

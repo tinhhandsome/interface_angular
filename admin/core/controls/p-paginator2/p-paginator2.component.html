@@ -1,0 +1,5 @@
+<p-paginator [rows]="rows" #paginator (onPageChange)="pageChange($event)" [totalRecords]="totalRecords" [rowsPerPageOptions]="rowsPerPageOptions">
+</p-paginator>
+<select #selectPageSize [(ngModel)]="rows" class="drop-down-number">
+    <option *ngFor="let item of rowsPerPageItems" [value]="item.value">{{item.label}}</option>
+</select>

@@ -1,0 +1,108 @@
+<popup-frame [title]="l('GoodsTypeRealModalTitle')" (onSearchEvent)="buttonSearch()" (onSelectEvent)="accept()"
+    #popupFrame>
+    <form class="horizontal-form filter-form" autocomplete="off">
+        <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+                <!-- Begin Filter -->
+                <!--Loại hàng hóa-->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("GoodsType")}}</label>
+                        <input [(ngModel)]="filterInput.typE_NAME" autoFocus name="typE_NAME" #typE_NAME="ngModel" autoFocus
+                            class="form-control m-input" type="text">
+                    </div>
+                </div>
+
+                <!--Trạng thái duyệt-->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("AuthStatus")}}</label>
+                        <all-code-select name="autH_STATUS" [(ngModel)]="filterInput.autH_STATUS"
+                            [emptyText]="l('SelectAll')" [displayMember]="'cdval|content'" [cdName]="'AUTH_STATUS'">
+                        </all-code-select>
+                    </div>
+                </div>
+
+
+                <div class="col-md-4">
+                </div>
+                <!-- End Filter -->
+                <div style="display:none;" class="col-md-12">
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-search" (click)="search()"></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+    <div class="row align-items-center">
+        <div class="primeng-datatable-container popup-modal-container {{dataTable.isLoading}}">
+            <div class="spinner-border m-5" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <core-table [reloadPageOnInit]="false" #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                <thead>
+                    <tr>
+                        <!-- Begin Table Column -->
+                        <!-- multiple -->
+                        <th class="center" *ngIf="multiple">
+                            <checkbox-control #checkAllElement
+                                (change)="onCheckAll(checkAllElement.inputRef.nativeElement)" [checked]="checkAll">
+                            </checkbox-control>
+                        </th>
+
+                        <th>
+                            <span style="width: 40px">{{l("No")}}</span>
+                        </th>
+
+                        <!--Tên loại hàng hóa-->
+                        <th class="center" style="width: 60%" sortField="TYPE_NAME">
+                            <span style="width: 300px">{{l("GoodsTypeName")}}</span>
+                        </th>
+
+                        <!-- Người tạo -->
+                        <th class="center" style="width: 10%" sortField="MAKER_ID">
+                            <span style="width: 150px">{{l("PersonCreate")}}</span>
+                        </th>
+
+                        <!-- Ngày tạo -->
+                        <th class="center" style="width: 10%" sortField="CREATE_DT">
+                            <span style="width: 150px">{{l("CreationTime")}}</span>
+                        </th>
+
+                        <!-- Trạng thái duyệt -->
+                        <th class="center" style="width: 10%" sortField="AUTH_STATUS">
+                            <span style="width: 150px">{{l("AuthStatus")}}</span>
+                        </th>
+
+                        <!-- End Table Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- multiple dblclick -->
+                    <tr *ngFor="let record of dataTable.records" class="selectable" (click)="selectRow($event,record)"
+                        (dblclick)="onDoubleClick(record)">
+                        <!-- Begin Table Value -->
+                        <!-- multiple -->
+                        <td class="center" *ngIf="multiple">
+                            <span class="mo-header"></span>
+                            <checkbox-control (onchange)="setChecked($event.target.checked, record)"
+                                [checked]="record['isChecked']"></checkbox-control>
+                        </td>
+                        <td class="center"><span
+                                class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                        </td>
+                        <td><span class="mo-header"></span>{{record.typE_NAME}}</td>
+                        <td><span class="mo-header"></span>{{record.makeR_ID}}</td>
+                        <td><span class="mo-header"></span>{{record.creatE_DT | dateFormatPipe}}</td>
+                        <td><span class="mo-header"></span>{{record.autH_STATUS}}</td>
+                        <!-- End Table Value -->
+                    </tr>
+                </tbody>
+            </core-table>
+
+
+        </div>
+    </div>
+</popup-frame>

@@ -1,0 +1,94 @@
+import { Injector, Component, OnInit, ViewEncapsulation, AfterViewInit, ElementRef, ViewChild } from "@angular/core";
+import { ReportInfo, AsposeServiceProxy, CM_DEPARTMENT_ENTITY, BranchServiceProxy, CM_BRANCH_ENTITY, CM_DIVISION_ENTITY, DepartmentServiceProxy } from "@shared/service-proxies/service-proxies";
+import { appModuleAnimation } from "@shared/animations/routerTransition";
+import { FileDownloadService } from "@shared/utils/file-download.service";
+import { ReportTypeConsts } from "@app/admin/core/ultils/consts/ReportTypeConsts";
+import { DefaultComponentBase } from "@app/ultilities/default-component-base";
+import { PreviewTemplateService } from "@app/admin/common/preview-template/preview-template.service";
+import * as moment from 'moment';
+import { DateFormatPipe } from "@app/admin/core/pipes/date-format.pipe";
+import { ReportTemplateModalComponent } from "@app/admin/core/controls/report-template-modal/report-template-modal.component";
+
+@Component({
+    templateUrl: './rpt-con-request-doc.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+
+export class BcConRequestDocComponent extends DefaultComponentBase implements OnInit, AfterViewInit {
+
+    hidden: boolean = false;
+
+    filterInput: any = {};
+
+    levels: any[];
+    years: any[]
+    currentBranchIdField: string;
+    currentBranchNameField: string;
+    datePipeFormatter: DateFormatPipe
+
+    ngAfterViewInit(): void {
+        // COMMENT: this.stopAutoUpdateView();
+    }
+
+    constructor(injector: Injector,
+        private fileDownloadService: FileDownloadService,
+        private asposeService: AsposeServiceProxy) {
+        super(injector);
+        this.datePipeFormatter = new DateFormatPipe()
+    }
+
+    @ViewChild('editForm') editForm: ElementRef;
+    @ViewChild('reportTemplate') reportTemplate: ReportTemplateModalComponent;
+    isShowError = false;
+
+    ngOnInit(): void {
+        this.levels = this.getLevelsCombobox();
+        this.filterInput.brancH_ID = this.appSession.user.subbrId;
+        this.filterInput.brancH_NAME = this.appSession.user.branchName;
+        this.filterInput.brancH_LOGIN = this.appSession.user.subbrId;
+        this.filterInput.level = 'ALL';
+        this.filterInput.yeaR_BUDGET = moment().format('Y');
+
+        this.initCombobox()
+
+    }
+
+    initCombobox() {
+        this.years = this.getYearsCombobox();
+        this.updateView();
+    }
+
+    exportToExcel() {
+
+        if ((this.editForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return;
+        }
+
+        let reportInfo = new ReportInfo();
+        reportInfo.typeExport = ReportTypeConsts.Excel;
+
+        reportInfo.parameters = this.GetParamsFromFilter(this.filterInput);
+
+        reportInfo.values = this.GetParamsFromFilter({
+            A2: this.l("ConRequestDocByYear", this.filterInput.yeaR_BUDGET).toUpperCase()
+        });
+
+        reportInfo.pathName = "/REPORT/CON_REQUEST_DOC_BC01.xlsx";
+        reportInfo.storeName = "rpt_CON_REQUEST_DOC_BC01";
+
+        this.asposeService.getReport(reportInfo).subscribe(x => {
+            this.fileDownloadService.downloadTempFile(x);
+            this.showSuccessMessage(this.l('ExportFileSuccess'));
+            this.updateView();
+        });
+    }
+
+    onSelectBranch(branch: CM_BRANCH_ENTITY) {
+        this.filterInput.brancH_ID = branch.brancH_ID;
+        this.filterInput.brancH_NAME = branch.brancH_NAME;
+    }
+}

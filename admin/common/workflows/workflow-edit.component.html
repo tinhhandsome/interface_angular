@@ -1,0 +1,164 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("Workflow")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Create")}} {{l("Workflow") | lowercase}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Edit")}} {{l("Workflow") | lowercase}} :
+                        {{inputModel.workfloW_ID}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("View")}} {{l("Workflow") | lowercase}} :
+                        {{inputModel.workfloW_ID}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <input hidden class="form-control" type="text" #workfloW_ID="ngModel" name="workfloW_ID" [(ngModel)]="inputModel.workfloW_ID">
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("FunctionId")}}</label>
+                                <select2-custom [disabled]="disableInput" required name="functioN_ID" #functioN_ID="ngModel" [(ngModel)]="inputModel.functioN_ID" [(list)]="menus" [emptyText]="" [valueMember]="'route'" [displayMember]="'name'">
+                                </select2-custom>
+                                <div class="error-message" *ngIf="functioN_ID.invalid && isShowError">
+                                    <span *ngIf="functioN_ID?.errors.required">{{l('FunctionId')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("BranchType")}}</label>
+                                <all-code-select [disabled]="disableInput" required #approvE_LEVEL="ngModel" name="BranchType" [emptyText]="" [cdName]="'BRANCH_TYPE'" [(ngModel)]="inputModel.approvE_LEVEL">
+                                </all-code-select>
+                                <div class="error-message" *ngIf="approvE_LEVEL.invalid && isShowError">
+                                    <span *ngIf="approvE_LEVEL?.errors.required">{{l('BranchType')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("StepNumbers")}}</label>
+                                <input [disabled]="disableInput" required class="form-control" min="0" type="number" #steP_NUMBERS="ngModel" (focusout)="stepNumberChange();" name="steP_NUMBERS" [(ngModel)]="inputModel.steP_NUMBERS">
+                                <div class="error-message" *ngIf="steP_NUMBERS.invalid && isShowError">
+                                    <span *ngIf="steP_NUMBERS?.errors.required">{{l('StepNumbers')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("NextBranchType")}}</label>
+                                <all-code-select [disabled]="disableInput" #nexT_LEVEL="ngModel" name="nexT_LEVEL" [emptyText]="l('NullSelect')" [cdName]="'BRANCH_TYPE'" [(ngModel)]="inputModel.nexT_LEVEL">
+                                </all-code-select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("LimitValueFrom")}}</label>
+                                <money-input [disabled]="disableInput" #limiT_VALUE_FROM="ngModel" name="limiT_VALUE_FROM" [(ngModel)]="inputModel.limiT_VALUE_FROM"></money-input>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("LimitValueTo")}}</label>
+                                <money-input [disabled]="disableInput" type="number" #limiT_VALUE_TO="ngModel" name="limiT_VALUE_TO" [(ngModel)]="inputModel.limiT_VALUE_TO"></money-input>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group outter-vertical-center">
+                                <div class="form-group inner-vertical-center">
+                                    <label class="m-checkbox" for="recorD_STATUS">{{l("IsActive")}}
+                                        <input [disabled]="disableInput" type="checkbox" id="recorD_STATUS" #recorD_STATUS name="recorD_STATUS"
+                                            [checked]="inputModel.recorD_STATUS == '1'"
+                                            (change)="inputModel.recorD_STATUS = recorD_STATUS.checked? '1' : '0'">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <button hidden (click)="saveInput()"></button>
+                    </div>
+
+                    <div class="primeng-datatable-container">
+                        <editable-table #editTable class="custom-table ui-table">
+                            <thead>
+                                <tr>
+                                    <th><span style="width: 60px">{{l("No")}}</span></th>
+                                    <th><span style="width: 150px">{{l("Step")}}</span></th>
+                                    <th sortField="assigns" class="required"><span style="width: 150px">{{l("Assigns")}}</span></th>
+                                    <th sortField="limiT_VALUE_FROM"><span style="width: 150px">{{l("LimitValueFrom")}}</span></th>
+                                    <th sortField="limiT_VALUE_TO"><span style="width: 150px">{{l("LimitValueTo")}}</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of editTable.dataInPage" #editRow ng-form [hidden]="item.page != editTable.currentPage">
+                                    <td><span class="mo-header"></span>{{item.no}}</td>
+                                    <td>
+                                        <span class="mo-header"></span>{{item.no}}
+                                    </td>
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <select2-custom [disabled]="disableInput" required name="item.assigns{{item.no}}" [(ngModel)]="item.assigns" #assign [(list)]="roles" [emptyText]="" [valueMember]="'name'" [displayMember]="'displayName'">
+                                        </select2-custom>
+                                        <div class="error-message" *ngIf="isShowError">
+                                            <span *ngIf="!item.assigns">{{l('Assigns')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <money-input [disabled]="disableInput" name="limiT_VALUE_FROM{{item.no}}" class="transparent" [(ngModel)]="item.limiT_VALUE_FROM" name="limiT_VALUE_FROM">
+                                        </money-input>
+                                    </td>
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <money-input [disabled]="disableInput" name="limiT_VALUE_TO{{item.no}}" class="transparent" [(ngModel)]="item.limiT_VALUE_TO" name="limiT_VALUE_TO">
+                                        </money-input>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </editable-table>
+
+                        <div *ngIf="this.editTable.allData.length == 0" class="primeng-no-data">
+                            {{l('NoData')}}
+                        </div>
+
+                        <div class="primeng-paging-container">
+                            <p-paginator [rows]="editTable.defaultRecordsCountPerPage" #paginator (onPageChange)="editTable.changePage($event.page)" [totalRecords]="editTable.allData.length" [rowsPerPageOptions]="editTable.predefinedRecordsCountPerPage">
+                            </p-paginator>
+
+                            <span class="total-records-count">
+                                {{l('TotalRecordsCount')}} {{editTable.allData.length}}
+                            </span>
+                        </div>
+                    </div>
+                </form>
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>

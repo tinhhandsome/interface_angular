@@ -1,0 +1,148 @@
+<popup-frame [title]="branchTitle" (onSearchEvent)="buttonSearch()" (onSelectEvent)="accept()" (onCancelEvent)="close()"
+    #popupFrame>
+    <form class="horizontal-form filter-form" autocomplete="off">
+        <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+                <!-- Begin Filter -->
+                <!-- <h5 class="popup-title col-md-12">{{l("SearchContains")}}</h5> -->
+                <!-- Số hợp đồng -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("ContractCode")}}</label>
+                        <input [(ngModel)]="filterInput.constracT_CODE" [ngModelOptions]="{standalone: true}" autoFocus
+                            class="form-control m-input" type="text">
+
+                    </div>
+                </div>
+                <!-- Tên hợp đồng -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("ContractName")}}</label>
+                        <input [(ngModel)]="filterInput.constracT_NAME" [ngModelOptions]="{standalone: true}"
+                            class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <!-- Ngày tạo hợp đồng -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("ContractDt")}}</label>
+                        <date-control [ngModelOptions]="{standalone: true}" [(ngModel)]="filterInput.creatE_DT">
+                        </date-control>
+                    </div>
+                </div>
+                <!-- Số hồ sơ -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("BidCode")}}</label>
+                        <div class="user-group">
+                            <input [(ngModel)]="filterInput.biD_CODE" [ngModelOptions]="{standalone: true}"
+                                class="form-control m-input" type="text">
+                            <button type="button" class="btn btn-primary"
+                                (click)="bidMasterModal.show(); updateView();">...</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nhà cung cấp -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("Supplier")}}</label>
+                        <div class="user-group">
+                            <input [(ngModel)]="filterInput.suP_CODE" [ngModelOptions]="{standalone: true}"
+                                class="form-control m-input" type="text">
+                            <button type="button" class="btn btn-primary"
+                                (click)="supplierModal.show(); updateView();">...</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- End Filter -->
+                <div style="display:none;" class="col-md-12">
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-search" (click)="search()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row align-items-center">
+        <div isLoading="dataTable.isLoading" class="primeng-datatable-container">
+            <!-- <div class="spinner-border m-5" role="status">
+                <span class="sr-only">Loading...</span>
+            </div> -->
+            <h5 class="popup-title col-md-12">{{l("ContractList")}}</h5>
+
+            <core-table [reloadPageOnInit]="false" #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                <thead>
+                    <tr>
+                        <!-- Begin Table Column -->
+                        <!-- multiple -->
+                        <th class="center" *ngIf="multiple">
+                            <span style="width: 40px">
+                                <checkbox-control #checkAllElement
+                                    (change)="onCheckAll(checkAllElement.inputRef.nativeElement)" [checked]="checkAll">
+                                </checkbox-control>
+                            </span>
+
+
+                        </th>
+                        <!-- STT -->
+                        <th class="center">
+                            <span style="width: 40px">{{l("No")}}</span>
+                        </th>
+                        <!-- Số hợp đồng -->
+                        <th class="center" style="width:20%" sortField="CONTRACT_CODE">
+                            <span style="width: 110px">{{l("ContractCode")}}</span>
+                        </th>
+                        <!-- Tên hợp đồng -->
+                        <th class="center" style="width:20%" s sortField="CONTRACT_NAME">
+                            <span style="width: 200px">{{l("ContractName")}}</span>
+                        </th>
+                        <!-- Số hồ sơ -->
+                        <th class="center" style="width:20%" s sortField="BID_CODE">
+                            <span style="width: 150px">{{l("BidCode")}}</span>
+                        </th>
+                        <!-- Ngày hợp đồng -->
+                        <th class="center" style="width:20%" s sortField="DELIVERY_DT">
+                            <span style="width: 130px">{{l("ContractDt")}}</span>
+                        </th>
+                        <!-- Nhà cung cấp -->
+                        <th class="center" style="width:20%" s sortField="SUP_ID">
+                            <span style="width: 150px">{{l("Supplier")}}</span>
+                        </th>
+                        <!-- End Table Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- multiple dblclick -->
+                    <tr *ngFor="let record of dataTable.records" class="selectable" (click)="selectRow($event,record)"
+                        (dblclick)="onDoubleClick(record)">
+                        <!-- Begin Table Value -->
+                        <!-- multiple -->
+                        <td *ngIf="multiple">
+                            <span class="mo-header"></span>
+                            <checkbox-control (onchange)="setChecked($event.target.checked, record)"
+                                [checked]="record['isChecked']"></checkbox-control>
+                        </td>
+                        <td class="center"><span
+                                class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                        </td>
+                        <!-- Số hợp đồng -->
+                        <td><span class="mo-header"></span>{{record.contracT_CODE}}</td>
+                        <!-- Tên hợp đồng -->
+                        <td><span class="mo-header"></span>{{record.contracT_NAME}}</td>
+                        <!-- Số hồ sơ -->
+                        <td><span class="mo-header"></span>{{record.biD_CODE}}</td>
+                        <!-- Ngày hợp đồng -->
+                        <td><span class="mo-header"></span>{{record.deliverY_DT | dateFormatPipe}}</td>
+                        <!-- Nhà cung cấp -->
+                        <td><span class="mo-header"></span>{{record.suP_ID}}</td>
+                        <!-- End Table Value -->
+                    </tr>
+                </tbody>
+            </core-table>
+        </div>
+    </div>
+</popup-frame>
+<supplier-modal (onSelect)="onSelectSupplier($event)" #supplierModal [multiple]="false"></supplier-modal>
+<bid-master-modal (onSelect)="onSelectBidMaster($event)" #bidMasterModal [multiple]="false"></bid-master-modal>

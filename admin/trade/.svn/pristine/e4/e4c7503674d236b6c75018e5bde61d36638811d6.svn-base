@@ -1,0 +1,551 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("TradePoUpdateMaster")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- Số PO -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("PoMasterCode")}}</label>
+                                <input maxlength="15" class="form-control" type="text" #pO_CODE="ngModel" disabled name="pO_CODE" [(ngModel)]="inputModel.pO_CODE" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}">
+                                <div class="error-message" *ngIf="pO_CODE.invalid && isShowError">
+                                    <span *ngIf="pO_CODE?.errors.required">{{l('PoMasterCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="pO_CODE?.errors.pattern">{{l('PoMasterCode')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ngày gọi hàng -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("PoMasterInputDt")}}</label>
+                                <date-control [disabled]="true" [inpCss]="'form-control'" type="text" #inpuT_DT="ngModel" name="inpuT_DT" [(ngModel)]="inputModel.inpuT_DT">
+                                </date-control>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!-- Tên đơn hàng -->
+                        <div class="col-md-8">
+                            <div class="form-group required">
+                                <label>{{l("PoMasterName")}}</label>
+                                <input class="form-control" required type="text" #pO_NAME="ngModel" name="pO_NAME" disabled [(ngModel)]="inputModel.pO_NAME">
+                                <div class="error-message" *ngIf="pO_NAME.invalid && isShowError">
+                                    <span *ngIf="pO_NAME?.errors.required">{{l('PoMasterName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+
+                        <!-- Số tờ trình -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("RequestDocCode")}}</label>
+                                <input class="form-control" type="text" #reQ_DOC_ID="ngModel" name="reQ_DOC_ID" disabled [(ngModel)]="inputModel.reQ_DOC_ID">
+                                <div class="error-message" *ngIf="reQ_DOC_ID.invalid && isShowError">
+                                    <span *ngIf="reQ_DOC_ID?.errors.required">{{l('RequestDocCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Ngày nhận tờ trình -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("TradeRequestDocDT")}}</label>
+                                <date-control #deliverY_DT="ngModel" name="deliverY_DT" [(ngModel)]="inputModel.deliverY_DT" [disabled]="true">
+                                </date-control>
+                                <div class="error-message" *ngIf="deliverY_DT.invalid && isShowError">
+                                    <span *ngIf="deliverY_DT?.errors.required">{{l('TradeRequestDocDT')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Ngày duyệt tờ trình -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("RequestDocPayAppDate")}}</label>
+                                <date-control #payapP_DT="ngModel" name="payapP_DT" [(ngModel)]="inputModel.payapP_DT" [disabled]="true">
+                                </date-control>
+                                <div class="error-message" *ngIf="payapP_DT.invalid && isShowError">
+                                    <span *ngIf="payapP_DT?.errors.required">{{l('RequestDocPayAppDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--4 Popup               ContractCode                     CONTRACT_ID                Số hợp đồng -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("ContractCode")}}</label>
+                                <div class="user-group">
+                                    <input class="form-control" type="text" #contracT_ID="ngModel" name="contracT_ID" disabled [(ngModel)]="inputModel.contracT_ID">
+                                    <button disabled type="button" class="btn btn-primary">...</button>
+                                </div>
+                                <div class="error-message" *ngIf="contracT_ID.invalid && isShowError">
+                                    <span *ngIf="contracT_ID?.errors.required">{{l('ContractCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tổng giá trị hợp đồng -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("ContractTotalAmt")}}</label>
+                                <money-input #totaL_AMT="ngModel" name="totaL_AMT" [(ngModel)]="inputModel.totaL_AMT" [disabled]="true"></money-input>
+                            </div>
+                        </div>
+
+                        <!-- Tổng giá trị đã thực hiện -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("TotalAmtMade")}}</label>
+                                <money-input #c_TOTAL_AMT="ngModel" name="c_TOTAL_AMT" [(ngModel)]="inputModel.c_TOTAL_AMT" [disabled]="true"></money-input>
+                            </div>
+                        </div>
+
+                        <!-- Nội dung hợp đồng -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("ContractContent")}}</label>
+                                <input class="form-control" type="text" #c_CONTRACT_NAME="ngModel" name="c_CONTRACT_NAME" disabled [(ngModel)]="inputModel.c_CONTRACT_NAME">
+                            </div>
+                        </div>
+
+
+                        <!-- File đính kèm -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("FileAttachment")}}</label>
+                                <file-picker [disabled]="disableInput" type="text" #filE_ATTACHMENT="ngModel" [folderUpload]="'PoMaster'" [inpCss]="'form-control'" [(ngModel)]="inputModel['filE_ATTACHMENT']" name="filE_ATTACHMENT"></file-picker>
+                            </div>
+                        </div>
+
+                        <!-- Mã nhà cung cấp -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("SupplierCode")}}</label>
+                                <div class="user-group">
+                                    <input class="form-control" required type="text" #suP_ID="ngModel" name="suP_ID" disabled [(ngModel)]="inputModel.suP_ID">
+                                    <button disabled disabled type="button" class="btn btn-primary">...</button>
+                                </div>
+                                <div class="error-message" *ngIf="suP_ID.invalid && isShowError">
+                                    <span *ngIf="suP_ID?.errors.required">{{l('SupplierCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tên nhà cung cấp -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("SupplierName")}}</label>
+                                <input class="form-control" type="text" #suP_NAME="ngModel" name="suP_NAME" [disabled]="true" [(ngModel)]="inputModel.suP_NAME">
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <!-- Địa chỉ -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Address")}}</label>
+                                <textarea class="form-control" type="text" #suP_ADDR="ngModel" name="suP_ADDR" [disabled]="true" [(ngModel)]="inputModel.suP_ADDR"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- Bảng con: Chi tiết hàng hóa -->
+                    <div class="editable-title-group">
+                        <h5 class="popup-title col-md-12">{{l("GoodsDetail")}}</h5>
+                        <div class="action-button">
+                            <!-- <button type="button" disabled class="btn btn-primary"><i
+                                    class="pi pi-plus"></i>{{l("Add")}}</button>
+                            <button type="button" disabled class="btn btn-primary"><i
+                                    class="pi pi-times"></i>{{l("Delete")}}</button> -->
+                        </div>
+                    </div>
+
+                    <div class="primeng-datatable-container">
+                        <editable-table #editTablePoDetail class="custom-table ui-table">
+                            <thead>
+                                <tr>
+                                    <!-- Checkbox -->
+                                    <!-- <th>
+                                        <div class="outter-vertical-center">
+                                            <span class="inner-vertical-center" style="width: 60px">
+                                                <label class="m-checkbox" for="checkAll">
+                                                    <input type="checkbox" id="checkAll" #checkAll name="checkAll"
+                                                        [checked]="editTablePoDetail.isCheckAll"
+                                                        (change)="editTablePoDetail.checkAll(checkAll.checked)">
+                                                    <span class="label-span"></span>
+                                            </label>
+                                            </span>
+                                        </div>
+                                    </th> -->
+                                    <!-- STT -->
+                                    <th class="center"><span style="width: 40px">{{l("No")}}</span></th>
+                                    <!-- Đơn vị -->
+                                    <th class="center" sortField="brancH_NAME"><span style="width: 200px">{{l("Branch")}}</span></th>
+                                    <!-- Tên kế hoạch -->
+                                    <th class="center" style="width: 12.5%" sortField="plaN_NAME"><span style="width: 200px">{{l("PlanName")}}</span></th>
+                                    <!-- Tên hàng hóa -->
+                                    <th class="center" style="width: 12.5%" sortField="gD_NAME"><span style="width: 200px">{{l("GoodsName")}}</span>
+                                    </th>
+                                    <!-- Tên thực tế -->
+                                    <th class="center" style="width: 12.5%" sortField="goodS_NAME"><span style="width: 200px">{{l("NameReal")}}</span></th>
+                                    <!-- Số lượng -->
+                                    <th class="center" style="width: 12.5%" sortField="quantitY" class="required"><span style="width: 200px">{{l("Quantity")}}</span></th>
+                                    <!-- Đơn giá -->
+                                    <th class="center" style="width: 12.5%" sortField="price" class="required"><span style="width: 200px">{{l("UnitPrice")}}</span></th>
+
+                                    <!-- Tổng số tiền -->
+                                    <th class="center" style="width: 12.5%" sortField="totaL_AMT"><span style="width: 200px">{{l("TotalMoney")}}</span></th>
+                                    <!-- Ngày dự kiến giao hàng -->
+                                    <th class="center" style="width: 12.5%" sortField="exP_DELIVERY_DT"><span style="width: 200px">{{l("ExpectedDeliveryDate")}}</span></th>
+
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="selectable {{item['editableIsSelected'] ? 'selected' : ''}}" *ngFor="let item of editTablePoDetail.dataInPage; let in = index" [hidden]="item.page != editTablePoDetail.currentPage" (click)="editTablePoDetail.selectRow($event,item)">
+                                    <!-- Checkbox -->
+                                    <!-- <td>
+                                        <span class="mo-header"></span>
+                                        <div class="outter-vertical-center">
+                                            <span class="inner-vertical-center" style="width: 60px">
+                                                <label class="m-checkbox" for="check-{{item.no}}-1">
+                                                    <input type="checkbox" id="check-{{item.no}}-1"
+                                                        name="check-{{item.no}}-1" [checked]="item.isChecked"
+                                                        (change)="item.isChecked = $event.target.checked">
+                                                    <span class="label-span"></span>
+                                            </label>
+                                            </span>
+                                        </div>
+                                    </td> -->
+                                    <!-- STT -->
+                                    <td class="center"><span class="mo-header"></span>{{item.no}}</td>
+                                    <!-- Đơn vị -->
+                                    <td><span class="mo-header"></span>{{item.r_BRANCH_NAME}}</td>
+                                    <!-- Tên kế hoạch -->
+                                    <td><span class="mo-header"></span>{{item.plaN_NAME}}</td>
+                                    <!-- Tên hàng hóa -->
+                                    <td><span class="mo-header"></span>{{item.gD_NAME}}</td>
+                                    <!-- Tên thực tế -->
+                                    <td><span class="mo-header"></span>{{item.goodS_NAME}}</td>
+
+                                    <!-- Số lượng -->
+                                    <td><span class="mo-header"></span>{{item.quantity}}</td>
+
+
+                                    <!-- Đơn giá -->
+                                    <td><span class="mo-header"></span>{{item.price | moneyFormatPipe}}</td>
+
+
+                                    <!-- Tổng số tiền -->
+                                    <td><span class="mo-header"></span>{{item.totaL_AMT | moneyFormatPipe}}</td>
+                                    <!-- Ngày dự kiến giao hàng -->
+                                    <td><span class="mo-header"></span>
+                                        <date-control [disabled]="disableInput" class="transparent" [inpCss]="'form-control'" type="text" name="exP_DELIVERY_DT-{{in}}-1" [(ngModel)]="item.ngaydudinH_GIAOHANG">
+                                        </date-control>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </editable-table>
+                    </div>
+
+                    <div class="editable-footer">
+                        <div>
+                            <label style="font-weight: 500; margin-top: 10px; font-size: 13px;">
+                                {{l('TotalMoney')}} : {{inputModel.totaL_AMT | moneyFormatPipe}}
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- #region Lịch theo dõi thanh toán -->
+
+                    <div *ngIf="editPageState != EditPageState.add" class="editable-title-group">
+                        <h5 class="popup-title col-md-12">{{l("PaymentTracking")}}</h5>
+                    </div>
+
+                    <div *ngIf="editPageState != EditPageState.add" class="primeng-datatable-container">
+                        <editable-table #editTablePaymentTrackingView [requiredFields]="['amounT_PAID']" class="custom-table ui-table">
+                            <thead>
+                                <tr>
+                                    <!-- STT -->
+                                    <th class="center"><span style="width: 40px">{{l("No")}}</span></th>
+                                    <!-- Tên thực tế -->
+                                    <th class="center" style="width: 10%" sortField="gD_NAME"><span style="width: 200px">{{l("NameReal")}}</span></th>
+                                    <!-- Ngày giao hàng -->
+                                    <th class="center" style="width: 10%" sortField="deliverY_DT"><span style="width: 200px">{{l("DateDelivery")}}</span>
+                                    </th>
+                                    <!-- Đã giao hàng -->
+                                    <th class="center" style="width: 10%" class="center" sortField="iS_DELIVERY"><span style="width: 120px">{{l("IsDelivery")}}</span>
+                                    </th>
+                                    <!-- Tình trạng thanh toán -->
+                                    <th class="center" style="width: 10%" sortField="paymenT_STATUS"><span style="width: 200px">{{l("PaymentStatus")}}</span></th>
+                                    <!-- Số tiền thanh toán -->
+                                    <th class="center" style="width: 10%" sortField="amounT_PAID"><span style="width: 200px">{{l("InsuAMT")}}</span></th>
+                                    <!-- Số tiền còn lại -->
+                                    <th class="center" style="width: 10%" sortField="remaiN_AMT"><span style="width: 200px">{{l("RemainAmt")}}</span></th>
+                                    <!-- Ngày thanh toán -->
+                                    <th class="center" style="width: 10%" sortField="paiD_DT"><span style="width: 200px">{{l("DatePaid")}}</span></th>
+                                    <!-- Ngày hóa đơn -->
+                                    <th class="center" style="width: 10%" sortField="invoicE_DT"><span style="width: 200px">{{l("DateInvoice")}}</span>
+                                    </th>
+                                    <!-- Số hóa đơn -->
+                                    <th class="center" style="width: 10%" sortField="invoiceno"><span style="width: 200px">{{l("InvoiceNo")}}</span></th>
+                                    <!-- Số tiền thanh toán thực tế -->
+                                    <th class="center" style="width: 10%" sortField="amt"><span style="width: 200px">{{l("RealPaymentAmt")}}</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of editTablePaymentTracking.dataInPage; let in = index" class="selectable {{item['editableIsSelected'] ? 'selected' : ''}}" [hidden]="item['page'] != editTablePaymentTracking.currentPage" (click)="editTablePaymentTracking.selectRow($event,item); updateView();">
+                                    <!-- STT -->
+                                    <td><span class="mo-header"></span>{{item['no']}}</td>
+                                    <!-- Tên thực tế -->
+                                    <td><span class="mo-header"></span><input [disabled]="disableInput" class="form-control label" type="text" name="payment-tracking-goodS_NAME-{{in}}-1" [(ngModel)]="item.goodS_NAME">
+                                    </td>
+                                    <!-- Ngày giao hàng -->
+                                    <td><span class="mo-header"></span>
+                                        <date-control class="transparent" [disabled]="disableInput" [inpCss]="'form-control'" type="text" name="payment-tracking-deliverY_DT-{{in}}-1" [(ngModel)]="item.deliverY_DT">
+                                        </date-control>
+                                    </td>
+                                    <!-- Đã giao hàng -->
+                                    <td class="center"><span class="mo-header"></span>
+                                        <checkbox-control class="transparent" [disabled]="disableInput" [TrueValue]="'1'" [FalseValue]="'0'" type="text" name="payment-tracking-iS_DELIVERY-{{in}}-1" [(ngModel)]="item.iS_DELIVERY">
+                                        </checkbox-control>
+                                    </td>
+                                    <!-- Tình trạng thanh toán -->
+                                    <td><span class="mo-header"></span>
+                                        <all-code-select [disabled]="disableInput" name="payment-tracking-paymenT_STATUS-{{in}}" [cdName]="'PAYMENT_STATUS'" [cdType]="'TR'" [(ngModel)]="item.paymenT_STATUS">
+                                        </all-code-select>
+                                    </td>
+                                    <!-- Số tiền thanh toán -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <money-input [disabled]="disableInput" (focusout)="onAmountPaidFocusOut(item)" name="payment-tracking-amounT_PAID-{{in}}-1" class="transparent" [(ngModel)]="item.amounT_PAID">
+                                        </money-input>
+                                        <div class="error-message" *ngIf="isShowError">
+                                            <span *ngIf="isNull(item.price)">{{l('InsuAMT')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </td>
+                                    <!-- Số tiền còn lại -->
+                                    <td><span class="mo-header"></span> <input class="form-control right" disabled value="{{item.remaiN_AMT | moneyFormatPipe}}" /> </td>
+                                    <!-- Ngày thanh toán -->
+                                    <td><span class="mo-header"></span>
+                                        <date-control class="transparent" [disabled]="disableInput" [inpCss]="'form-control'" type="text" name="payment-tracking-paiD_DT-{{in}}-1" [(ngModel)]="item.paiD_DT">
+                                        </date-control>
+                                    </td>
+                                    <!-- Ngày hóa đơn -->
+                                    <td><span class="mo-header"></span>
+                                        <date-control class="transparent" [disabled]="disableInput" [inpCss]="'form-control'" type="text" name="payment-tracking-invoicE_DT-{{in}}-1" [(ngModel)]="item.invoicE_DT">
+                                        </date-control>
+                                    </td>
+                                    <!-- Số hóa đơn -->
+                                    <td><span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="payment-tracking-invoiceno-{{in}}-1" [(ngModel)]="item.invoiceno" />
+                                    </td>
+                                    <!-- Số tiền thanh toán thực tế -->
+                                    <td>
+                                        <money-input [disabled]="disableInput" name="payment-tracking-amt-{{in}}-1" class="transparent" [(ngModel)]="item.amt">
+                                        </money-input>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </editable-table>
+                    </div>
+
+                    <!-- #endregion -->
+
+
+                    <!-- Bảng con: Lịch cập nhật ngày -->
+                    <div class="editable-title-group">
+                        <h5 class="popup-title col-md-12">{{l("UpdateDateShedule")}}</h5>
+                        <div class="action-button">
+                            <button type="button" disabled class="btn btn-primary"><i
+                                    class="pi pi-plus"></i>{{l("Add")}}</button>
+                            <button type="button" disabled class="btn btn-danger"><i
+                                    class="pi pi-times"></i>{{l("Delete")}}</button>
+                        </div>
+                    </div>
+
+                    <div class="primeng-datatable-container">
+                        <editable-table #editTableUpdateDate class="custom-table ui-table">
+                            <thead>
+                                <tr>
+                                    <!-- Checkbox -->
+                                    <!-- <th>
+                                            <div class="outter-vertical-center">
+                                                <span class="inner-vertical-center" style="width: 60px">
+                                                    <label class="m-checkbox" for="checkAll">
+                                                        <input type="checkbox" id="checkAll" #checkAll name="checkAll"
+                                                            [checked]="editTablePoDetail.isCheckAll"
+                                                            (change)="editTablePoDetail.checkAll(checkAll.checked)">
+                                                        <span class="label-span"></span>
+                                                </label>
+                                                </span>
+                                            </div>
+                                        </th> -->
+                                    <!-- STT -->
+                                    <th class="center"><span style="width: 40px">{{l("No")}}</span></th>
+                                    <!-- Tên thực tế -->
+                                    <th class="center" style="width: 10%" sortField="goodS_NAME"><span style="width: 200px">{{l("NameReal")}}</span></th>
+                                    <!-- Số serial -->
+                                    <th class="center" style="width: 10%" sortField="seriaL_NO">
+                                        <span style="width: 200px">{{l("SerialNo")}}</span>
+                                    </th>
+                                    <!-- Ngày giao hàng -->
+                                    <th class="center" style="width: 10%" sortField="deliverY_DT">
+                                        <span style="width: 200px">{{l("DeliveryDate")}}</span>
+                                    </th>
+                                    <!-- File đính kèm -->
+                                    <th class="center" style="width: 10%" sortField="filE_ATTACHMENT"><span style="width: 250px">{{l("FileAttachment")}}</span>
+                                    </th>
+                                    <!-- Đơn vị giao -->
+                                    <th class="center" style="width: 10%" sortField="donvI_GIAO"><span style="width: 200px">{{l("BranchSend")}}</span>
+                                    </th>
+                                    <!-- Người giao -->
+                                    <th class="center" style="width: 10%" sortField="nguoI_GIAO"><span style="width: 200px">{{l("SendPerson")}}</span>
+                                    </th>
+                                    <!-- Đơn vị nhận -->
+                                    <th class="center" style="width: 10%" sortField="donvI_NHAN"><span style="width: 200px">{{l("BranchNameReceive")}}</span></th>
+
+                                    <!-- Người nhận -->
+                                    <th class="center" style="width: 10%" sortField="nguoI_NHAN"><span style="width: 200px">{{l("PersonReceive")}}</span>
+                                    </th>
+                                    <!-- Bảo hành -->
+                                    <th class="center" style="width: 10%" sortField="baohanh"><span style="width: 200px">{{l("Guarantee")}}</span></th>
+                                    <!-- Diễn giải -->
+                                    <th class="center" style="width: 10%" sortField="notes"><span style="width: 200px">{{l("DescriptionInfo")}}</span>
+                                    </th>
+
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="selectable {{item['editableIsSelected'] ? 'selected' : ''}}" *ngFor="let item of editTableUpdateDate.dataInPage; let in = index" [hidden]="item['page'] != editTableUpdateDate.currentPage" (click)="editTableUpdateDate.selectRow($event,item)">
+                                    <!-- Checkbox -->
+                                    <!-- <td>
+                                            <span class="mo-header"></span>
+                                            <div class="outter-vertical-center">
+                                                <span class="inner-vertical-center" style="width: 60px">
+                                                    <label class="m-checkbox" for="check-{{item.no}}-1">
+                                                        <input type="checkbox" id="check-{{item.no}}-1"
+                                                            name="check-{{item.no}}-1" [checked]="item.isChecked"
+                                                            (change)="item.isChecked = $event.target.checked">
+                                                        <span class="label-span"></span>
+                                                </label>
+                                                </span>
+                                            </div>
+                                        </td> -->
+                                    <!-- STT -->
+
+
+                                    <td class="center"><span class="mo-header"></span>{{item['no']}}</td>
+                                    <!-- Tên thực tế -->
+                                    <td><span class="mo-header"></span>{{item.goodS_NAME}}</td>
+                                    <!-- Số serial -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="seriaL_NO-{{in}}" [(ngModel)]="item.seriaL_NO" />
+                                    </td>
+                                    <!-- Ngày giao hàng -->
+
+                                    <td><span class="mo-header"></span>
+                                        <!-- <date-control [disabled]="disableInput" [inpCss]="'form-control transparent'" type="text" name="deliverY_DT-{{in}}" [(ngModel)]="item.deliverY_DT"></date-control> -->
+                                        <date-control [disabled]="disableInput" name="deliverY_DT-{{in}}" [(ngModel)]="item.ngaY_GIAOHANG" autoFocus>
+                                        </date-control>
+                                    </td>
+                                    <!-- File đính kèm -->
+                                    <td><span class="mo-header"></span>
+                                        <file-picker [disabled]="disableInput" type="text" [folderUpload]="'PoUpdate'" [inpCss]="'form-control'" [(ngModel)]="item['filE_ATTACHMENT']" name="filE_ATTACHMENT-{{in}}">
+                                        </file-picker>
+
+                                    </td>
+                                    <!-- Đơn vị giao -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="donvI_GIAO-{{in}}" [(ngModel)]="item.donvI_GIAO" />
+                                    </td>
+
+                                    <!-- Người giao -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="nguoI_GIAO-{{in}}" [(ngModel)]="item.nguoI_GIAO" />
+                                    </td>
+
+
+                                    <!-- Đơn vị nhận -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="donvI_NHAN-{{in}}" [(ngModel)]="item.donvI_NHAN" />
+                                    </td>
+                                    <!-- Người nhận -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="nguoI_NHAN-{{in}}" [(ngModel)]="item.nguoI_NHAN" />
+                                    </td>
+                                    <!-- Bảo hành -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="baohanh-{{in}}" [(ngModel)]="item.baohanh" />
+                                    </td>
+
+                                    <!-- Diễn giải -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="notes-{{in}}" [(ngModel)]="item.notes" />
+                                    </td>
+
+
+                                </tr>
+                            </tbody>
+                        </editable-table>
+                    </div>
+                </form>
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>

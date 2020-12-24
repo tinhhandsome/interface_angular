@@ -1,0 +1,208 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <!-- Begin Title -->
+                        <span>{{l("TradePoMaster")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-group dropdown mr-2">
+                        <button class=" btn btn-outline-success" *ngIf="appToolbar.buttonSearchEnable" (click)="exportExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+
+                                <!-- Mã PO -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("PoCode")}}</label>
+                                        <input [(ngModel)]="filterInput.pO_CODE" name="pO_CODE" #pO_CODE="ngModel" autoFocus class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Tên PO -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("PoName")}}</label>
+                                        <input [(ngModel)]="filterInput.pO_NAME" name="pO_NAME" #pO_NAME="ngModel" class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Mã hợp đồng -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("ContractCode")}}</label>
+                                        <input [(ngModel)]="filterInput.contracT_CODE" name="contracT_CODE" #contracT_CODE="ngModel" class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+
+                                <!-- Mã nhà cung cấp -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("SupplierId")}}</label>
+                                        <div class="user-group">
+                                            <input class="form-control" type="text" #suP_ID="ngModel" name="suP_ID" [(ngModel)]="filterInput.suP_CODE">
+                                            <button class="btn btn-primary ng-star-inserted" (click)="supplierModal.show()" type='button'>...</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Loại PO -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("PoType")}}</label>
+                                        <select2-custom name="pO_TYPE" [(ngModel)]="filterInput.pO_TYPE" [emptyText]="l('SelectAll')" [(list)]="poTypes" [valueMember]="'cdval'" [displayMember]="'content'">
+                                        </select2-custom>
+                                    </div>
+                                </div>
+
+                                <!-- Trạng thái duyệt -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("AuthStatus")}}</label>
+                                        <all-code-select name="autH_STATUS" [(ngModel)]="filterInput.autH_STATUS" [emptyText]="l('SelectAll')" [cdName]="'AUTH_STATUS'" [cdType]="'AUTH_STATUS'"></all-code-select>
+                                    </div>
+                                </div>
+
+                                <!-- Ngày đặt hàng -->
+                                <div class="col-md-8">
+                                    <fieldset>
+                                        <legend>{{l("DateOrder")}}</legend>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label>{{l("FromDate")}}</label>
+                                                <date-control [inpCss]="'form-control'" type="text" #froM_DATE="ngModel" name="froM_DATE" [(ngModel)]="filterInput.froM_DATE">
+                                                </date-control>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label>{{l("ToDate")}}</label>
+                                                <date-control [inpCss]="'form-control'" type="text" #tO_DATE="ngModel" name="tO_DATE" [(ngModel)]="filterInput.tO_DATE">
+                                                </date-control>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-md-4"></div>
+
+                                <!-- Tên đơn vị -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("BranchName")}}</label>
+                                        <select2-custom name="brancH_ID" [(ngModel)]="filterInput.brancH_ID" [(list)]="branches" [valueMember]="'brancH_ID'" [displayMember]="'brancH_CODE|brancH_NAME'">
+                                        </select2-custom>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label></label>
+                                    <div class="form-group">
+                                        <checkbox-control #level="ngModel" name="level" [label]="l('IndependentUnit')" [checked]="true" [TrueValue]="'UNIT'" [FalseValue]="'ALL'" [(ngModel)]="filterInput.level"></checkbox-control>
+                                    </div>
+                                </div>
+                                <div class="col-md-8"></div>
+
+                                <!-- End Filter -->
+                                <div style="display:none;" class="col-md-12">
+                                    <div class="form-group">
+                                        <button *ngIf="appToolbar.buttonSearchEnable" class="btn btn-primary btn-search" (click)="onSearch()">{{l('Search')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th class="center">
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <!-- Mã PO -->
+                                        <th style="width:20%" sortField="PO_CODE">
+                                            <span style="width: 150px">{{l("PoCode")}}</span>
+                                        </th>
+                                        <!-- Tên PO -->
+                                        <th style="width:20%" sortField="PO_NAME">
+                                            <span style="width: 250px">{{l("PoName")}}</span>
+                                        </th>
+                                        <!-- Số tờ trình -->
+                                        <th style="width:20%" sortField="REQ_DOC_ID">
+                                            <span style="width: 150px">{{l("ReqDocCode")}}</span>
+                                        </th>
+                                        <!-- Số hợp đồng -->
+                                        <th style="width:10%" sortField="C_CONTRACT_CODE">
+                                            <span style="width: 150px">{{l("ContractCode")}}</span>
+                                        </th>
+                                        <!-- Ngày đặt hàng -->
+                                        <th style="width:10%" sortField="INPUT_DT">
+                                            <span style="width: 150px">{{l("DateOrder")}}</span>
+                                        </th>
+                                        <!-- Tổng số tiền -->
+                                        <th style="width:10%" class="right" sortField="TOTAL_AMT">
+                                            <span style="width: 150px">{{l("TotalMoney")}}</span>
+                                        </th>
+                                        <!-- Trạng thái duyệt -->
+                                        <th style="width:10%" sortField="AUTH_STATUS_NAME">
+                                            <span style="width: 150px">{{l("AuthStatus")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onDblclick(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <td class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <!-- Mã PO -->
+                                        <td><span class="mo-header"></span>{{record.pO_CODE}}</td>
+                                        <!-- Tên PO -->
+                                        <td><span class="mo-header"></span>{{record.pO_NAME}}</td>
+                                        <!-- Số tờ trình -->
+                                        <td><span class="mo-header"></span>{{record.reQ_DOC_ID}}</td>
+                                        <!-- Số hợp đồng -->
+                                        <td><span class="mo-header"></span>{{record.contracT_CODE}}</td>
+                                        <!-- Ngày đặt hàng -->
+                                        <td><span class="mo-header"></span>{{record.inpuT_DT | dateFormatPipe}}</td>
+                                        <!-- Tổng số tiền -->
+                                        <td class="right"><span class="mo-header"></span>{{record.totaL_AMT | moneyFormatPipe}}</td>
+                                        <!-- Trạng thái duyệt -->
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <supplier-modal (onSelect)="onSelectSupplier($event)" [multiple]="false" #supplierModal></supplier-modal>

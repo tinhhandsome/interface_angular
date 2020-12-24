@@ -1,0 +1,296 @@
+import { Component, Injector, ViewChild, OnInit, ViewEncapsulation, ElementRef } from '@angular/core';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
+import * as _ from 'lodash';
+import { CAR_MASTER_ENTITY, CarMasterServiceProxy, CM_DEPARTMENT_ENTITY, UltilityServiceProxy, CM_CAR_TYPE_ENTITY, CarTypeServiceProxy, CM_MODEL_ENTITY, ModelServiceProxy, CAR_ACCESSORY_ENTITY, CAR_CURE_SCH_ENTITY, ASS_MASTER_ENTITY } from '@shared/service-proxies/service-proxies';
+import { EditPageState } from '@app/ultilities/enum/edit-page-state';
+import { AllCodes } from '@app/ultilities/enum/all-codes';
+import { finalize } from 'rxjs/operators';
+import { DefaultComponentBase } from '@app/ultilities/default-component-base';
+import { AuthStatusConsts } from '@app/admin/core/ultils/consts/AuthStatusConsts';
+import { RecordStatusConsts } from '@app/admin/core/ultils/consts/RecordStatusConsts';
+import { EditableTableComponent } from '@app/admin/core/controls/editable-table/editable-table.component';
+import { IUiActionRejectExt } from '@app/ultilities/ui-action-re';
+import { ToolbarRejectExtComponent } from '@app/admin/core/controls/toolbar-reject-ext/toolbar-reject-ext.component';
+import { AssetModalComponent } from '@app/admin/core/controls/asset-modal/asset-modal.component';
+
+@Component({
+    templateUrl: './car-master-edit.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+export class CarMasterEditComponent extends DefaultComponentBase implements OnInit, IUiActionRejectExt<CAR_MASTER_ENTITY> {
+
+    constructor(
+        injector: Injector,
+        private ultilityService: UltilityServiceProxy,
+        private carMasterService: CarMasterServiceProxy,
+        private modelService: ModelServiceProxy,
+        private carTypeService: CarTypeServiceProxy,
+
+    ) {
+        super(injector);
+
+        this.editPageState = this.getRouteData('editPageState');
+        this.inputModel.caR_ID = this.getRouteParam('id');
+        this.inputModel.n_PLATE = this.getRouteParam('nPlate');
+
+        this.initFilter();
+        this.initCombobox();
+        this.initIsApproveFunct();
+    }
+
+    @ViewChild('editForm') editForm: ElementRef;
+    @ViewChild('assetModal') assetModal: AssetModalComponent;
+    @ViewChild('editTable') editTable: EditableTableComponent<CAR_ACCESSORY_ENTITY>;
+    @ViewChild('editTable1') editTable1: EditableTableComponent<CAR_CURE_SCH_ENTITY>;
+
+
+    EditPageState = EditPageState;
+    AllCodes = AllCodes;
+    editPageState: EditPageState;
+
+    inputModel: CAR_MASTER_ENTITY = new CAR_MASTER_ENTITY();
+    filterInput: CAR_MASTER_ENTITY;
+    isApproveFunct: boolean;
+    disableAssetInput: boolean;
+    disableCarEdit: boolean;
+
+
+    carTypes: CM_CAR_TYPE_ENTITY[];
+    models: CM_MODEL_ENTITY[];
+
+    get disableInput(): boolean {
+        return this.editPageState == EditPageState.viewDetail || this.inputModel.iS_LIQUID == '1';
+    }
+
+    departments: CM_DEPARTMENT_ENTITY[];
+
+    isShowError = false;
+
+    totalAmt: number = 0;
+    processValue: number = 0;
+
+    dataInTables: CAR_MASTER_ENTITY[] = [];
+
+    get apptoolbar(): ToolbarRejectExtComponent {
+        return this.appToolbar as ToolbarRejectExtComponent;
+    }
+
+    ngOnInit(): void {
+        switch (this.editPageState) {
+            case EditPageState.add:
+                this.inputModel.recorD_STATUS = RecordStatusConsts.Active;
+                this.appToolbar.setRole('CarMaster', false, false, true, false, false, false, false, false);
+                this.appToolbar.setEnableForEditPage();
+                this.inputModel.brancH_ID = this.appSession.user.subbrId;
+                this.inputModel.brancH_NAME = this.appSession.user.branchName;
+                this.disableCarEdit = false;
+                break;
+            case EditPageState.edit:
+                this.inputModel.brancH_ID = this.appSession.user.subbrId;
+                this.inputModel.brancH_NAME = this.appSession.user.branchName;
+                this.disableCarEdit = true;
+                this.appToolbar.setRole('CarMaster', false, false, true, false, false, false, false, false);
+                this.appToolbar.setEnableForEditPage();
+                this.getCarMaster();
+                break;
+            case EditPageState.viewDetail:
+                this.inputModel.brancH_ID = this.appSession.user.subbrId;
+                this.inputModel.brancH_NAME = this.appSession.user.branchName;
+                this.disableCarEdit = true;
+                this.appToolbar.setRole('CarMaster', false, false, false, false, false, false, true, false);
+                this.appToolbar.setEnableForViewDetailPage();
+                this.getCarMaster();
+                break;
+        }
+
+        this.appToolbar.setUiAction(this);
+        this.disableAssetInput = true;
+
+        this.inputModel.asset = this.inputModel.asset ? this.inputModel.asset : new ASS_MASTER_ENTITY();
+    }
+
+    initIsApproveFunct() {
+        this.ultilityService.isApproveFunct(this.getCurrentFunctionId()).subscribe(isApproveFunct => {
+            this.isApproveFunct = isApproveFunct;
+        })
+    }
+
+    initCombobox() {
+        let filterCombobox = this.getFillterForCombobox();
+        this.carTypeService.cM_CAR_TYPE_Search(filterCombobox).subscribe(response => {
+            this.carTypes = response.items;
+        });
+        this.modelService.cM_MODEL_Search(filterCombobox).subscribe(response => {
+            this.models = response.items;
+        });
+    }
+
+    getCarMaster() {
+        try {
+            this.carMasterService.cAR_MASTER_ById(this.inputModel.n_PLATE, this.inputModel.brancH_ID).subscribe(response => {
+                if (!response) this.goBack()
+                if (!response.asset) response.asset = new ASS_MASTER_ENTITY()
+                this.inputModel = response;
+
+
+                this.editTable.setList(this.inputModel.caR_ACCESSORIes);
+                this.editTable1.setList(this.inputModel.caR_CURE_SCHes);
+
+                if (this.inputModel.autH_STATUS == AuthStatusConsts.Approve) {
+                    this.appToolbar.setButtonApproveEnable(false);
+                    this.updateView()
+                }
+            });
+        } catch{
+            this.goBack()
+        }
+    }
+
+    addNewCarAccessory() {
+        this.editTable.pushItem(new CAR_ACCESSORY_ENTITY());
+    }
+    addNewCarCureSch() {
+        this.editTable1.pushItem(new CAR_CURE_SCH_ENTITY());
+    }
+
+    saveInput() {
+        if (this.isApproveFunct == undefined) {
+            this.showErrorMessage(this.l('PageLoadUndone'));
+            return;
+        }
+
+        if ((this.editForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            return;
+        }
+
+
+        if (this.editPageState != EditPageState.viewDetail) {
+            this.inputModel.caR_ACCESSORIes = this.editTable.allData;
+            this.inputModel.caR_CURE_SCHes = this.editTable1.allData;
+
+            this.saving = true;
+            this.inputModel.makeR_ID = this.appSession.user.userName;
+            if (!this.inputModel.caR_ID) {
+
+                this.carMasterService.cAR_MASTER_Ins(this.inputModel).pipe(finalize(() => { this.saving = false; }))
+                    .subscribe((response) => {
+                        if (response.result != '0') {
+                            this.showErrorMessage(response.errorDesc);
+                        }
+                        else {
+                            this.showSuccessMessage(this.l('InsertSuccessful'));
+                            if (!this.isApproveFunct) {
+                                this.carMasterService.cAR_MASTER_App(response.id, this.appSession.user.userName, this.appSession.user.subbrId)
+                                    .pipe(finalize(() => { this.saving = false; }))
+                                    .subscribe((response) => {
+                                        if (response.result != '0') {
+                                            this.showErrorMessage(response.errorDesc);
+                                        }
+                                    });
+                            }
+                        }
+                    });
+            }
+            else {
+                if (this.appSession.user.subbrId != this.inputModel.brancH_ID && this.inputModel.autH_STATUS == AuthStatusConsts.Reject) {
+                    this.showErrorMessage(this.l('UpdateFailed'));
+                    return;
+                }
+                this.carMasterService.cAR_MASTER_Upd(this.inputModel).pipe(finalize(() => { this.saving = false; }))
+                    .subscribe((response) => {
+                        if (response.result != '0') {
+                            this.showErrorMessage(response.errorDesc);
+                        }
+                        else {
+                            this.showSuccessMessage(this.l('UpdateSuccessful'));
+                            if (!this.isApproveFunct) {
+                                this.carMasterService.cAR_MASTER_App(this.inputModel.caR_ID, this.appSession.user.userName, this.appSession.user.subbrId)
+                                    .pipe(finalize(() => { this.saving = false; }))
+                                    .subscribe((response) => {
+                                        if (response.result != '0') {
+                                            this.showErrorMessage(response.errorDesc);
+                                        }
+                                        else {
+                                            this.inputModel.autH_STATUS = AuthStatusConsts.Approve;
+                                        }
+                                    });
+                            }
+                            else {
+                                this.inputModel.autH_STATUS = AuthStatusConsts.NotApprove;
+                            }
+                        }
+                    });
+            }
+        }
+    }
+
+    goBack() {
+        this.navigatePassParam('/app/admin/car-master', null, { filterInput: JSON.stringify(this.filterInput) });
+    }
+
+    onAdd(): void {
+    }
+
+    onUpdate(item: CAR_MASTER_ENTITY): void {
+    }
+
+    onDelete(item: CAR_MASTER_ENTITY): void {
+    }
+
+    onApprove(item: CAR_MASTER_ENTITY): void {
+        let currentUserName = this.appSession.user.userName;
+        if (currentUserName == this.inputModel.makeR_ID || this.inputModel.autH_STATUS == AuthStatusConsts.Reject) {
+            this.showErrorMessage(this.l('ApproveFailed'));
+            return;
+        }
+        this.message.confirm(
+            this.l('ApproveWarningMessage', this.l(this.inputModel.caR_ID)),
+            this.l('AreYouSure'),
+            (isConfirmed) => {
+                if (isConfirmed) {
+                    this.saving = true;
+                    this.carMasterService.cAR_MASTER_App(this.inputModel.caR_ID, currentUserName, this.appSession.user.subbrId)
+                        .pipe(finalize(() => { this.saving = false; }))
+                        .subscribe((response) => {
+                            if (response["Result"] != '0') {
+                                this.showErrorMessage(response["ErrorDesc"]);
+                            }
+                            else {
+                                this.showSuccessMessage(this.l('SuccessfullyApprove'));
+                                this.inputModel.autH_STATUS = AuthStatusConsts.Approve;
+                            }
+                        });
+                }
+            }
+        );
+    }
+    onSingleSelectAsset(asset: ASS_MASTER_ENTITY) {
+        this.inputModel.asseT_ID = asset.asseT_ID
+        this.inputModel.asseT_NAME = asset.asseT_NAME
+        this.inputModel.asseT_CODE = asset.asseT_CODE
+        this.inputModel.asset = asset
+        this.updateView()
+    }
+    onViewDetail(item: CAR_MASTER_ENTITY): void {
+    }
+
+    onSave(): void {
+        this.saveInput();
+    }
+
+    onSearch(): void {
+    }
+
+    onResetSearch(): void {
+    }
+
+    onReject(item: CAR_MASTER_ENTITY): void {
+
+    }
+
+    onReturn(notes: string) {
+    }
+}

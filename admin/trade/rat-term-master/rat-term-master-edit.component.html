@@ -1,0 +1,442 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <!-- Begin Title -->
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("RatSupplierTitle")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin chi tiết -->
+                        <div class="col-md-12">
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("DetailInfo")}} </h5>
+                            </div>
+                        </div>
+                        <!--BEGIN RAT_TERM_MASTER'S INFORMATION-->
+
+                        <!--Đợt đánh giá-->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("RateNo")}}</label>
+                                <input class="form-control" [disabled]="disableInput" name="ratE_TERM" #ratE_TERM="ngModel" type="text" [(ngModel)]="inputModel.ratE_TERM" required />
+                                <div class="error-message" *ngIf="ratE_TERM.invalid && isShowError">
+                                    <span *ngIf="ratE_TERM?.errors.required">{{l('RateTerm')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ngày tạo -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("CreationTime")}}</label>
+                                <date-control [disabled]="true" [inpCss]="'form-control'" type="text" #inpuT_DT="ngModel" name="inpuT_DT" [(ngModel)]="inputModel.inpuT_DT" [disabled]="true">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Đơn vị -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("Branch")}}</label>
+                                <all-code-select name="unit_Model" #unit_Model="ngModel" [(ngModel)]="unit" [disabled]="disableInput" [cdName]="'PO_BRANCH_TYPE'" [cdType]="'TR'">
+                                </all-code-select>
+                                <div class="error-message" *ngIf="unit_Model.invalid && isShowError">
+                                    <span *ngIf="unit_Model?.errors.required">{{l('Branch')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!--Giai đoạn từ ngày-->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("Period")}} {{l("FromDate") | lowercase}}</label>
+                                <date-control [inpCss]="'form-control '" type="text" #froM_DT="ngModel" name="froM_DT" [disabled]="disableInput" required [(ngModel)]="inputModel.froM_DT">
+                                </date-control>
+                                <div class="error-message" *ngIf="froM_DT.invalid && isShowError">
+                                    <span *ngIf="froM_DT?.errors.required">{{l('FromDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Đến ngày-->
+                        <div class="col-md-4 ">
+                            <div class="form-group required">
+                                <label>{{l("ToDate")}}</label>
+                                <date-control [inpCss]="'form-control '" type="text" #tO_DT="ngModel" name="tO_DT" [disabled]="disableInput" required [(ngModel)]="inputModel.tO_DT">
+                                </date-control>
+                                <div class="error-message" *ngIf="tO_DT.invalid && isShowError">
+                                    <span *ngIf="tO_DT?.errors.required">{{l('ToDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!--Tỷ lệ tái ký hợp đồng-->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("RenewContractPercent")}} {{l("From")| lowercase}}</label>
+                                <div class="group">
+                                    <input style="text-align: left;" class="form-control decimal" name="passeD_PERCENT" #passeD_PERCENT="ngModel" [disabled]="disableInput" max="100" type="number" [(ngModel)]="inputModel.passeD_PERCENT" required />
+                                    <label class="ml-1 mt-3">{{l("(%)")}}</label>
+                                </div>
+                                <div class="error-message" *ngIf="passeD_PERCENT.invalid && isShowError">
+                                    <span *ngIf="passeD_PERCENT?.errors.required">{{l('RenewContractPercent')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Ghi chú-->
+                        <div class="col-md-8">
+                            <div class="form-group ">
+                                <label>{{l("Notes")}}</label>
+                                <textarea class="form-control" type="text" name="notes" #notes="ngModel" [disabled]="disableInput" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- BEGIN Conditions: Supplier & GoodsTypeReal-->
+                        <!-- Danh sách nhà cung cấp -->
+                        <div class="col-md-6">
+                            <!--BEGIN DETAIL 1 -->
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("List")}} {{l("Supplier")}}</h5>
+
+                                <div class="action-button">
+                                    <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="supplierModal.show()"><i class="pi pi-plus"></i>{{l("Add")}}</button>
+                                    <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="supTable.removeAllCheckedItem()"><i
+                                            class="pi pi-times"></i>{{l("Delete")}}</button>
+                                </div>
+                            </div>
+
+                            <div class="primeng-datatable-container">
+                                <editable-table #supTable class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <!-- Checkbox -->
+                                            <th>
+                                                <span style="width: 40px">
+                                                    <checkbox-control [disabled]="disableInput"
+                                                        (onchange)="supTable.checkAll($event.target.checked)"
+                                                        [checked]="supTable.isCheckAll"></checkbox-control>
+                                                </span>
+                                            </th>
+                                            <!-- STT -->
+                                            <th>
+                                                <span style="width: 40px">{{l("No")}}
+                                                </span>
+                                            </th>
+                                            <!-- Mã NCC -->
+                                            <th class="" style="width: 30%;" sortField="suP_CODE">
+                                                <span style="width: 150px">{{l("SupplierShortCode")}}</span>
+                                            </th>
+                                            <!-- Tên NCC -->
+                                            <th class="" style="width: 70%;" sortField="suP_NAME">
+                                                <span style="width: 150px">{{l("SupplierName")}}</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of supTable.dataInPage; let in = index" class="selectable {{item['editableIsSelected']? 'selected' : ''}}" [hidden]="item['page'] != supTable.currentPage" (click)="supTable.selectRow($event,item); updateView();">
+                                            <!-- Checkbox -->
+                                            <td>
+                                                <span class="mo-header" style="width: 40px"></span>
+                                                <checkbox-control (onchange)="item.isChecked = $event.target.checked" [disabled]="disableInput" [checked]="item['isChecked']">
+                                                </checkbox-control>
+                                            </td>
+                                            <!-- STT -->
+                                            <td>{{item['no']}}</td>
+                                            <!-- Mã NCC -->
+                                            <td><span class="mo-header"></span>{{item.suP_CODE}}</td>
+                                            <!-- Tên nhà cung cấp -->
+                                            <td style="width: 60%"><span class="mo-header" style="width: 200px"></span>{{item.suP_NAME}}</td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+                            <!--END DETAIL 1 -->
+                        </div>
+
+                        <!-- Danh sách loại hàng hóa -->
+                        <div class="col-md-6">
+                            <!--BEGIN DETAIL 2 -->
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("List")}} {{l("GoodsType")}}</h5>
+
+                                <div class="action-button">
+                                    <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="goodsTypeRealModal.show()"><i
+                                            class="pi pi-plus"></i>{{l("Add")}}</button>
+                                    <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="goodTypeTable.removeAllCheckedItem()"><i
+                                            class="pi pi-times"></i>{{l("Delete")}}</button>
+                                </div>
+                            </div>
+
+                            <div class="primeng-datatable-container">
+                                <editable-table #goodTypeTable class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <!-- Checkbox -->
+                                            <th>
+                                                <span style="width: 40px">
+                                                    <checkbox-control [disabled]="disableInput"
+                                                        (onchange)="goodTypeTable.checkAll($event.target.checked)"
+                                                        [checked]="goodTypeTable.isCheckAll"></checkbox-control>
+                                                </span>
+                                            </th>
+                                            <!-- STT -->
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <!-- Tên thiết bị -->
+                                            <th class="" sortField="typE_NAME" style="width: 100%;"><span style="width: 250px">{{l("DeviceName")}}</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of goodTypeTable.dataInPage; let in = index" class="selectable {{item['editableIsSelected']? 'selected' : ''}}" [hidden]="item['page'] != goodTypeTable.currentPage" (click)="goodTypeTable.selectRow($event,item); updateView();">
+                                            <!-- Checkbox -->
+                                            <td>
+                                                <span class="mo-header" style="width: 40px"></span>
+                                                <checkbox-control (onchange)="item.isChecked = $event.target.checked" [disabled]="disableInput" [checked]="item['isChecked']">
+                                                </checkbox-control>
+                                            </td>
+                                            <!-- STT -->
+                                            <td>{{item['no']}}</td>
+                                            <!-- Tên thiết bị -->
+                                            <td style="width: 80%"><span class="mo-header" style="width: 200px"></span>{{item.typE_NAME}}</td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+                            <!--END DETAIL 2 -->
+                        </div>
+                        <!-- END Conditions: Supplier & GoodsTypeReal-->
+
+
+                        <!--BEGIN RAT_TERM_MASTER_DT-->
+                        <!--BEGIN DETAIL 3-->
+
+                        <!--Danh sách đánh giá-->
+                        <div class="col-md-12 mt-5">
+                            <div class="group">
+                                <h5 style="text-decoration: underline;">{{l("SuppliersRateDescription")}} </h5>
+                                <label class="pl-2">({{l("SystemCalculateRateDescription")}})</label>
+                            </div>
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("RateList")}} </h5>
+                            </div>
+                            <div class="primeng-datatable-container">
+                                <editable-table #editTable3 class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <!-- STT -->
+                                            <th>
+                                                <span style="width: 40px">{{l("No")}}</span></th>
+                                            <!-- Tên nhà cung cấp -->
+                                            <th class="" sortField="suP_NAME">
+                                                <span style="width: 150px">{{l("SupplierName")}}</span>
+                                            </th>
+                                            <!-- Tên thiết bị -->
+                                            <th class="" sortField="goodS_NAME">
+                                                <span style="width: 250px">{{l("DeviceName")}}</span>
+                                            </th>
+                                            <!-- A_ Điểm giao hàng -->
+                                            <th class="" sortField="a_ONTIME">
+                                                <span style="width: 150px">{{"A_"}}{{l("Point")}}
+                                                    {{l("Delivery")|lowercase}}</span>
+                                            </th>
+                                            <!-- A_KQ giao hàng -->
+                                            <th class="" sortField="a_ONTIMERATE_NAME">
+                                                <span style="width: 200px">{{"A_"}}{{l("Result_S")}}
+                                                    {{l("Delivery")|lowercase}}</span>
+                                            </th>
+                                            <!-- M_Điểm giao hàng -->
+                                            <th class="" sortField="m_ONTIME">
+                                                <span style="width: 150px">{{"M_"}}{{l("Point")}}
+                                                    {{l("Delivery")|lowercase}}</span>
+                                            </th>
+                                            <!-- M_KQ giao hàng -->
+                                            <th class="" sortField="m_ONTIMERATE_NAME">
+                                                <span style="width: 200px">{{"M_"}}{{l("Result_S")}}
+                                                    {{l("Delivery")|lowercase}}</span>
+                                            </th>
+                                            <!-- A_SL sửa chữa -->
+                                            <th class="" sortField="a_QUALITY">
+                                                <span style="width: 150px">{{"A_"}}{{l("Quantity_S")}}
+                                                    {{l("Repair")|lowercase}}</span>
+                                            </th>
+                                            <!-- M_Điểm chất lượng -->
+                                            <th class="" sortField="m_QUALITY">
+                                                <span style="width: 150px">{{"M_"}}{{l("Point")}}
+                                                    {{l("Quality")|lowercase}}</span>
+                                            </th>
+                                            <!-- M_KQ chất lượng -->
+                                            <th class="" sortField="m_QUALITYRATE_NAME">
+                                                <span style="width: 200px">{{"M_"}}{{l("Result_S")}}
+                                                    {{l("Quality")|lowercase}}</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of editTable3.dataInPage; let in = index" class="selectable {{item['editableIsSelected']? 'selected' : ''}}" [hidden]="item['page'] != editTable3.currentPage" (click)="editTable3.selectRow($event,item);">
+                                            <!-- STT -->
+                                            <td>{{item['no']}}</td>
+                                            <!-- Tên nhà cung cấp -->
+                                            <td><span class="mo-header"></span>{{item.suP_NAME}}</td>
+                                            <!-- Tên thiết bị -->
+                                            <td><span class="mo-header"></span>{{item.goodS_NAME}}</td>
+                                            <!-- A_ Điểm giao hàng -->
+                                            <td><span class="mo-header"></span>{{item.a_ONTIME}}</td>
+                                            <!-- A_KQ giao hàng -->
+                                            <td><span class="mo-header"></span>{{item.a_ONTIMERATE_NAME}}</td>
+                                            <!-- M_Điểm giao hàng -->
+                                            <td><span class="mo-header"></span>{{item.m_ONTIME}}</td>
+                                            <!-- M_KQ giao hàng -->
+                                            <td><span class="mo-header"></span>{{item.m_ONTIMERATE_NAME}}</td>
+                                            <!-- A_SL sửa chữa -->
+                                            <td><span class="mo-header"></span>{{item.a_QUALITY}}</td>
+                                            <!-- M_Điểm chất lượng -->
+                                            <td><span class="mo-header"></span>{{item.m_QUALITY}}</td>
+                                            <!-- M_KQ chất lượng -->
+                                            <td><span class="mo-header"></span>{{item.m_QUALITYRATE_NAME}}</td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+                        </div>
+                        <!--END DETAIL 3-->
+                        <!--BEGIN DETAIL 4-->
+
+                        <!-- Danh sách đánh giá -->
+                        <div class="col-md-12 mt-5">
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("RateList")}}</h5>
+                            </div>
+
+                            <div class="primeng-datatable-container">
+                                <editable-table #editTable4 class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <!-- STT -->
+                                            <th> <span style="width: 40px">{{l("No")}}</span></th>
+                                            <!-- Tên nhà cung cấp -->
+                                            <th class="" sortField="suP_NAME">
+                                                <span style="width: 150px">{{l("SupplierName")}}</span>
+                                            </th>
+                                            <!-- Tên thiết bị -->
+                                            <th class="" sortField="goodS_NAME">
+                                                <span style="width: 250px">{{l("DeviceName")}}</span>
+                                            </th>
+                                            <!-- A_SL bảo hành -->
+                                            <th class="" sortField="a_WARRANTY">
+                                                <span style="width: 150px">{{"A_"}}{{l("Quantity_S")}}
+                                                    {{l("Warranty")|lowercase}}</span>
+                                            </th>
+                                            <!-- M_Điểm bảo hành -->
+                                            <th class="" sortField="m_WARRANTY">
+                                                <span style="width: 150px">{{"M_"}}{{l("Point")}}
+                                                    {{l("Warranty")|lowercase}}</span>
+                                            </th>
+                                            <!-- M_KQ bảo hành-->
+                                            <th class="" sortField="m_WARRANTYRATE_NAME">
+                                                <span style="width: 200px">{{"M_"}}{{l("Result_S")}}
+                                                    {{l("Warranty")|lowercase}}</span>
+                                            </th>
+                                            <!-- M_Điểm khiếu nại -->
+                                            <th class="" sortField="m_COMPLIANT">
+                                                <span style="width: 150px">{{"M_"}}{{l("Point")}}
+                                                    {{l("Complaint")|lowercase}}</span>
+                                            </th>
+                                            <!-- M_KQ khiếu nại -->
+                                            <th class="" sortField="m_COMPLIANTRATE_NAME">
+                                                <span style="width: 200px">{{"M_"}}{{l("Result_S")}}
+                                                    {{l("Complaint")|lowercase}}</span>
+                                            </th>
+                                            <!-- M_Điểm tái ký HĐ -->
+                                            <th class="" sortField="m_RENEW">
+                                                <span style="width: 200px">{{"M_"}}{{l("Point")}}
+                                                    {{l("RenewContract")}}</span>
+                                            </th>
+                                            <!-- M_KQ tái ký HĐ -->
+                                            <th class="" sortField="m_RENEWRATE_NAME">
+                                                <span style="width: 200px">{{"M_"}}{{l("Result_S")}}
+                                                    {{l("RenewContract")}}</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of editTable4.dataInPage; let in = index" class="selectable {{item['editableIsSelected']? 'selected' : ''}}" [hidden]="item['page'] != editTable4.currentPage" (click)="editTable4.selectRow($event,item);">
+                                            <!-- STT -->
+                                            <td>{{item['no']}}</td>
+                                            <!-- Tên nhà cung cấp -->
+                                            <td><span class="mo-header"></span>{{item.suP_NAME}}</td>
+                                            <!-- Tên thiết bị -->
+                                            <td><span class="mo-header"></span>{{item.goodS_NAME}}</td>
+                                            <!-- A_SL bảo hành -->
+                                            <td><span class="mo-header"></span>{{item.a_WARRANTY}}</td>
+                                            <!-- M_Điểm bảo hành -->
+                                            <td><span class="mo-header"></span>{{item.m_WARRANTY}}</td>
+                                            <!-- M_KQ bảo hành-->
+                                            <td><span class="mo-header"></span>{{item.m_WARRANTYRATE_NAME}}</td>
+                                            <!-- M_Điểm khiếu nại -->
+                                            <td><span class="mo-header"></span>{{item.m_COMPLIANT}}</td>
+                                            <!-- M_KQ khiếu nại -->
+                                            <td><span class="mo-header"></span>{{item.m_COMPLIANTRATE_NAME}}</td>
+                                            <!-- M_Điểm tái ký HĐ -->
+                                            <td><span class="mo-header"></span>{{item.m_RENEW}}</td>
+                                            <!-- M_KQ tái ký HĐ -->
+                                            <td><span class="mo-header"></span>{{item.m_RENEWRATE_NAME}}</td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+                        </div>
+                        <div class="col-md-12 action-button mt-3">
+                            <button type="button" class="btn btn-primary" [disabled]="disableInput" (click)="systemCalcuteTerm()">
+                                {{l("SystemCalculateRate")}}</button>
+                        </div>
+                        <!--END DETAIL 4-->
+
+
+                        <!--END RAT_TERM_MASTER_DT-->
+                    </div>
+                </form>
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<supplier-modal (onSelect)="onSelectSuppliers($event)" [multiple]="true" #supplierModal></supplier-modal>
+<goodstype-real-modal (onSelect)="onSelectGoodsTypeReals($event)" [multiple]="true" #goodsTypeRealModal>
+</goodstype-real-modal>

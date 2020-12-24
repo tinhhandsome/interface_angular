@@ -1,0 +1,26 @@
+<div bsModal #statisticModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="statisticModal"
+    aria-hidden="true" [config]="{backdrop: 'static'}">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content modal-dashboard">
+            <div class="modal-header">
+                <h4 class="modal-title modal-dashboard">
+                    Số lượng tài sản đến hạn bảo dưỡng
+                </h4>
+                <span (click)="close()" class="close">x</span>
+            </div>
+            <div class="m-widget14">
+                <ul class="popup-statistic">
+                    <li>
+                        <span class="popup-item"> Trong tuần: <span class="week">{{week}}</span></span>
+                    </li>
+                    <li>
+                        <span class="popup-item"> Trong tuần tiếp theo: <span class="week">{{nextWeek}}</span></span>
+                    </li>
+                    <li>
+                        <span class="popup-item"> Trong tháng: <span class="week">{{month}}</span></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

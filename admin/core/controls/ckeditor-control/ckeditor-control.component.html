@@ -1,0 +1,24 @@
+<input #control hidden [(ngModel)]="ngModel">
+<div *ngIf="showEditDocument" class="col-md-6 align-right">
+    <div class="form-group">
+        <!-- <ckeditor-custom [(ngModel)]="reportDetail.reportTemplateContent" name="templateContent">
+        (change)="onChangeTemplate()"
+                </ckeditor-custom> -->
+        <ckeditor (change)="onChangeEditor($event)" #ckeditor id="editor1" [(ngModel)]="_ngModel" [config]="templateConfig" [readonly]="_disabled">
+        </ckeditor>
+    </div>
+</div>
+<div *ngIf="showEditDocument" class="col-md-6 align-right">
+    <div class="form-group">
+        <div class="content-header-preview">
+            <div class="header-preview">{{l('Preview')}}</div>
+
+        </div>
+        <div id="previewContent" class="previewContent"></div>
+    </div>
+</div>
+<div *ngIf="!showEditDocument" style="margin-right:0px;" class="col-md-12 align-right">
+    <div class="form-group">
+        <div class="previewContent"></div>
+    </div>
+</div>

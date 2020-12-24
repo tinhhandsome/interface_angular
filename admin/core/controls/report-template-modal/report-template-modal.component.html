@@ -1,0 +1,32 @@
+<div bsModal #previewModal="bs-modal" (onShown)="onShown()" class="preview-template modal fade" tabindex="-1" role="dialog" aria-labelledby="previewModal" aria-hidden="true" [config]="{backdrop: 'static', keyboard: !saving}">
+
+    <div class="modal-dialog modal-lg1200">
+
+        <div class="modal-content">
+            <form *ngIf="active" #roleForm="ngForm" novalidate autocomplete="off">
+                <div class="modal-header">
+                    <h4 class="modal-title">
+                        <span>{{"PreviewReport" | localize}}</span>
+                    </h4>
+                    <button type="button" class="close" (click)="close()" [attr.aria-label]="l('Close')" [disabled]="saving">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                </div>
+                <div class="modal-body">
+                    <div style="text-align: right;display: block;padding-right: 15px;">
+                        <button (click)="print()" class="btn btn-primary"><i class="fa fa-print"></i></button>
+                        <!-- <button (click)="ckeditor.refreshTemplate()" class="btn btn-primary">{{l('Refresh')}}</button> -->
+
+                        <!-- <button (click)="showReportNoteModale()" class="btn btn-primary">{{l('Note')}}</button> -->
+
+
+                    </div>
+                    <!-- <ckeditor-control #ckeditor [(ngModel)]="templateContent" [storeData]="storeData" class="row col-md-12" name="reporT_TEMPLATE_DETAIL_CONTENT"></ckeditor-control> -->
+                    <ckeditor-control [showEditDocument]="false" #ckeditor [disabled]="true" [(ngModel)]="templateContent" [storeData]="storeData" class="col-md-12" name="reporT_TEMPLATE_DETAIL_CONTENT">
+                    </ckeditor-control>
+                </div>
+            </form>
+        </div>
+    </div>
+    <reportNoteModal (modalSave)="ckeditor.InsertTableToEditor($event)" style="margin-left: 100px" #reportNoteModal></reportNoteModal>
+</div>

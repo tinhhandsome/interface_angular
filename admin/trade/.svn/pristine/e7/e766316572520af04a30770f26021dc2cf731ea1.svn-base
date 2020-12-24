@@ -1,0 +1,583 @@
+import { Component, Injector, ViewChild, OnInit, ViewEncapsulation, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef, AfterViewInit, AfterViewChecked, AfterContentChecked } from '@angular/core';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
+import * as _ from 'lodash';
+import { TR_PO_MASTER_ENTITY, TradePoMasterServiceProxy, CM_DEPARTMENT_ENTITY, UltilityServiceProxy, CM_CAR_TYPE_ENTITY, CarTypeServiceProxy, CM_MODEL_ENTITY, ModelServiceProxy, CAR_ACCESSORY_ENTITY, CAR_CURE_SCH_ENTITY, ASS_MASTER_ENTITY, TR_PO_GOODS_ENTITY, TR_PO_DETAIL_ENTITY, TR_PO_PAYMENT_ENTITY, TL_ROLE_NOTIFICATION_ENTITY, CM_BRANCH_ENTITY, CM_SUPPLIERTYPE_ENTITY, CM_SUPPLIER_ENTITY, TR_CONTRACT_ENTITY, UserListDto, CM_GOODSTYPE_ENTITY, CM_GOODSTYPE_REAL_ENTITY, GoodsTypeRealServiceProxy, ReportInfo, AsposeServiceProxy, WfDefinitionServiceProxy, WfDefinitionParam, TR_PO_DETAIL_PARAM } from '@shared/service-proxies/service-proxies';
+import { EditPageState } from '@app/ultilities/enum/edit-page-state';
+import { finalize } from 'rxjs/operators';
+import { DefaultComponentBase } from '@app/ultilities/default-component-base';
+import { AuthStatusConsts } from '@app/admin/core/ultils/consts/AuthStatusConsts';
+import { RecordStatusConsts } from '@app/admin/core/ultils/consts/RecordStatusConsts';
+import { IUiAction } from '@app/ultilities/ui-action';
+import { ToolbarComponent } from '@app/admin/core/controls/toolbar/toolbar.component';
+import { GoodsDetailEditableComponent } from './goods-detail-editable.component';
+import { PoPaymentEditableComponent } from './po-payment-editable.component';
+import { RoleNotificationEditableComponent } from './role-notification-editable.component';
+import { AuthStatusInputPageComponent } from '@app/admin/core/controls/auth-status-input-page/auth-status-input-page.component';
+import { ReportTypeConsts } from '@app/admin/core/ultils/consts/ReportTypeConsts';
+import { FileDownloadService } from '@shared/utils/file-download.service';
+import * as moment from 'moment';
+import { PreviewTemplateService } from '@app/admin/common/preview-template/preview-template.service';
+import { ContractModalComponent } from '@app/admin/core/controls/contract-modal/contract-modal.component';
+import { ReportTemplateModalComponent } from '@app/admin/core/controls/report-template-modal/report-template-modal.component';
+import { NgForm } from '@angular/forms';
+import { DateFormatPipe } from '@app/admin/core/pipes/date-format.pipe';
+import { SupplierModalComponent } from '@app/admin/core/controls/supplider-modal/supplier-modal.component';
+
+@Component({
+    templateUrl: './trade-po-master-edit.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+export class TradePoMasterEditComponent extends DefaultComponentBase implements OnInit, AfterViewInit, IUiAction<TR_PO_MASTER_ENTITY> {
+
+    constructor(
+        injector: Injector,
+        private ultilityService: UltilityServiceProxy,
+        private asposeService: AsposeServiceProxy,
+        private workflowService: WfDefinitionServiceProxy,
+        private fileDownloadService: FileDownloadService,
+        private tradePoMasterService: TradePoMasterServiceProxy,
+        private previewTemplateService: PreviewTemplateService,
+    ) {
+        super(injector);
+        this.editPageState = this.getRouteData('editPageState');
+        this.inputModel.pO_ID = this.getRouteParam('id');
+        this.initFilter();
+        this.initCombobox();
+        this.initIsApproveFunct();
+        this.initDefaultInputModel();
+        console.log(this);
+    }
+
+    @ViewChild('editForm') editForm: NgForm;
+
+    @ViewChild('editPageGoodDetail') editPageGoodDetail: GoodsDetailEditableComponent;
+    @ViewChild('editPagePoPayment') editPagePoPayment: PoPaymentEditableComponent;
+    @ViewChild('editPageRoleNotification') editPageRoleNotification: RoleNotificationEditableComponent;
+    @ViewChild('authStatusMessage') authStatusMessage: AuthStatusInputPageComponent;
+    @ViewChild('contractModal') contractModal: ContractModalComponent;
+    @ViewChild('reportTemplate') reportTemplate: ReportTemplateModalComponent;
+    @ViewChild('supplierModal') supplierModal: SupplierModalComponent;
+
+    EditPageState = EditPageState;
+    editPageState: EditPageState;
+
+    inputModel: TR_PO_MASTER_ENTITY = new TR_PO_MASTER_ENTITY();
+    filterInput: TR_PO_MASTER_ENTITY;
+    isApproveFunct: boolean;
+
+    totalAmtReport: number;
+    branchPaymentReport: string;
+    addressReport: string[];
+
+
+
+    get disableInput(): boolean {
+        return this.editPageState == EditPageState.viewDetail;
+    }
+
+    get isEditPage(): boolean {
+        return this.editPageState == EditPageState.viewDetail || this.editPageState == EditPageState.edit;
+    }
+
+    isShowError = false;
+
+    processValue: number = 0;
+
+    dataInTables: TR_PO_MASTER_ENTITY[] = [];
+
+    get apptoolbar(): ToolbarComponent {
+        return this.appToolbar;
+    }
+
+    ngAfterViewInit(): void {
+        this.setupValidationMessage();
+        // COMMENT: this.stopAutoUpdateView();
+        this.contractModal.filterInput.contracT_TYPE = '1';
+    }
+
+    ngOnInit(): void {
+        switch (this.editPageState) {
+            case EditPageState.add:
+                this.inputModel.recorD_STATUS = RecordStatusConsts.Active;
+                this.appToolbar.setRole('TradePoMaster', false, false, true, false, false, false, false, false);
+                this.appToolbar.setEnableForEditPage();
+                this.inputModel.brancH_ID = this.appSession.user.subbrId;
+                break;
+            case EditPageState.edit:
+                this.inputModel.brancH_ID = this.appSession.user.subbrId;
+                this.appToolbar.setRole('TradePoMaster', false, false, true, false, false, false, false, false);
+                this.appToolbar.setEnableForEditPage();
+                this.gettradePoMaster();
+                break;
+            case EditPageState.viewDetail:
+                this.inputModel.brancH_ID = this.appSession.user.subbrId;
+                this.appToolbar.setRole('TradePoMaster', false, false, false, false, false, false, true, false);
+                this.appToolbar.setEnableForViewDetailPage();
+                this.gettradePoMaster();
+                break;
+        }
+
+        this.appToolbar.setUiAction(this);
+    }
+
+    initIsApproveFunct() {
+        this.ultilityService.isApproveFunct(this.getCurrentFunctionId()).subscribe(isApproveFunct => {
+            this.isApproveFunct = isApproveFunct;
+        })
+    }
+
+    initCombobox() {
+        let filterCombobox = this.getFillterForCombobox();
+    }
+
+    initDefaultInputModel() {
+        this.inputModel.inpuT_DT = moment().startOf('day');
+    }
+
+    gettradePoMaster() {
+        this.tradePoMasterService.tR_PO_MASTER_ById(this.inputModel.pO_ID).subscribe(response => {
+            if (!response) this.goBack()
+            this.inputModel = response;
+
+            if (this.editPageState == EditPageState.viewDetail) {
+                this.apptoolbar.setEnableForViewDetailPage();
+            }
+
+            if (this.inputModel.autH_STATUS == AuthStatusConsts.Approve) {
+                this.appToolbar.setButtonApproveEnable(false);
+            }
+
+            // CM_ATTACH_FILE
+            this.getFile(this.inputModel.pO_ID, this.inputModel);
+
+            this.updateView();
+        });
+
+        let input = new TR_PO_DETAIL_PARAM();
+        input.pO_ID = this.inputModel.pO_ID;
+
+        this.tradePoMasterService.tR_PO_DETAIL_ById(input).subscribe(response => {
+            response.forEach(x => {
+                x.goodstypE_REAL = undefined;
+                x.goodstypE_REAL_NAME = x.gdreaL_TYPE_NAME;
+                x.remaiN_AMT = x.totaL_AMT - x.amounT_PAID;
+                x.receivE_BRANCH_NAME = x.r_BRANCH_NAME;
+                x.amt = x.amt || 0;
+            })
+
+            this.inputModel.tR_PO_DETAILs = response;
+            this.editPageGoodDetail.editTableGoodsDetail.setList(response);
+            this.editPageGoodDetail.reloadTotalAmt();
+            this.editPageGoodDetail.updateView();
+
+            this.initPoDetailForReport();
+
+        });
+
+        this.tradePoMasterService.tR_PO_PAYMENT_ById(this.inputModel.pO_ID).subscribe(response => {
+            this.inputModel.tR_PO_PAYMENTs = response;
+            this.editPagePoPayment.editTablePoPayment.setList(response);
+        });
+
+        this.tradePoMasterService.tR_ROLE_NOTIFI_ID(this.inputModel.pO_ID, 'PO').subscribe(response => {
+            this.inputModel.tL_ROLE_NOTIFICATIONs = response;
+            this.editPageRoleNotification.editTableRoleNotification.setList(response);
+        });
+
+        this.editPageRoleNotification.inputModel = this.inputModel;
+        this.editPagePoPayment.inputModel = this.inputModel;
+        this.editPageGoodDetail.inputModel = this.inputModel;
+
+        this.editPageRoleNotification.reloadList();
+        this.editPagePoPayment.reloadList();
+        this.editPageGoodDetail.reloadList();
+    }
+
+    // Ngày duyệt tờ trình không lớn hơn ngày gọi hàng
+    checkPayappDtValid() {
+        if (this.inputModel.payapP_DT && this.inputModel.inpuT_DT) {
+            this.editForm.form.controls['payapP_DT']['errorMessage'] = this.inputModel.payapP_DT.diff(this.inputModel.inpuT_DT) > 0 ? this.l('PoMasterPayAppDtMustBeLessThanInputDt') : '';
+        }
+        else {
+            this.editForm.form.controls['payapP_DT']['errorMessage'] = '';
+        }
+        if (this.showErrorMessage) {
+            this.updateView();
+        }
+    }
+
+    private isValid() {
+        this.checkPayappDtValid();
+        let errorMessage = ''
+        try {
+            errorMessage = this.editForm.form.controls['payapP_DT']['errorMessage'] ? 'FormInvalid' : '';
+
+        } catch{
+            errorMessage = 'FormInvalid'
+        }
+
+        return errorMessage
+    }
+
+
+    saveInput() {
+        if (this.isApproveFunct == undefined ||
+            (this.editPageState == EditPageState.edit &&
+                (!this.inputModel.tL_ROLE_NOTIFICATIONs || !this.inputModel.tR_PO_DETAILs || !this.inputModel.tR_PO_PAYMENTs))) {
+            this.showErrorMessage(this.l('PageLoadUndone'));
+            return;
+        }
+
+        let errorMessage = this.isValid()
+        if (errorMessage != '') {
+            this.isShowError = true;
+            this.showErrorMessage(this.l(errorMessage));
+            this.updateView();
+            return;
+        }
+
+        if (this.editForm.form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return;
+        }
+
+
+
+        if (this.editPageGoodDetail.editTableGoodsDetail.allData.length <= 0) {
+            this.showErrorMessage(this.l('GoodsDetail') + ' ' + this.l('ValidationRequired'));
+            this.updateView();
+            return;
+        }
+
+        let editTableError = this.editPageGoodDetail.editTableGoodsDetail.getValidationMessage();
+        if (editTableError) {
+            this.showErrorMessage(this.l('GoodsDetail') + ': ' + editTableError);
+            return;
+        }
+
+        if (this.editPageGoodDetail.editTablePaymentTracking) {
+            editTableError = this.editPageGoodDetail.editTablePaymentTracking.getValidationMessage();
+            if (editTableError) {
+                this.showErrorMessage(this.l('PaymentTracking') + ': ' + editTableError);
+                return;
+            }
+        }
+
+        if (this.editPagePoPayment.editTablePoPayment) {
+            editTableError = this.editPagePoPayment.editTablePoPayment.getValidationMessage();
+            if (editTableError) {
+                this.showErrorMessage(this.l('PoPayment') + ': ' + editTableError);
+                return;
+            }
+        }
+
+        if (!this.inputModel.contracT_CODE) {
+            this.inputModel.contracT_ID = '';
+        }
+
+        this.inputModel.creatE_DT = this.inputModel.inpuT_DT;
+        this.inputModel.totaL_AMT = this.editPageGoodDetail.totalAmtElement.value;
+
+        if (this.editPageState != EditPageState.viewDetail) {
+            this.inputModel.tL_ROLE_NOTIFICATIONs = this.editPageRoleNotification.editTableRoleNotification.allData;
+            this.inputModel.tR_PO_DETAILs = this.editPageGoodDetail.editTableGoodsDetail.allData;
+            this.inputModel.tR_PO_PAYMENTs = this.editPagePoPayment.editTablePoPayment.allData;
+
+            this.saving = true;
+            this.inputModel.makeR_ID = this.appSession.user.userName;
+            if (!this.inputModel.pO_ID) {
+                this.addPoMaster();
+            }
+            else {
+                this.updatePoMaster();
+            }
+        }
+    }
+
+    private updatePoMaster() {
+        this.inputModel.tL_ROLE_NOTIFICATIONs.forEach(x => {
+            x.editoR_DT = x.ediT_DT;
+        });
+        this.tradePoMasterService.tR_PO_MASTER_Upd(this.inputModel).pipe(finalize(() => { this.saving = false; }))
+            .subscribe((response) => {
+                if (response['Result'] != '0') {
+                    this.showErrorMessage(response['ErrorDesc']);
+                }
+                else {
+                    this.updateSuccess();
+                    this.initPoDetailForReport();
+
+                    // CM_ATTACH_FILE
+                    this.updateFile(this.inputModel, 'TR_PO_MASTER', undefined, response['ID']);
+
+                    if (!this.isApproveFunct) {
+                        this.tradePoMasterService.tR_PO_MASTER_App(this.inputModel.pO_ID, this.appSession.user.userName)
+                            .pipe(finalize(() => { this.saving = false; }))
+                            .subscribe((response) => {
+                                if (response['Result'] != '0') {
+                                    this.showErrorMessage(response['ErrorDesc']);
+                                }
+                                else {
+                                    this.authStatusMessage.authStatus = this.inputModel.autH_STATUS = AuthStatusConsts.Approve;
+                                }
+                            });
+                    }
+                    else {
+                        this.authStatusMessage.authStatus = this.inputModel.autH_STATUS = AuthStatusConsts.NotApprove;
+                    }
+                }
+            });
+    }
+
+    private addPoMaster() {
+        this.tradePoMasterService.tR_PO_MASTER_Ins(this.inputModel).pipe(finalize(() => { this.saving = false; }))
+            .subscribe((response) => {
+                if (response['Result'] != '0') {
+                    this.showErrorMessage(response['ErrorDesc']);
+                }
+                else {
+                    this.addNewSuccess();
+                    this.initPoDetailForReport();
+                    // CM_ATTACH_FILE
+                    this.addFile(this.inputModel, 'TR_PO_MASTER', undefined, response['ID']);
+
+                    this.inputModel.pO_CODE = response['PO_CODE'];
+                    this.inputModel.pO_ID = response['ID'];
+                    this.onChangeProperty('pO_CODE');
+                    if (!this.isApproveFunct) {
+                        this.tradePoMasterService.tR_PO_MASTER_App(response['ID'], this.appSession.user.userName)
+                            .pipe(finalize(() => { this.saving = false; }))
+                            .subscribe((response) => {
+                                if (response['Result'] != '0') {
+                                    this.showErrorMessage(response['ErrorDesc']);
+                                }
+                            });
+                    }
+                }
+            });
+    }
+
+    approvePoMaster() {
+        var currentUserName = this.appSession.user.userName;
+        this.tradePoMasterService.tR_PO_MASTER_App(this.inputModel.pO_ID, currentUserName)
+            .pipe(finalize(() => { this.saving = false; }))
+            .subscribe((response) => {
+                if (response['Result'] != '0') {
+                    this.showErrorMessage(response['ErrorDesc']);
+                }
+                else {
+                    this.approveSuccess();
+                }
+            });
+    }
+
+    goBack() {
+        this.navigatePassParam('/app/admin/po-list', null, { filterInput: JSON.stringify(this.filterInput) });
+    }
+
+    onAdd(): void {
+    }
+
+    onUpdate(item: TR_PO_MASTER_ENTITY): void {
+    }
+
+    onDelete(item: TR_PO_MASTER_ENTITY): void {
+    }
+
+    onApprove(item: TR_PO_MASTER_ENTITY): void {
+        if (!this.inputModel.pO_ID) {
+            return;
+        }
+        var currentUserName = this.appSession.user.userName;
+        if (currentUserName == this.inputModel.makeR_ID || this.inputModel.autH_STATUS == AuthStatusConsts.Reject) {
+            this.showErrorMessage(this.l('ApproveFailed'));
+            return;
+        }
+        this.message.confirm(
+            this.l('ApproveWarningMessage', this.l(this.inputModel.pO_NAME)),
+            this.l('AreYouSure'),
+            (isConfirmed) => {
+                if (isConfirmed) {
+                    this.saving = true;
+                    this.approvePoMaster();
+
+                    // this.workflowService.wF_EXECUTE({
+                    //     functioN_ID: this.getCurrentFunctionId(),
+                    //     reF_ID: this.inputModel.pO_ID,
+                    //     amt: this.inputModel.c_TOTAL_AMT,
+                    //     useR_ID: this.appSession.user.userName,
+                    //     wF_VALUE: undefined
+                    // } as WfDefinitionParam).subscribe(wfResult => {
+                    //     if (wfResult['HAS_WORKFLOW'] == '0' || wfResult['IS_WF_END'] == '1') {
+                    //         this.approvePoMaster();
+                    //         return;
+                    //     }
+
+                    //     if (wfResult['EXECUTE_SUCCESS']) {
+                    //         this.showSuccessMessage(this.l('SuccessfullyConfirmed'));
+                    //     }
+                    // });
+
+                }
+            }
+        );
+    }
+
+
+
+    onViewDetail(item: TR_PO_MASTER_ENTITY): void {
+    }
+
+    onSave(): void {
+        this.saveInput();
+    }
+
+    onSearch(): void {
+    }
+
+    onResetSearch(): void {
+    }
+
+    onReturn(notes: string) {
+    }
+
+    showSupModal() {
+        this.supplierModal.show();
+    }
+
+    onSelectSupplier(supplier: CM_SUPPLIER_ENTITY) {
+        this.inputModel.suP_ID = supplier.suP_ID;
+        this.inputModel.suP_CODE = supplier.suP_CODE;
+        this.inputModel['suP_NAME2'] = supplier.suP_NAME;
+        this.inputModel.suP_ADDR = supplier.addr;
+        this.onChangeProperty('suP_ID');
+        this.updateView();
+    }
+
+    onSelectContract(contract: TR_CONTRACT_ENTITY) {
+        this.inputModel.contracT_ID = contract.contracT_ID;
+        this.inputModel.contracT_CODE = contract.contracT_CODE;
+        this.inputModel.contracT_NAME = contract.notes;
+        this.inputModel.contracT_TOTAL_AMT = contract.totaL_AMT;
+        this.inputModel.contracT_TOTAL_EXE_AMT = contract.donE_AMT;
+        this.inputModel.suP_ID = contract.suP_ID;
+        this.inputModel.suP_CODE = contract.suP_CODE;
+        this.inputModel['suP_NAME2'] = contract.suP_NAME;
+        this.inputModel.suP_ADDR = contract.addr;
+        this.onChangeProperty('suP_ID');
+
+        // this.inputModel.suP_CODE = contract.suP_CODE;
+        this.updateView();
+
+        this.tradePoMasterService.tR_CONTRACT_PAYMENT_ById(contract.contracT_ID).subscribe(response => {
+            response.forEach(item => {
+                this.editPagePoPayment.reloadItem(item);
+            });
+            this.editPagePoPayment.editTablePoPayment.setList(response);
+            this.updateView();
+        });
+    }
+
+    onChangeTotalAmt(totalAmt: number) {
+        this.editPagePoPayment.totalAmt = totalAmt;
+        this.editPagePoPayment.reloadAllPaymentAmount();
+        this.editPagePoPayment.updateView()
+    }
+
+
+    printOfferDeliveryDoc_p() {
+        if (!this.inputModel.pO_CODE) {
+            this.showErrorMessage(this.l('CannotExport'));
+            return;
+        }
+
+        let parameters = [this.GetParamNameAndValue('PO_ID', this.inputModel.pO_ID)];
+
+        let values = this.GetParamsFromFilter({
+            PrintDate: (new DateFormatPipe()).transform(moment()),
+            PoCode: this.inputModel.pO_CODE,
+            SupName: this.inputModel.suP_NAME,
+            FullName: this.appSession.user.name,
+            CreatedUser: this.inputModel.makeR_FULLNAME,
+            TotalAmt: this.formatMoney(this.totalAmtReport),
+            CreatedDt: (new DateFormatPipe()).transform(this.inputModel.creatE_DT),
+            BranchPayment: this.branchPaymentReport,
+            NOI_NHAN_HANG: '<ul>' + this.addressReport.map(x => '<li>' + x + '</li>').join('') + '</ul>',
+            ContractDescription: (this.inputModel.contracT_ID ? this.l('KH_BC_07_ContractDescription', this.inputModel.contracT_NAME, this.inputModel.contracT_CODE, (new DateFormatPipe()).transform(this.inputModel.contracT_DT)) : '') + `<br>Đề nghị quý Công ty giao hàng cho ABBank với thông tin như sau:`
+        });
+
+        this.previewTemplateService.printReportTemplate('rpt_KH_BC07', parameters, values);
+    }
+
+    printOfferDeliveryDoc_w() {
+        if (!this.inputModel.pO_CODE) {
+            this.showErrorMessage(this.l('CannotExport'));
+            return;
+        }
+        let reportInfo = new ReportInfo();
+        reportInfo.typeExport = ReportTypeConsts.Word;
+
+        reportInfo.parameters = [this.GetParamNameAndValue('PO_ID', this.inputModel.pO_ID)];
+
+        reportInfo.values = this.GetParamsFromFilter({
+            PrintDate: (new DateFormatPipe()).transform(moment()),
+            PoCode: this.inputModel.pO_CODE,
+            SupName: this.inputModel.suP_NAME,
+            FullName: this.appSession.user.name,
+            CreatedUser: this.inputModel.makeR_FULLNAME,
+            TotalAmt: this.formatMoney(this.totalAmtReport),
+            CreatedDt: (new DateFormatPipe()).transform(this.inputModel.creatE_DT),
+            BranchPayment: this.branchPaymentReport,
+            NOI_NHAN_HANG: this.addressReport.join(`
+`),
+            ContractDescription: (this.inputModel.contracT_ID ? this.l('KH_BC_07_ContractDescription', this.inputModel.contracT_NAME, this.inputModel.contracT_CODE, (new DateFormatPipe()).transform(this.inputModel.contracT_DT)) : '') + `
+Đề nghị quý Công ty giao hàng cho ABBank với thông tin như sau:`
+        });
+
+        reportInfo.pathName = "/TRADE/KH_BC07.doc";
+        reportInfo.storeName = "rpt_KH_BC07_w";
+
+        this.asposeService.getReport(reportInfo).subscribe(x => {
+            this.fileDownloadService.downloadTempFile(x);
+        });
+    }
+
+    showContractModal() {
+        this.contractModal.show();
+    }
+
+    onChangeContractCode(evt) {
+        if (!evt.target.value) {
+            this.inputModel.contracT_ID = undefined;
+            this.inputModel.contracT_CODE = undefined;
+            this.inputModel.contracT_NAME = undefined;
+            this.inputModel.contracT_TOTAL_AMT = undefined;
+            this.inputModel.contracT_TOTAL_EXE_AMT = undefined;
+            this.updateView();
+        }
+    }
+
+
+    suP_CODE_change(evt) {
+        if (!evt.target.value) {
+            this.inputModel.suP_ID = undefined;
+            this.inputModel.suP_NAME = undefined;
+            this.inputModel['suP_NAME2'] = undefined;
+            this.inputModel.suP_ADDR = undefined;
+            this.onChangeProperty('suP_ID');
+            this.onChangeProperty('suP_NAME');
+        }
+    }
+
+    initPoDetailForReport() {
+        this.totalAmtReport = this.inputModel.tR_PO_DETAILs.sum(x => x.totaL_AMT);
+        let hsPayCount = this.inputModel.tR_PO_DETAILs.filter(x => x.iS_HQ_PAY == '1').length;
+        let poDetailCount = this.inputModel.tR_PO_DETAILs.length;
+        this.branchPaymentReport = hsPayCount == poDetailCount ? 'Hội sở' : (hsPayCount == 0 ? 'CN/PGD' : 'CN/PGD/Hội sở');
+        this.addressReport = this.inputModel.tR_PO_DETAILs.filter(x => x.receivE_ADDR || x.receivE_TEL || x.receivE_PERSON).map(x => [(x.receivE_ADDR || '').trim(), (x.receivE_PERSON || '').trim(), (x.receivE_TEL || '').trim()].filter(a => a).join(', ')).distinct();
+    }
+}

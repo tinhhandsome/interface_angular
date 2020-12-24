@@ -1,0 +1,246 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+
+                        <!-- Begin Title -->
+                        <span>{{l("EOD")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate>
+                        <div class="row">
+                            <!-- Begin Filter -->
+                            <!-- Khu vực -->
+                            <div class="col-md-4 mb-4">
+                                <div class="form-group">
+                                    <label>{{l("Branchs")}}</label>
+                                    <select2-custom name="brancH_ID" [(ngModel)]="filterInput.brancH_ID" [(list)]="branchs" [valueMember]="'brancH_ID'" [displayMember]="'brancH_CODE|brancH_NAME'">
+                                    </select2-custom>
+                                    <checkbox-control [TrueValue]="'HS'" [FalseValue]="" class="from-control mt-2" [label]="l('Headquarters')" [(ngModel)]="filterInput['checkHS']" name="checkHS">
+                                    </checkbox-control>
+                                </div>
+                            </div>
+                            <!-- Ngày hạch toán -->
+                            <div class="col-md-4 ">
+                                <div class="form-group required">
+                                    <label>{{l("EODDate")}}</label>
+                                    <date-control name="Date" #Date="ngModel" [(ngModel)]="filterInput.date" required>
+                                    </date-control>
+                                    <div class="error-message" *ngIf="Date.invalid && isShowError">
+                                        <span *ngIf="Date?.errors.required">{{l('EODDate')}}
+                                            {{l("ValidationRequired")}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Tên file hạch toán -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>{{l("EODFileName")}}</label>
+                                    <input class="form-control m-input" name="FileName" type="text" [(ngModel)]="eodInputExport.filename" [disabled]="true">
+                                </div>
+                            </div>
+                            <!-- Người thực hiện -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>{{l("UserPerform")}}</label>
+                                    <input class="form-control m-input" name="MakerId" type="text" [(ngModel)]="filterInput.makeR_ID">
+                                </div>
+                            </div>
+                            <div class="w-100"></div>
+                            <div class="col-lg">
+                                <div class="form-group">
+                                    <!-- Lấy dữ liệu -->
+                                    <button class="btn btn-primary" (click)="getAssEntriesPost()">{{l("GetData")}}</button>
+                                    <!-- Xuất file hạch toán -->
+                                    <button *ngIf="isGetData" class="btn btn-primary" (click)="exportEOD()"><i
+                                            class="far fa-file-excel"></i>{{l('ExportEOD')}}</button>
+                                    <!-- Xuất file -->
+                                    <button *ngIf="isGetData" class="btn btn-primary" (click)="exportToExcel()"><i
+                                            class="far fa-file-excel"></i>{{l('ExportFile')}}</button>
+                                    <!-- Xuất file FTP -->
+                                    <button *ngIf="isGetData" class="btn btn-primary" (click)="exportFTP()">{{l("ExportFTP")}}</button>
+                                </div>
+                            </div>
+                            <!-- End Filter -->
+
+                        </div>
+                        <!-- Bat dau bang entries post list-->
+                        <div class="editable-title-group">
+                            <h5 class="popup-title col-md-12">{{l("PropertyList")}}</h5>
+                        </div>
+
+                        <div class="primeng-datatable-container {{editTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <editable-table #editTable class="custom-table ui-table">
+                                <thead>
+                                    <tr>
+                                        <!-- STT -->
+                                        <th>
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <!-- Mã tài sản -->
+                                        <th sortField="asseT_CODE">
+                                            <span style="width: 150px">{{l("AssetCode")}}</span>
+                                        </th>
+                                        <!-- Tên tài sản -->
+                                        <th sortField="asseT_NAME">
+                                            <span style="width: 150px">{{l("AssetName")}}</span>
+                                        </th>
+                                        <!-- Tài khoản ghi nợ -->
+                                        <th sortField="dR_ACCT">
+                                            <span style="width: 150px">{{l("DebitAccount")}}</span>
+                                        </th>
+                                        <!-- Đơn vị ghi nợ -->
+                                        <th sortField="dR_BRANCH_NAME">
+                                            <span style="width: 150px">{{l("DebitBranch")}}</span>
+                                        </th>
+                                        <!-- Tài khoản ghi có -->
+                                        <th sortField="cR_ACCT">
+                                            <span style="width: 150px">{{l("CreditAccount")}}</span>
+                                        </th>
+                                        <!-- Đơn vị ghi có -->
+                                        <th sortField="cR_BRANCH_NAME">
+                                            <span style="width: 150px">{{l("CreditBranch")}}</span>
+                                        </th>
+                                        <!-- Số tiền -->
+                                        <th sortField="amt">
+                                            <span style="width: 150px">{{l("Amount")}}</span>
+                                        </th>
+                                        <!-- Ghi chú -->
+                                        <th sortField="trN_DESC">
+                                            <span style="width: 150px">{{l("Note")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of editTable.dataInPage" class="selectable">
+                                        <!-- Begin Table Value -->
+                                        <!-- STT -->
+                                        <td><span class="mo-header"></span>{{record['no']}} </td>
+                                        <!-- Mã tài sản -->
+                                        <td><span class="mo-header"></span>{{record.asseT_CODE}}</td>
+                                        <!-- Tên tài sản -->
+                                        <td><span class="mo-header"></span>{{record.asseT_NAME}}</td>
+                                        <!-- Tài khoản ghi nợ -->
+                                        <td><span class="mo-header"></span>{{record.dR_ACCT}}</td>
+                                        <!-- Đơn vị ghi nợ -->
+                                        <td><span class="mo-header"></span>{{record.dR_BRANCH_NAME}}</td>
+                                        <!-- Tài khoản ghi có -->
+                                        <td><span class="mo-header"></span>{{record.cR_ACCT}}</td>
+                                        <!-- Đơn vị ghi có -->
+                                        <td><span class="mo-header"></span>{{record.cR_BRANCH_NAME}}</td>
+                                        <!-- Số tiền -->
+                                        <td class="right"><span class="mo-header"></span>{{record.amt | moneyFormatPipe}}</td>
+                                        <!-- Ghi chú -->
+                                        <td><span class="mo-header"></span>{{record.trN_DESC}}</td>
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </editable-table>
+                        </div>
+                        <!-- Ket thuc bang entries post list-->
+
+                        <div class="row">
+                            <!-- Kiểm tra file đã hoạch toán -->
+                            <div class="col-md-12" style=" margin-top: 20px;">
+                                <h5 class="popup-title"><ins>{{l('CheckEODFile')}}</ins></h5>
+                            </div>
+                            <!-- Ngày hạch toán -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>{{l("EODDate")}}</label>
+                                    <date-control name="EODDate" [(ngModel)]="eodInputSearch.eoD_DT"></date-control>
+                                </div>
+                            </div>
+                            <!-- Tên file hạch toán -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>{{l("EODFileName")}}</label>
+                                    <input class="form-control m-input" name="EODFileName" type="text" [(ngModel)]="eodInputSearch.filename">
+                                </div>
+                            </div>
+                            <!-- Kiểm tra -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <button class="btn btn-primary btn-search" (click)="getEODLog()">{{l("Check")}}</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Lịch sử xuất file FTP-->
+                        <div class="editable-title-group">
+                            <h5 class="popup-title col-md-12">{{l("EODLog")}}</h5>
+                        </div>
+                        <div class="primeng-datatable-container {{EODLogTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <editable-table #EODLogTable class="custom-table ui-table">
+                                <thead>
+                                    <tr>
+                                        <!-- STT -->
+                                        <th>
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <!-- Người xuất file -->
+                                        <th sortField="makeR_ID">
+                                            <span style="width: 150px">{{l("FileExporter")}}</span>
+                                        </th>
+                                        <!-- Ngày xuất file -->
+                                        <th sortField="exporT_DT">
+                                            <span style="width: 150px">{{l("FileExportDate")}}</span>
+                                        </th>
+                                        <!-- Ngày hạch toán -->
+                                        <th sortField="eoD_DT">
+                                            <span style="width: 150px">{{l("EODDate")}}</span>
+                                        </th>
+                                        <!-- Tên file -->
+                                        <th sortField="filename">
+                                            <span style="width: 150px">{{l("FileName")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of EODLogTable.dataInPage" class="selectable">
+                                        <!-- Begin Table Value -->
+                                        <!-- STT -->
+                                        <td><span class="mo-header"></span>{{record['no']}} </td>
+                                        <!-- Người xuất file -->
+                                        <td><span class="mo-header"></span>{{record.makeR_ID}}</td>
+                                        <!-- Ngày xuất file -->
+                                        <td><span class="mo-header"></span>{{record.exporT_DT | dateTimeFormatPipe}}
+                                        </td>
+                                        <!-- Ngày hạch toán -->
+                                        <td><span class="mo-header"></span>{{record.eoD_DT | dateFormatPipe}}
+                                        </td>
+                                        <!-- Tên file -->
+                                        <td><span class="mo-header"></span>{{record.filename}}</td>
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </editable-table>
+                        </div>
+                        <!-- Ket thuc bang entries post list-->
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

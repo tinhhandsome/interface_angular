@@ -1,0 +1,372 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("CarDriveTitle")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                    <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                    <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()"
+                    autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <!-- Số xe -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("Plate")}}</label>
+                                <div class="user-group">
+                                    <input (focusout)="onPlateInputChange()" required #n_PLATE="ngModel"
+                                        [disabled]="!isAdd" class="form-control m-input" name="n_PLATE" type="text"
+                                        [(ngModel)]="inputModel.caR_MASTER.n_PLATE">
+                                    <button [disabled]="!isAdd" class="btn btn-primary" (click)="showCarModal()"
+                                        type='button'>{{l("...")}}</button>
+                                </div>
+                                <div class="error-message" *ngIf="n_PLATE.invalid && isShowError">
+                                    <span *ngIf="n_PLATE?.errors.required">{{l('Plate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ngày cập nhật -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("UpdatedDate")}}</label>
+                                <date-control [disabled]="true" name="UpdateDate" [ngModel]="inputModel.inpuT_DT">
+                                </date-control>
+                            </div>
+                        </div>
+                        <!-- Loại xe -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("CarType")}}</label>
+                                <input class="form-control m-input" type="text" name="caR_TYPE"
+                                    [ngModel]="inputModel.caR_MASTER.caR_TYPE_NAME" [disabled]="true">
+                            </div>
+                        </div>
+                        <!-- Model -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("Model")}}</label>
+                                <input class="form-control m-input" name="model" type="text"
+                                    [ngModel]="inputModel.caR_MASTER.model" [disabled]="true">
+                            </div>
+                        </div>
+                        <!-- Nước sản xuất -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("ProductCountryName")}}</label>
+                                <input class="form-control m-input" type="text"
+                                    [ngModel]="inputModel.caR_MASTER.producT_COUNTRY_NAME" name="producT_COUNTRY_NAME"
+                                    [disabled]="true">
+                            </div>
+                        </div>
+                        <!-- Loại nhiên liệu -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("FuelsType")}}</label>
+                                <input class="form-control m-input" type="text"
+                                    [ngModel]="inputModel.caR_MASTER.fuelstypE_NAME" name="fuelstypE_NAME"
+                                    [disabled]="true">
+                            </div>
+                        </div>
+
+                        <!-- Chỉ số km cũ -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("OldIndexNumber")}}</label>
+                                <input [disabled]="true" class="form-control" type="number" name="olD_INDEX_NUMBER"
+                                    [ngModel]="inputModel.olD_INDEX_NUMBER">
+
+                            </div>
+                        </div>
+
+                        <!-- Đơn vị sử dụng -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("BranchNameUse")}}</label>
+                                <input [disabled]="true" class="form-control" type="text" name="brancH_NAME"
+                                    [ngModel]="inputModel.caR_MASTER.brancH_NAME">
+                            </div>
+                        </div>
+
+                        <!-- Chỉ số Km mới -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("NewIndexNumber")}}</label>
+                                <input min="0" (focusout)="onNewIndexNumberChange()" [disabled]="disableInput" required
+                                    class="form-control" type="number" #neW_INDEX_NUMBER="ngModel"
+                                    name="neW_INDEX_NUMBER" [(ngModel)]="inputModel.neW_INDEX_NUMBER">
+
+                                <div class="error-message" *ngIf="neW_INDEX_NUMBER.invalid && isShowError">
+                                    <span *ngIf="neW_INDEX_NUMBER?.errors.required">{{l('NewIndexNumber')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Số Km -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("IndexNumber")}}</label>
+                                <input [disabled]="true" class="form-control" type="number" name="indeX_NUMBER"
+                                    [ngModel]="inputModel.indeX_NUMBER">
+
+                            </div>
+                        </div>
+
+                        <!-- Định mức nhiên liệu -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("PowerRate")}}</label>
+                                <div class="row outter-vertical-center">
+                                    <div class="col-md-10">
+                                        <input class="form-control" type="number" [ngModel]="inputModel.poweR_RATE"
+                                            name="poweR_RATE" [disabled]="true">
+
+                                    </div>
+                                    <div class="col-md-2 inner-vertical-center">
+                                        <label>{{l("LitersPer100Km")}}</label><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nhiên liệu tiêu hao theo định mức -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("PowerRateIndex")}}</label>
+                                <div class="row outter-vertical-center">
+                                    <div class="col-md-10">
+                                        <input [disabled]="true" class="form-control" type="number"
+                                            #poweR_RATE_INDEX="ngModel" name="poweR_RATE_INDEX"
+                                            [ngModel]="inputModel.poweR_RATE_INDEX">
+
+                                    </div>
+                                    <div class="col-md-2 inner-vertical-center">
+                                        <label>{{l("Liters")}}</label><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nhiên liệu tiêu hao thực tế -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("CurrPowerRate")}}</label>
+                                <div class="row outter-vertical-center">
+                                    <div class="col-md-10">
+                                        <input required min="0" [disabled]="disableInput" class="form-control"
+                                            #curR_POWER_RATE="ngModel" type="number" name="curR_POWER_RATE"
+                                            [(ngModel)]="inputModel.curR_POWER_RATE">
+
+                                        <div class="error-message" *ngIf="curR_POWER_RATE.invalid && isShowError">
+                                            <span *ngIf="curR_POWER_RATE?.errors.required">{{l('CurrPowerRate')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 inner-vertical-center">
+                                        <label>{{l("Liters")}}</label><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lộ trình -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("CarDriveRoute")}}</label>
+                                <input [disabled]="disableInput" class="form-control" type="text" name="dR_ROUTE"
+                                    [ngModel]="inputModel.dR_ROUTE">
+
+                            </div>
+                        </div>
+                        <!-- Ghi chú -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("Note")}}</label>
+                                <textarea class="form-control" [disabled]="disableInput" type="text" #notes="ngModel"
+                                    name="notes" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+                        <button hidden (click)="saveInput()"></button>
+                    </div>
+                </form>
+                <!-- Begin Form -->
+                <div class="row align-items-center">
+                   
+                    <!-- Bắt đầu bảng chi tiết hóa đơn vận hành -->
+                    <div class="editable-title-group" style="width:100%">
+                        <h5 class="popup-title col-md-12">{{l("CarDriveDetail")}}</h5>
+                        <div style="text-align:right" class="action-button">
+                            <button type="button" class="btn btn-primary" (click)="onAddNewDriveDT()"><i
+                                    class="pi pi-plus"></i>{{l("Add")}}</button>
+                            <button type="button" class="btn btn-danger" (click)="onRemoveDriveDT()"><i
+                                    class="pi pi-times"></i>{{l("Delete")}}</button>
+                        </div>
+                    </div>
+                    <div class="primeng-datatable-container {{editTable.isLoading}}">
+                        <div class="spinner-border m-5" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <editable-table #editTable class="custom-table ui-table">
+                            <thead>
+                                <tr>
+                                    <!-- checkbox -->
+                                    <th class="center">
+                                        <div class="outter-vertical-center">
+                                            <span class="inner-vertical-center" style="width: 30px">
+                                                <label class="m-checkbox" for="checkAll">
+                                                    <input type="checkbox" id="checkAll" #checkAll name="checkAll"
+                                                        [checked]="isCheckAll" (change)="onCheckAll(checkAll.checked)">
+                                                    <span class="label-span"></span>
+                                                </label>
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <!-- STT -->
+                                    <th class="center">
+                                        <span style="width: 30px">{{l("No")}}</span>
+                                    </th>
+                                    <!-- Tên hóa đơn, ký hiệu, số hóa đơn -->
+                                    <th style="width: 20%;" sortField="invoicE_NO">
+                                        <span style="width: 240px">{{l("InvoiceName")}}</span>
+
+                                    </th>
+                                    <!-- Ngày xuất hóa đơn -->
+                                    <th style="width: 20%;" sortField="invoicE_DT">
+
+                                        <span style="width: 150px">{{l("InvoiceDate")}}</span>
+                                    </th>
+                                    <!-- Số tiền -->
+                                    <th style="width: 20%;" sortField="invoicE_AMT">
+
+                                        <span style="width: 150px">{{l("Amount")}}</span>
+                                    </th>
+                                    <!-- Loại chi phí -->
+                                    <th style="width: 20%;" sortField="caR_DR_TYPE">
+                                        <span style="width: 150px">{{l("AmtType")}}</span>
+
+                                    </th>
+                                    <!-- Ghi chú -->
+                                    <th style="width: 20%;" sortField="notes">
+
+                                        <span style="width: 150px">{{l("Notes")}}</span>
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let record of editTable.dataInPage, let i = index" class="selectable">
+                                    <!-- Begin Table Value -->
+                                    <td class="center">
+                                        <div class="outter-vertical-center">
+                                            <span class="inner-vertical-center">
+                                                <label class="m-checkbox" for="check-{{record.no}}">
+                                                    <input type="checkbox" id="check-{{record.no}}"
+                                                        name="check-{{record.no}}" [checked]="record.isChecked"
+                                                        (change)="record.isChecked = $event.target.checked">
+                                                    <span class="label-span"></span>
+                                                </label>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="center"><span class="mo-header"></span>{{record['no']}} </td>
+
+                                    <td><span class="mo-header"></span>
+                                        <input [disabled]="disableInput" name="invoicE_NO_{{i}}"
+                                            [(ngModel)]="record.invoicE_NO" class="form-control transparent"
+                                            type="text">
+
+                                    </td>
+                                    <td><span class="mo-header"></span>
+                                        <date-control name="invoicE_DT_{{i}}" [disabled]="disableInput"
+                                            [(ngModel)]="record.invoicE_DT">
+                                        </date-control>
+                                    </td>
+                                    <td><span class="mo-header"></span>
+                                        <money-input (focusout)="reloadTotalAmt()" class="transparent"
+                                            name="invoicE_AMT_{{i}}" [disabled]="disableInput"
+                                            [(ngModel)]="record.invoicE_AMT" type="number">
+
+                                        </money-input>
+                                    </td>
+                                    <td><span class="mo-header"></span>
+                                        <!-- <select2-custom name="caR_DR_TYPE" [(ngModel)]="record.caR_DR_TYPE"
+                                            [(list)]="amtType" [valueMember]="'typeId'" [displayMember]="'typeName'">
+                                        </select2-custom> -->
+                                        <all-code-select [disabled]="disableInput" name="caR_DR_TYPE_{{i}}"
+                                            [(ngModel)]="record.caR_DR_TYPE" [emptyText]="l('SelectAll')"
+                                            [cdName]="'DRIVE_AMT_TYPE'" [cdType]="'CAR'">
+                                        </all-code-select>
+
+                                    </td>
+                                    <td><span class="mo-header"></span>
+                                        <input name="notes_{{i}}" [disabled]="disableInput" [(ngModel)]="record.notes"
+                                            class="form-control transparent" type="text">
+
+                                    </td>
+
+                                    <!-- End Table Value -->
+                                </tr>
+                            </tbody>
+                        </editable-table>
+
+                        <!-- <div class="primeng-no-data" *ngIf="editTable?.allData?.length == 0">
+                            {{l('NoData')}}
+                        </div>
+                        <div class="primeng-paging-container">
+                            <p-paginator [rows]="editTable.defaultRecordsCountPerPage" #paginator
+                                (onPageChange)="editTable.changePage($event.page)"
+                                [totalRecords]="editTable.allData.length"
+                                [rowsPerPageOptions]="editTable.predefinedRecordsCountPerPage">
+                            </p-paginator>
+
+                            <span class="total-records-count">
+                                {{l('TotalRecordsCount')}} {{editTable?.allData?.length}}
+                            </span>
+                        </div> -->
+                    </div>
+
+                    <!-- Kết thúc bảng -->
+                    <h5 class="popup-title col-md-12" style="text-decoration: underline; text-align: right; margin-top: 10px;">
+                        {{l('TotalMoney')}}: {{totalAmt | moneyFormatPipe}}</h5>
+
+                    <!-- In phiếu đề nghị thanh toán -->
+                    <div class="col-md-12" *ngIf='!isAdd && editPageState != EditPageState.viewDetail'>
+                        <div class="form-group" style="text-align: right">
+                            <button (click)="showReportTemplate()" type="button"
+                                class="btn btn-primary">{{l('PrintPDN')}}</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <car-master-modal #carModal [multiple]="false" (onSelect)="getCarDriveByCar($event)"></car-master-modal>
+    <report-template #reportTemplate></report-template>
+</div>

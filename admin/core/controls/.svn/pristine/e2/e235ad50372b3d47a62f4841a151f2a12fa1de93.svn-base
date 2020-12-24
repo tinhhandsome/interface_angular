@@ -1,0 +1,29 @@
+<input hidden #control>
+
+<div class="col-md-12">
+    <div class="row">
+        <!-- Khu vực -->
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>{{l('Area')}}</label>
+                <select2-custom name="AREA" #areaControl (onChangeSelect2)="onChangeArea($event)" [list]="areas" [(ngModel)]="area" [valueMember]="'brancH_ID'" [displayMember]="'brancH_CODE|brancH_NAME'" [disabled]="disabled"></select2-custom>
+            </div>
+        </div>
+
+        <!-- Chi nhánh -->
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>{{l('BranchCode')}}</label>
+                <select2-custom name="BRANCH" #branchControl (onChangeSelect2)="onChangeBranch($event)" [list]="branchs" [(ngModel)]="branch" [valueMember]="'brancH_ID'" [displayMember]="'brancH_CODE|brancH_NAME'" [disabled]="disabled"></select2-custom>
+            </div>
+        </div>
+
+        <!-- Phòng giao dịch -->
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>{{l('SubBranch')}}</label>
+                <select2-custom name="SUB_BRANCH" #subBranchControl (onChangeSelect2)="onChangeSubBranch($event)" [list]="subBranchs" [(ngModel)]="subBranch" [valueMember]="'brancH_ID'" [displayMember]="'brancH_CODE|brancH_NAME'" [disabled]="disabled"></select2-custom>
+            </div>
+        </div>
+    </div>
+</div>

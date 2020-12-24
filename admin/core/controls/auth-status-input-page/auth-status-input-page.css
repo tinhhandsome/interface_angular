@@ -1,0 +1,23 @@
+.auth-status-input-page span {
+    color: #008018;
+    font-weight: 500;
+    font-size: 14px;
+    margin-left: 5px;
+}
+
+.auth-status-input-page i {
+    font-size: 18px;
+}
+
+.auth-status-input-page i.error-text,
+.auth-status-input-page i.error-text~span {
+    color: red;
+}
+
+i.error-text {
+    vertical-align: middle;
+}
+
+.auth-status-input-page i.error-text~span {
+    vertical-align: middle;
+}

@@ -1,0 +1,112 @@
+<div class="col-md-12">
+    <h5 class="popup-title col-md-12">{{l("ExportUse")}}</h5>
+</div>
+
+<div class="col-md-12">
+    <checkbox-control [disabled]="_disableInput" [(ngModel)]="isExportUse" [label]="l('ExportUse')" (change)="exportUseChange();" [ngModelOptions]="{standalone: true}"></checkbox-control>
+</div>
+
+<!-- Đơn vị sử dụng -->
+<div class="col-md-6">
+    <div class="form-group required">
+        <label>{{l("BranchNameUse")}}</label>
+        <div class="group">
+            <input class="form-control" type="text" #brancH_ID="ngModel" name="brancH_ID" [disabled]="disableInput" required [(ngModel)]="inputModel.brancH_CODE">
+            <button class="btn btn-primary ng-star-inserted" type='button' [disabled]="disableInput" (click)="branchModal.show()">{{l("...")}}</button>
+        </div>
+        <div class="error-message" *ngIf="isNull(inputModel.brancH_ID) && isExportUse && isShowError">
+            <span>{{l('BranchNameUse')}}
+                {{l("ValidationRequired")}}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Tên đơn vị -->
+<div class="col-md-6">
+    <div class="form-group required">
+        <label>{{l("BranchName")}}</label>
+        <disabled-input #branchName [value]="inputModel.brancH_NAME"></disabled-input>
+    </div>
+</div>
+
+<!-- Mã phòng ban -->
+<div class="col-md-6" [hidden]="hiddenDepartment">
+    <div class="form-group ">
+        <label>{{l("DepartmentCode")}}</label>
+        <div class="group">
+            <input class="form-control" type="text" #depT_ID="ngModel" name="depT_ID" [disabled]="disableInput" (focusout)="onFocusoutDepCode($event)" [ngModel]="inputModel.deP_CODE">
+            <button class="btn btn-primary ng-star-inserted" type='button' [disabled]="disableInput" (click)="depModal.show()">{{l("...")}}</button>
+        </div>
+    </div>
+</div>
+<!-- Tên phòng ban -->
+<div class="col-md-6" [hidden]="hiddenDepartment">
+    <div class="form-group">
+        <label>{{l("DepartmentName")}}</label>
+        <disabled-input #depT_NAME [value]="inputModel.deP_NAME"></disabled-input>
+    </div>
+</div>
+
+<!-- Mã địa điểm -->
+<div class="col-md-6">
+    <div class="form-group required">
+        <label>{{l("DivisionCode")}}</label>
+        <div class="group">
+            <input class="form-control" type="text" #diV_CODE="ngModel" name="diV_CODE" [disabled]="disableInput" required [(ngModel)]="inputModel.diV_CODE">
+            <button class="btn btn-primary ng-star-inserted" type='button' [disabled]="disableInput" (click)="divisionModal.show()">{{l("...")}}</button>
+        </div>
+        <div class="error-message" *ngIf="isNull(inputModel.divisioN_ID) && isExportUse && isShowError">
+            <span>{{l('DivisionCode')}}
+                {{l("ValidationRequired")}}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Địa điểm -->
+<div class="col-md-6">
+    <div class="form-group required">
+        <label>{{l("Division")}}</label>
+        <input class="form-control" disabled="disableInput" [value]="inputModel.division.diV_NAME || ''">
+    </div>
+</div>
+
+<!-- Địa chỉ -->
+<div class="col-md-12">
+    <div class="form-group required">
+        <label>{{l("Address")}}</label>
+        <input class="form-control" disabled [value]="inputModel.division.addr || ''">
+    </div>
+</div>
+
+<!-- Người sử dụng -->
+<div class="col-md-6">
+    <div class="form-group">
+        <label>{{l("EmpName")}}</label>
+        <div class="group">
+            <input class="form-control" type="text" #emP_CODE="ngModel" name="emP_CODE" [disabled]="disableInput" [(ngModel)]="inputModel.emP_CODE">
+            <button class="btn btn-primary ng-star-inserted" type='button' [disabled]="disableInput" (click)="employeeModal.show()">{{l("...")}}</button>
+        </div>
+    </div>
+</div>
+
+<!-- Tên người dùng -->
+<div class="col-md-6">
+    <div class="form-group">
+        <label>{{l("NameOfUser")}}</label>
+        <input class="form-control" disabled [value]="inputModel.emP_NAME || ''">
+    </div>
+</div>
+
+<!-- Ngày bắt đầu khấu hao -->
+<div class="col-md-6">
+    <div class="form-group">
+        <label>{{l("AmortStartDate")}}</label>
+        <date-control [disabled]="disableInput" (change)="onAmortStartDateChange()" [inpCss]="'form-control'" type="text" #amorT_START_DATE="ngModel" name="amorT_START_DATE" [(ngModel)]="inputModel.amorT_START_DATE">
+        </date-control>
+    </div>
+</div>
+
+<branch-modal (onSelect)="onSelectBranch($event)" [multiple]="false" #branchModal></branch-modal>
+<division-modal (onSelect)="onSelectDivision($event)" [multiple]="false" #divisionModal></division-modal>
+<employee-modal (onSelect)="onSelectEmployee($event)" [multiple]="false" #employeeModal></employee-modal>
+<dep-modal (onSelect)="onSelectDepartment($event)" [multiple]="false" #depModal></dep-modal>

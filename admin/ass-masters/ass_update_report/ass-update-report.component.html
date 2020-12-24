@@ -1,0 +1,187 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <a [routerLink]="rootPage()"
+                        class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <!-- Begin Title -->
+                        <span>{{l("AssUpdateReportStatus")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <div class="row col-md-10">
+                                    <!-- Begin Filter -->
+
+                                    <!--Mã nhóm tài sản-->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("AssGroupCode")}}</label>
+                                            <select2-custom name="grouP_ID" [(ngModel)]="filterInput.grouP_ID"
+                                                [(list)]="assgroups" [emptyText]="l('SelectAll')"
+                                                [valueMember]="'grouP_ID'" [displayMember]="'grouP_CODE|grouP_NAME'">
+                                            </select2-custom>
+                                        </div>
+                                    </div>
+
+                                    <!--Radio control Trạng thái -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("AssStatus")}}</label>
+                                            <div class="col-md-12">
+                                                <div class="row mt-3">
+                                                    <label class="m-radio" for="import" style="margin-right:20%">
+                                                        <input id="import" type="radio" name="searcH_TYPE"
+                                                            [checked]="!isexport()" (click)="onSelectSearchType('I')">
+                                                        {{l("Import")}}
+                                                        <span></span>
+                                                    </label>
+                                                    <label class="m-radio" for="export">
+                                                        <input id="export" type="radio" name="searcH_TYPE"
+                                                            (click)="onSelectSearchType('E')"> {{l("Export")}}
+                                                        <span></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!--Ngày xuất/nhập kho -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("DateI/E")}}</label>
+                                            <!-- <input [(ngModel)]="filterInput.approvE_DT" name="approvE_DT" class="form-control m-input" type="date"> -->
+                                            <date-control [inpCss]="'form-control'" type="text" name="date"
+                                                [(ngModel)]="filterInput.date"></date-control>
+                                        </div>
+                                    </div>
+
+                                    <!--Giá trị -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("AssetPrice")}}</label>
+                                            <money-input [(ngModel)]="filterInput.price" name="price"
+                                                [inputCss]="'form-control left'"></money-input>
+                                        </div>
+                                    </div>
+
+                                    <!--Tên tài sản-->
+                                    <div class="col-md-8">
+                                        <div class="form-group">
+                                            <label>{{l("AssetName")}}</label>
+                                            <input [(ngModel)]="filterInput.asseT_NAME" name="asseT_NAME" autoFocus
+                                                class="form-control m-input" type="text">
+                                        </div>
+                                    </div>
+
+
+                                    <!-- End Filter -->
+                                    <div style="display:none;" class="col-md-12">
+                                        <div class="form-group">
+                                            <button class="btn btn-primary btn-search"
+                                                (click)="onSearch()">{{l('Search')}}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                                <thead>
+                                    <tr>
+                                        <!-- nút check all -->
+                                        <th style="width: 5%" class="center">
+                                            <checkbox-control #checkAllElement
+                                                (change)="onCheckAll(checkAllElement.checked)" [checked]="checkAll">
+                                            </checkbox-control>
+                                        </th>
+                                        <!-- Begin Table Column -->
+                                        <th style="width: 5%" class="center">
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <!--Nhóm tài sản-->
+                                        <th class="center" [style]="isexport() ? 'width: 30%' : 'width: 20%'"
+                                            sortField="GROUP_NAME">
+                                            <span style="width: 150px">{{l("AssGroup")}}</span>
+                                        </th>
+                                        <!--Tên tài sản-->
+                                        <th class="center" [style]="isexport() ? 'width: 40%' : 'width: 30%'"
+                                            sortField="ASSET_NAME">
+                                            <span style="width: 250px">{{l("AssetName")}}</span>
+                                        </th>
+                                        <!--Số lượng-->
+                                        <th class="center" style="width: 10%" sortField="QTY">
+                                            <span style="width: 100px">{{l("Quantity")}}</span>
+                                        </th>
+                                        <!--Nguyên giá-->
+                                        <th class="center" style="width: 10%" sortField="BUY_PRICE">
+                                            <span style="width: 120px">{{l("BuyPrice")}}</span>
+                                        </th>
+                                        <!--Tên đơn vị-->
+                                        <th class="center" style="width: 10%" sortField="BRANCH_NAME"
+                                            [hidden]="!isexport()">
+                                            <span style="width: 150px">{{l("BranchName")}}</span>
+                                        </th>
+                                        <!--Tên phòng ban-->
+                                        <th class="center" style="width: 10%" [hidden]="!isexport()"
+                                            sortField="DEP_NAME">
+                                            <span style="width: 150px">{{l("DepartmentName")}}</span>
+                                        </th>
+
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records">
+                                        <!-- Begin Table Value -->
+                                        <td class="center">
+                                            <span class="mo-header"></span>
+                                            <checkbox-control (onchange)="setChecked($event.target.checked, record)"
+                                                [checked]="record.isChecked"></checkbox-control>
+                                        </td>
+                                        <td class="center"><span
+                                                class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <!--Nhóm tài sản-->
+                                        <td><span class="mo-header"></span>{{record.grouP_NAME}}</td>
+                                        <!--Tên tài sản-->
+                                        <td><span class="mo-header"></span>{{record.asseT_NAME}}</td>
+                                        <!--Số lượng-->
+                                        <td class="right"><span class="mo-header"></span>{{record.qty}}</td>
+                                        <!--Nguyên giá-->
+                                        <td class="right"><span
+                                                class="mo-header"></span>{{record.buY_PRICE | moneyFormatPipe}}</td>
+                                        <!--Tên đơn vị-->
+                                        <td [hidden]="!isexport()"><span class="mo-header"></span>{{record.brancH_NAME}}
+                                        </td>
+                                        <!--Tên phòng ban-->
+                                        <td [hidden]="!isexport()"><span class="mo-header"></span>{{record.deP_NAME}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </core-table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,137 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("Project")}}</span>
+                </h3>
+
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                    <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                    <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row col-md-8">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <input hidden class="form-control" type="text" #projecT_ID="ngModel" name="projecT_ID"
+                            [(ngModel)]="inputModel.projecT_ID">
+
+                        <!-- Mã dự án -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("ProjectCode")}}</label>
+                                <input (focusout)="focusOut()" required maxlength="15" class="form-control" type="text"
+                                    #projecT_CODE="ngModel" [disabled]="disableInput" name="projecT_CODE"
+                                    [(ngModel)]="inputModel.projecT_CODE">
+                                <div class="error-message" *ngIf="projecT_CODE.invalid && isShowError">
+                                    <span *ngIf="projecT_CODE?.errors.required">{{l('ProjectCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="projecT_CODE?.errors.pattern">{{l('ProjectCode')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ngày tạo dự án -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("CreateProjectDate")}}</label>
+                                <date-control #creatE_DT="ngModel" name="creatE_DT" [(ngModel)]="inputModel.creatE_DT"
+                                    [disabled]="isDisabled">
+                                </date-control>
+                                <!-- <input disabled maxlength="200" class="form-control" type="text" #creatE_DT="ngModel" [disabled]="disableInput" name="creatE_DT" [(ngModel)]="inputModel.creatE_DT"> -->
+                                <div class="error-message" *ngIf="creatE_DT.invalid && isShowError">
+                                    <span *ngIf="creatE_DT?.errors.required">{{l('CreateProjectDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <!-- <span *ngIf="caR_TYPE_NAME?.errors.pattern">{{l('Model')}}
+                                                {{l("Invalidation")}}</span> -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="col-md-6">
+                            
+                        </div> -->
+                        <!-- Tên dự án -->
+                        <div class="col-md-12">
+                            <div class="form-group required">
+                                <label>{{l("ProjectName")}}</label>
+                                <input (focusout)="focusOut()" required maxlength="200" class="form-control" type="text"
+                                    #projecT_NAME="ngModel" [disabled]="disableInput" name="projecT_NAME"
+                                    [(ngModel)]="inputModel.projecT_NAME">
+                                <div class="error-message" *ngIf="projecT_NAME.invalid && isShowError">
+                                    <span *ngIf="projecT_NAME?.errors.required">{{l('ProjectName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <!-- <span *ngIf="fuelS_TYPE?.errors.pattern">{{l('Model')}}
+                                                    {{l("Invalidation")}}</span> -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Lĩnh vực hoạt động -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("DisciplinesName")}}</label>
+                                <all-code-select #disciplines="ngModel" name="disciplines"
+                                    [(ngModel)]="inputModel.disciplines" [disabled]="disableInput"
+                                    [emptyText]="l('NullSelect')" [cdName]="'DISCIPLINES'">
+                                </all-code-select>
+                                <!-- <div class="error-message" *ngIf="procountry.invalid && isShowError">
+                                    <span *ngIf="procountry?.errors.required">{{l('Procountry')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    
+                                </div> -->
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+
+                        </div>
+                        <!-- <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("RecordStatus")}}</label>
+                                <all-code-select #disciplines="ngModel" name="disciplines"
+                                    [(ngModel)]="inputModel.disciplines" [disabled]="disableInput"
+                                    [emptyText]="l('SelectNull')" [cdName]="'SUP'">
+                                </all-code-select>
+                                
+                            </div>
+                        </div> -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <!-- <label>{{l("RecordStatus")}}</label> -->
+
+                                <checkbox-control name="recorD_STATUS" [label]="l('RecordStatus')"
+                                    #recorD_STATUS="ngModel" [disabled]="disableInput"
+                                    [(ngModel)]="inputModel.recorD_STATUS"></checkbox-control>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,51 @@
+<div [@routerTransition]>
+    <!-- BEGIN: Header -->
+    <header mHeader
+            *ngIf="!installationMode"
+            #mHeader class="m-grid__item m-header">
+        <div class="m-header__top">
+            <div class="m-container {{ui.getContainerClass()}} m-container--xxl m-container--full-height">
+                <div class="m-stack m-stack--ver m-stack--desktop">
+                    <!-- BEGIN: Brand -->
+                    <theme6-brand class="m-stack__item m-brand  m-brand--skin-{{currentTheme.baseSettings.menu.asideSkin}} d-print-non"></theme6-brand>
+                    <!-- END: Brand -->
+                    <div class="m-stack__item m-stack__item--fluid m-header-head m-brand--skin-{{currentTheme.baseSettings.header.headerSkin}} d-print-none" id="m_header_nav">
+                        <!-- BEGIN: Topbar -->
+                        <topbar></topbar>
+                        <!-- END: Topbar -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- END: Header -->
+    <!-- begin::Body -->
+    <div class="m-grid__item m-grid__item--fluid m-grid m-grid--ver-desktop m-grid--desktop m-body m-page__container">
+        <!-- BEGIN: Left Aside -->
+        <button *ngIf="currentTheme.isLeftMenuUsed" class="m-aside-left-close m-aside-left-close--skin-{{s(currentTheme.baseSettings.theme + '.' + 'App.UiManagement.Left.AsideSkin')}}" id="m_aside_left_close_btn">
+            <i class="la la-close" [attr.aria-label]="l('Close')"></i>
+        </button>
+
+        <div id="m_aside_left" #mAsideLeft [class]="'m-grid__item m-aside-left m-aside-left--skin-' + currentTheme.baseSettings.menu.asideSkin">
+            <!-- BEGIN: Aside Menu -->
+            <side-bar-menu *ngIf="currentTheme.isLeftMenuUsed"></side-bar-menu>
+            <!-- END: Aside Menu -->
+        </div>
+
+        <div class="m-grid__item m-grid__item--fluid m-wrapper">
+            <div *ngIf="subscriptionStatusBarVisible()"
+                 [ngClass]="{'hidden': !subscriptionStatusBarVisible()}" class="d-inline-block d-sm-none mt-3 ml-3">
+                <span *ngIf="tenant.isInTrialPeriod && !subscriptionIsExpiringSoon()" [innerHTML]="getTrialSubscriptionNotification()"></span>
+                <a *ngIf="subscriptionIsExpiringSoon()" routerLink="/app/admin/subscription-management">
+                    <span *ngIf="subscriptionIsExpiringSoon() && tenant.isInTrialPeriod"><i class="fa fa-exclamation-circle"></i> {{getExpireNotification("TrialExpireNotification")}}</span>
+                    <span *ngIf="subscriptionIsExpiringSoon() && !tenant.isInTrialPeriod"><i class="fa fa-exclamation-circle"></i> {{getExpireNotification("SubscriptionExpireNotification")}}</span>
+                </a>
+            </div>
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+    <!-- end:: Body -->
+    <!-- begin::Footer -->
+    <footer-bar></footer-bar>
+    <!-- end::Footer -->
+</div>

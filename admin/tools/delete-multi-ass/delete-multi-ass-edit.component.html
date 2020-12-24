@@ -1,0 +1,176 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("DeleteAssList")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <!-- Lý do -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("Reason")}}</label>
+                                <textarea class="form-control" name="reason" #reason="ngModel" type="text" [disabled]="disableInput" [(ngModel)]="inputModel.reason">
+                                </textarea>
+                            </div>
+                        </div>
+                        <!-- Người yêu cầu -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("PersonRequest")}}</label>
+                                <input class="form-control" [disabled]="disableInput" type="text" name="requesT_NAME" #requesT_NAME="ngModel" [(ngModel)]="inputModel.requesT_NAME">
+                            </div>
+                        </div>
+
+                        <!-- Ngày yêu cầu -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("DateRequest")}}</label>
+                                <date-control [disabled]="disableInput" [inpCss]="'form-control'" type="text" #requesT_DT="ngModel" name="requesT_DT" [(ngModel)]="inputModel.requesT_DT">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- <button hidden (click)="saveInput()" name="button-save"></button> -->
+                    </div>
+                </form>
+                <!-- End Form -->
+                <div class="row align-items-center">
+                    <div class="editable-title-group" style="width: 100%;">
+                        <h5 class="popup-title col-md-12">{{l("DeleteAssTable")}}</h5>
+                        <div class="action-button">
+                            <button type="button" [hidden]="disableInput" class="btn btn-primary" (click)="onAddNewDelAssDT()"><i class="pi pi-plus"></i>{{l('Add')}}</button>
+                            <button type="button" [hidden]="disableInput" class="btn btn-danger" (click)="onRemoveDelAssDT()"><i class="pi pi-times"></i>{{l("Delete")}}</button>
+                        </div>
+                    </div>
+                    <form class="w-100" #ngForm="ngForm">
+                        <div class="primeng-datatable-container {{editTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <editable-table [editTableName]="'1'" #editTable class="custom-table ui-table">
+                                <thead>
+                                    <tr>
+                                        <!-- checkbox -->
+                                        <th class="center">
+                                            <span style="width: 40px">
+                                                <checkbox-control [disabled]="disableInput"
+                                                    (onchange)="editTable.checkAll($event.target.checked)"
+                                                    [checked]="editTable.isCheckAll">
+                                                </checkbox-control>
+                                            </span>
+                                        </th>
+                                        <!-- STT -->
+                                        <th>
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <!-- Mã tài sản -->
+                                        <th class='center' style="width: 5%" sortField="asseT_CODE">
+                                            <span style="width: 100px">{{l("AssetCode")}}</span>
+                                        </th>
+                                        <!-- Tên tài sản -->
+                                        <th class='center' style="width: 20%" sortField="asseT_NAME">
+                                            <span style="width: 200px">{{l("AssetName")}}</span>
+                                        </th>
+                                        <!-- Loại tài sản -->
+                                        <th class='center' style="width: 10%" sortField="loaI_TAI_SAN">
+                                            <span style="width: 110px">{{l("TypeName")}}</span>
+                                        </th>
+                                        <!-- Nhóm tài sản -->
+                                        <th class='center' style="width: 5%" sortField="nhoM_TAI_SAN">
+                                            <span style="width: 150px">{{l("AssGroup")}}</span>
+                                        </th>
+                                        <!-- Ngày bắt đầu khấu hao -->
+                                        <th class='center' style="width: 5%" sortField="ngaybD_KHAUHAO">
+                                            <span style="width: 180px">{{l("AmortStartDate")}}</span>
+                                        </th>
+                                        <!-- Số tháng khấu hao -->
+                                        <th class='center' style="width: 10%" sortField="sothanG_KHAUHAO">
+                                            <span style="width: 150px">{{l("AmortMonth")}}</span>
+                                        </th>
+                                        <!-- Nguyên giá -->
+                                        <th class='center' style="width: 5%" sortField="nguyeN_GIA">
+                                            <span style="width: 100px">{{l("OriginalPrice")}}</span>
+                                        </th>
+                                        <!-- Giá trị khấu hao -->
+                                        <th class='center' style="width: 10%" sortField="sotieN_KHAUHAO">
+                                            <span style="width: 130px">{{l("AmortPrice")}}</span>
+                                        </th>
+                                        <!-- Ghi chú-->
+                                        <th class='center' style="width: 20%" sortField="notes">
+                                            <span style="width: 150px">{{l("Note")}}</span>
+                                        </th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of editTable.dataInPage" class="selectable">
+                                        <!-- Begin Table Value -->
+                                        <td><span class="mo-header"></span>
+                                            <checkbox-control [disabled]="disableInput" (onchange)="record.isChecked = $event.target.checked" [checked]="record['isChecked']"></checkbox-control>
+                                        </td>
+                                        <td class="center"><span class="mo-header"></span>{{record['no']}} </td>
+                                        <!-- Mã tài sản -->
+                                        <td><span class="mo-header"></span>{{record.asS_ID}}</td>
+                                        <!-- Tên tài sản -->
+                                        <td><span class="mo-header"></span>{{record.asseT_NAME}}</td>
+                                        <!-- Loại tài sản -->
+                                        <td><span class="mo-header"></span>{{record.loaI_TAI_SAN}}</td>
+                                        <!-- Nhóm tài sản -->
+                                        <td><span class="mo-header"></span>{{record.nhoM_TAI_SAN}}</td>
+                                        <!-- Ngày bắt đầu khấu hao -->
+                                        <td><span class="mo-header"></span>{{record.ngaybD_KHAUHAO | dateFormatPipe}}
+                                        </td>
+                                        <!-- Số tháng khấu hao -->
+                                        <td><span class="mo-header"></span>{{record.sothanG_KHAUHAO}}</td>
+                                        <!-- Nguyên giá -->
+                                        <td><span class="mo-header"></span>{{record.nguyeN_GIA | moneyFormatPipe}}</td>
+                                        <!-- Giá trị khấu hao -->
+                                        <td><span class="mo-header"></span>{{record.sotieN_KHAUHAO | moneyFormatPipe}}
+                                        </td>
+                                        <!-- Ghi chú-->
+                                        <td><span class="mo-header"></span>{{record.notes}}</td>
+
+
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </editable-table>
+                        </div>
+                    </form>
+                    <!-- Kết thúc bảng -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <asset-modal [hideColumns]="'ASSET_SERIAL_NO,BUY_DATE,BRANCH_CREATE_NAME,PGD,DEP_NAME'" [hideFields]="'PlanLiqFilter,PlanMonthFilter,brancH_ID'" [isGroupColMd2]="true" [isDepFieldSelect2]="true" #assetModal [multiple]="true" (onSelect)="getAssets($event)"></asset-modal>
+    <!-- <asset-modal  #assetModal [hideFields]="'PlanLiqFilter,PlanMonthFilter'" [isDepFieldSelect2]="false" (onEmitPlanMonth)="test($event)" (onSelect)="getAssets($event)"></asset-modal> -->
+</div>

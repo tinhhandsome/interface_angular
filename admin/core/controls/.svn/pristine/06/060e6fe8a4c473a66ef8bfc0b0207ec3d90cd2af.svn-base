@@ -1,0 +1,88 @@
+<popup-frame [title]="labelTitle" (onSearchEvent)="buttonSearch()" (onSelectEvent)="accept()" #popupFrame>
+    <form class="horizontal-form filter-form" autocomplete="off">
+        <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+                <!-- Begin Filter -->
+                <!-- <h5 class="popup-title col-md-12">{{l("SearchContains")}}</h5> -->
+
+                <!-- Tên địa điểm -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("DivisionName")}}</label>
+                        <input [(ngModel)]="filterInput.diV_NAME" name='diV_NAME' [ngModelOptions]="{standalone: true}" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("BranchId")}}</label>
+                        <select2-custom [ngModelOptions]="{standalone: true}" name='brancH_ID' [(ngModel)]="filterInput.brancH_ID" [(list)]="branchs" [emptyText]="l('SelectAll')" [valueMember]="'brancH_ID'" [displayMember]="'brancH_CODE|brancH_NAME'">
+                        </select2-custom>
+                    </div>
+                </div>
+                <!-- End Filter -->
+                <button hidden (click)="search()"></button>
+            </div>
+        </div>
+    </form>
+    <div class="row align-items-center">
+        <div isLoading="dataTable.isLoading" class="primeng-datatable-container">
+            <!-- <h5 class="popup-title col-md-12">{{l("DivisionList")}}</h5> -->
+
+            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                <thead>
+                    <tr>
+                        <!-- Begin Table Column -->
+                        <th class="center" *ngIf="multiple">
+                            <span style="width:40px">
+                                <checkbox-control #checkAllElement
+                                    (change)="onCheckAll(checkAllElement.inputRef.nativeElement)"
+                                    [checked]="checkAll">
+                                </checkbox-control>
+                            </span>
+                        </th>
+                        <th class="center">
+                            <span style="width: 40px">{{l("No")}}</span>
+                        </th>
+                        <!-- Mã địa điểm -->
+                        <th [hidden]="!showColDivCode" sortField="DIV_CODE">
+                            <span style="width: 250px">{{l("DivisionCode")}}</span>
+                        </th>
+                        <!-- Tên địa điểm -->
+                        <th [hidden]="!showColDivName" style="width:40%" sortField="DIV_NAME">
+                            <span style="width: 250px">{{l("DivisionName")}}</span>
+                        </th>
+                        <!-- Tên đơn vị -->
+                        <th [hidden]="!showColBranchCode" style="width:30%" sortField="BRANCH_CODE">
+                            <span style="width: 150px">{{l("BranchName")}}</span>
+                        </th>
+                        <!-- Địa chỉ -->
+                        <th [hidden]="!showColAddress" style="width:30%" sortField="ADDR">
+                            <span style="width: 350px">{{l("Address")}}</span>
+                        </th>
+                        <!-- End Table Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let record of dataTable.records" class="selectable" (click)="selectRow($event,record)" (dblclick)="onDoubleClick(record)">
+                        <!-- Begin Table Value -->
+                        <td class="center" *ngIf="multiple">
+                            <span class="mo-header"></span>
+                            <checkbox-control (onchange)="setChecked($event.target.checked, record)" [checked]="record['isChecked']"></checkbox-control>
+                        </td>
+                        <td class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                        </td>
+                        <!-- Mã địa điểm -->
+                        <td [hidden]="!showColDivCode"><span class="mo-header"></span>{{record.diV_CODE}}</td>
+                        <!-- Tên địa điểm -->
+                        <td [hidden]="!showColDivName"><span class="mo-header"></span>{{record.diV_NAME}}</td>
+                        <!-- Tên đơn vị -->
+                        <td [hidden]="!showColBranchCode"><span class="mo-header"></span>{{record.brancH_NAME}}</td>
+                        <!-- Địa chỉ -->
+                        <td [hidden]="!showColAddress"><span class="mo-header"></span>{{record.addr}}</td>
+                        <!-- End Table Value -->
+                    </tr>
+                </tbody>
+            </core-table>
+        </div>
+    </div>
+</popup-frame>

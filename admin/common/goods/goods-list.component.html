@@ -1,0 +1,144 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <!-- Begin Title -->
+                        <span>{{l("Goods")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-group dropdown mr-2">
+                        <button class=" btn btn-outline-success" (click)="exportToExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("GoodsCode")}}</label>
+                                        <input [(ngModel)]="filterInput.gD_CODE" name="gD_CODE" autoFocus class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("GoodsName")}}</label>
+                                        <input [(ngModel)]="filterInput.gD_NAME" name="gD_NAME" class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("AuthStatus")}}</label>
+                                        <all-code-select name="autH_STATUS" [(ngModel)]="filterInput.autH_STATUS" [emptyText]="l('SelectAll')" [cdName]="'AUTH_STATUS'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+                                <!-- End Filter -->
+                                <div style="display:none;" class="col-md-12">
+                                    <div class="form-group">
+                                        <button class="btn btn-primary btn-search" (click)="onSearch()">{{l('Search')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="getGoodss()">
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th>
+                                            <span style="width: 60px">{{l("No")}}</span>
+                                        </th>
+                                        <th sortField="GOODS.gD_CODE">
+                                            <span style="width: 150px">{{l("GoodsCode")}}</span>
+                                        </th>
+                                        <th sortField="GOODS.gD_NAME">
+                                            <span style="width: 350px">{{l("GoodsName")}}</span>
+                                        </th>
+                                        <th sortField="gD_TYPE_CODE">
+                                            <span style="width: 200px">{{l("GoodsTypeCode")}}</span>
+                                        </th>
+                                        <th sortField="GOODS.description">
+                                            <span style="width: 200px">{{l("Description")}}</span>
+                                        </th>
+                                        <th sortField="suP_CODE">
+                                            <span style="width: 250px">{{l("SupplierCode")}}</span>
+                                        </th>
+                                        <th sortField="GOODS.price">
+                                            <span style="width: 250px">{{l("AssetPrice")}}</span>
+                                        </th>
+                                        <th sortField="uniT_CODE">
+                                            <span style="width: 150px">{{l("UnitCode")}}</span>
+                                        </th>
+                                        <th sortField="uniT_NAME">
+                                            <span style="width: 150px">{{l("UnitName")}}</span>
+                                        </th>
+                                        <th sortField="GOODS.notes">
+                                            <span style="width: 150px">{{l("Notes")}}</span>
+                                        </th>
+                                        <th sortField="GOODS.recorD_STATUS">
+                                            <span style="width: 150px">{{l("IsActive")}}</span>
+                                        </th>
+                                        <th sortField="GOODS.autH_STATUS">
+                                            <span style="width: 150px">{{l("AuthStatus")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onUpdate(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <td><span class="mo-header"></span>{{(filterInput.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <td><span class="mo-header"></span>{{record.gD_CODE}}</td>
+                                        <td><span class="mo-header"></span>{{record.gD_NAME}}</td>
+                                        <td><span class="mo-header"></span>{{record.gD_TYPE_CODE}}</td>
+                                        <td><span class="mo-header"></span>{{record.description}}</td>
+                                        <td><span class="mo-header"></span>{{record.suP_CODE}}</td>
+                                        <td><span class="mo-header"></span>{{formatMoney(record.price)}}</td>
+                                        <td><span class="mo-header"></span>{{record.uniT_CODE}}</td>
+                                        <td><span class="mo-header"></span>{{record.uniT_NAME}}</td>
+                                        <td><span class="mo-header"></span>{{record.notes}}</td>
+                                        <td><span class="mo-header"></span>{{record.recorD_STATUS_NAME}}</td>
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+
+                            <div class="primeng-no-data" *ngIf="dataTable.records.length == 0">
+                                {{l('NoData')}}
+                            </div>
+                            <div class="primeng-paging-container">
+                                <p-paginator [rows]="filterInput.maxResultCount || dataTable.defaultRecordsCountPerPage" #paginator (onPageChange)="getGoodss($event)" [totalRecords]="dataTable.totalRecordsCount" [rowsPerPageOptions]="dataTable.predefinedRecordsCountPerPage">
+                                </p-paginator>
+
+                                <span class="total-records-count">
+                                    {{l('TotalRecordsCount')}} {{dataTable.totalRecordsCount}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

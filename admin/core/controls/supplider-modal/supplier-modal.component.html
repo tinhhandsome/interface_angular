@@ -1,0 +1,83 @@
+<popup-frame [title]="labelTitle" (onSearchEvent)="buttonSearch()" (onSelectEvent)="accept()" (onCancelEvent)="close()" #popupFrame>
+    <form class="horizontal-form filter-form" autocomplete="off">
+        <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+                <!-- Begin Filter -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("SupplierCode")}}</label>
+                        <input name="suP_CODE" [(ngModel)]="filterInput.suP_CODE" [ngModelOptions]="{standalone: true}" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("SupplierName")}}</label>
+                        <input name="suP_NAME" [(ngModel)]="filterInput.suP_NAME" [ngModelOptions]="{standalone: true}" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <!-- End Filter -->
+            </div>
+        </div>
+    </form>
+    <div class="row align-items-center">
+        <div isLoading="dataTable.isLoading" class="primeng-datatable-container">
+            <h5 class="popup-title col-md-12">{{l("SupplierList")}}</h5>
+
+            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                <thead>
+                    <tr>
+                        <!-- Begin Table Column -->
+                        <!-- multiple -->
+                        <th class="center" *ngIf="multiple">
+                            <span style="width: 40px">
+                                <checkbox-control #checkAllElement
+                                    (change)="onCheckAll(checkAllElement.inputRef.nativeElement)"
+                                    [checked]="checkAll"></checkbox-control>
+                            </span>
+                        </th>
+                        <th class="center">
+                            <span style="width: 40px">{{l("No")}}</span>
+                        </th>
+                        <th class="center" style="width:20%" sortField="SUP_CODE">
+                            <span style="width: 180px">{{l("SupplierCode")}}</span>
+                        </th>
+                        <th class="center" style="width:20%" sortField="SUP_NAME">
+                            <span style="width: 180px">{{l("SupplierName")}}</span>
+                        </th>
+                        <th class="center" style="width:20%" sortField="ADDR">
+                            <span style="width: 150px">{{l("Address")}}</span>
+                        </th>
+                        <th class="center" style="width:20%" sortField="TEL">
+                            <span style="width: 150px">{{l("Tel")}}</span>
+                        </th>
+                        <th class="center" style="width:20%" sortField="EMAIL">
+                            <span style="width: 250px">{{l("Email")}}</span>
+                        </th>
+                        <!-- End Table Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- multiple dblclick -->
+                    <tr *ngFor="let record of dataTable.records" class="selectable" (click)="selectRow($event,record)" (dblclick)="onDoubleClick(record)">
+                        <!-- Begin Table Value -->
+                        <!-- multiple -->
+                        <td class="center" *ngIf="multiple">
+                            <span class="mo-header"></span>
+                            <checkbox-control (onchange)="setChecked($event.target.checked, record)" [checked]="record['isChecked']"></checkbox-control>
+                        </td>
+                        <td class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                        </td>
+                        <td style="width:20%"><span class="mo-header"></span>{{record.suP_CODE}}</td>
+                        <td style="width:20%"><span class="mo-header"></span>{{record.suP_NAME}}</td>
+                        <td style="width:20%"><span class="mo-header"></span>{{record.addr}}</td>
+                        <td style="width:20%"><span class="mo-header"></span>{{record.tel}}</td>
+                        <td style="width:20%"><span class="mo-header"></span>{{record.email}}</td>
+                        <!-- End Table Value -->
+                    </tr>
+                </tbody>
+            </core-table>
+
+
+        </div>
+    </div>
+</popup-frame>

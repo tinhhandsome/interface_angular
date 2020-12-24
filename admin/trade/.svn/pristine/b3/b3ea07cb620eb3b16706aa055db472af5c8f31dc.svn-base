@@ -1,0 +1,111 @@
+<div [@routerTransition]>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 class="m-subheader__title m-subheader__title--separator">
+                    <!-- Begin Title -->
+                    <span>{{l("RateSupplierEdit")}}</span>
+                    <!-- End Title -->
+                </h3>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <form #reportForm="ngForm" id="reportForm" class="horizontal-form filter-form" autocomplete="off">
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-30">
+                            <div class="col-md-8 row">
+                                <!-- Begin Filter -->
+                                <!-- Đợt đánh giá -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("RateNo")}}</label>
+                                        <select2-custom required (onChangeSelect2)="onChangeSelect($event)"
+                                            name="raT_ID" #raT_ID="ngModel" [(ngModel)]="inputModel.raT_ID"
+                                            [(list)]="ratTermMaster" [emptyText]="l('SelectAll')"
+                                            [valueMember]="'raT_ID'" [displayMember]="'ratE_TERM'">
+                                        </select2-custom>
+                                        <div class="error-message" *ngIf="isShowError">
+                                            <span *ngIf="isNull(inputModel.raT_ID)">{{l('RateNo')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Ngày tạo -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("CreateDate")}}</label>
+                                        <date-control disabled="true" #creatE_DT="ngModel" name="creatE_DT"
+                                            [(ngModel)]="inputModel.creatE_DT" autoFocus>
+                                        </date-control>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-md-4"></div> -->
+
+                                <div class="w-100"></div>
+                                <div class="col-md-12">
+                                    <fieldset class="ng-tns-c25-14">
+                                        <legend class="ng-tns-c25-14">{{l("Phase")}}</legend>
+                                        <div class="row">
+                                            <div class="col-md-6"><label class="ng-tns-c25-14">{{l("FromDate")}}</label>
+                                                <date-control disabled="true" #froM_DATE="ngModel" name="froM_DATE"
+                                                    [(ngModel)]="inputModel.froM_DT" autoFocus>
+                                                </date-control>
+                                            </div>
+                                            <div class="col-md-6"><label class="ng-tns-c25-14">{{l("ToDate")}}</label>
+                                                <date-control disabled="true" #tO_DATE="ngModel" name="tO_DATE"
+                                                    [(ngModel)]="inputModel.tO_DT" autoFocus>
+                                                </date-control>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("Criteria")}}</label>
+
+                                        <all-code-select [emptyText]="l('SelectAll')" name="CRITERIA"
+                                            [(ngModel)]="inputModel['CRITERIA']" [cdName]="'RAT_SUP'"
+                                            [cdType]="'CRITERIA'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("Notes")}}</label>
+                                        <textarea [(ngModel)]="inputModel.notes" name="notes" autoFocus
+                                            class="form-control m-input" type="text" disabled></textarea>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <button class=" btn btn-primary" (click)="exportToExcel()">
+                                            <!-- <i class="far fa-file-excel"></i> -->
+                                            {{l("ExcelOperations")}}
+                                        </button>
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

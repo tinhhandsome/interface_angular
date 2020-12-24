@@ -1,0 +1,100 @@
+<popup-frame [title]="l('DepartmentModalTitle')" (onSearchEvent)="buttonSearch()" (onSelectEvent)="accept()" #popupFrame>
+    <div class="horizontal-form filter-form" autocomplete="off">
+        <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+                <!-- Begin Filter -->
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label>{{l("DepartmentCode")}}</label>
+                        <input [(ngModel)]="filterInput.deP_CODE" [ngModelOptions]="{standalone: true}" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label>{{l("DepartmentName")}}</label>
+                        <input [(ngModel)]="filterInput.deP_NAME" [ngModelOptions]="{standalone: true}" class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label>{{l("DepartmentGroup")}}</label>
+                        <select2-custom [ngModelOptions]="{standalone: true}" [(ngModel)]="filterInput.grouP_ID" [(list)]="deptGroups" [emptyText]="l('SelectAll')" [valueMember]="'grouP_ID'" [displayMember]="'grouP_NAME'">
+                        </select2-custom>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label>{{l("ApproveStatus")}}</label>
+                        <all-code-select [ngModelOptions]="{standalone: true}" [(ngModel)]="filterInput.autH_STATUS" [emptyText]="l('SelectAll')" [cdName]="'AUTH_STATUS'">
+                        </all-code-select>
+                    </div>
+                </div>
+                <!-- End Filter -->
+                <button hidden type="button"></button>
+            </div>
+        </div>
+    </div>
+    <div class="row align-items-center">
+        <div isLoading="dataTable.isLoading" class="primeng-datatable-container">
+            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                <thead>
+                    <tr>
+                        <!-- Begin Table Column -->
+                        <th class="center" *ngIf="multiple">
+                            <checkbox-control #checkAllElement (change)="onCheckAll(checkAllElement.inputRef.nativeElement)" [checked]="checkAll">
+                            </checkbox-control>
+                        </th>
+                        <th>
+                            <span style="width: 40px">{{l("No")}}</span>
+                        </th>
+                        <!-- Mã phòng -->
+                        <th class="center" style="width: 10%" sortField="deP_CODE">
+                            <span style="width: 100px">{{l("DepartmentCode")}}</span>
+                        </th>
+                        <!-- Tên phòng ban -->
+                        <th class="center" style="width: 30%" sortField="deP_NAME">
+                            <span style="width: 200px">{{l("DepartmentName")}}</span>
+                        </th>
+                        <!-- Số điện thoại -->
+                        <th class="center" style="width: 10%" sortField="tel">
+                            <span style="width: 120px">{{l("PhoneNumber")}}</span>
+                        </th>
+                        <!-- Ghi chú -->
+                        <th class="center" style="width: 30%" sortField="notes">
+                            <span style="width: 200px">{{l("Note")}}</span>
+                        </th>
+                        <!-- Trạng thái duyệt -->
+                        <th class="center" style="width: 15%" sortField="autH_STATUS">
+                            <span style="width: 140px">{{l("ApproveStatus")}}</span>
+                        </th>
+                        <!-- End Table Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let record of dataTable.records" class="selectable" (click)="selectRow($event,record)" (dblclick)="onDoubleClick(record)">
+                        <!-- Begin Table Value -->
+                        <td class="center" *ngIf="multiple">
+                            <span class="mo-header"></span>
+                            <checkbox-control (onchange)="setChecked($event.target.checked, record)" [checked]="record['isChecked']"></checkbox-control>
+                        </td>
+                        <td class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                        </td>
+                        <!-- Mã phòng -->
+                        <td><span class="mo-header"></span>{{record.deP_CODE}}</td>
+                        <!-- Tên phòng ban -->
+                        <td><span class="mo-header"></span>{{record.deP_NAME}}</td>
+                        <!-- Số điện thoại -->
+                        <td><span class="mo-header"></span>{{record.tel}}</td>
+                        <!-- Ghi chú -->
+                        <td><span class="mo-header"></span>{{record.notes}}</td>
+                        <!-- Trạng thái duyệt -->
+                        <td class="center">
+                            <span class="mo-header"></span>{{record.autH_STATUS_NAME}}
+                        </td>
+                        <!-- End Table Value -->
+                    </tr>
+                </tbody>
+            </core-table>
+        </div>
+    </div>
+</popup-frame>

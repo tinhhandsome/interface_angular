@@ -1,0 +1,18 @@
+<table class="table-scanner-state">
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>Property</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>{{ stateToEmoji(hasDevices) }}</code></td>
+            <td>Devices</td>
+        </tr>
+        <tr>
+            <td><code>{{ stateToEmoji(hasPermission) }}</code></td>
+            <td>Permissions</td>
+        </tr>
+    </tbody>
+</table>

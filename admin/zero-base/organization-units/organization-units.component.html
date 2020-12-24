@@ -1,0 +1,45 @@
+<div [@routerTransition]>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <h3 class="m-subheader__title m-subheader__title--separator">
+                    <span>{{"OrganizationUnits" | localize}}</span>
+                </h3>
+                <span class="m-section__sub">
+                    {{"OrganizationUnitsHeaderInfo" | localize}}
+                </span>
+            </div>
+
+        </div>
+    </div>
+    <div id="content" class="m-content">
+        <div class="row">
+            <div class="col-lg-6">
+                <organization-tree #ouTree (ouSelected)="ouSelected($event)"></organization-tree>
+            </div>
+            <div class="col-lg-6">
+                <div class="m-portlet m-portlet--mobile">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    <span *ngIf="organizationUnit">{{organizationUnit.displayName}}</span>
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <tabset class="tab-container">
+                            <tab heading="{{'Members' | localize}}" [active]="true" customClass="m-tabs__item">
+                                <organization-unit-members #ouMembers (membersAdded)="ouTree.membersAdded($event)" (memberRemoved)="ouTree.memberRemoved($event)"></organization-unit-members>
+                            </tab>
+                            <tab heading="{{'Roles' | localize}}" customClass="m-tabs__item">
+                                <organization-unit-roles #ouRoles (rolesAdded)="ouTree.rolesAdded($event)" (roleRemoved)="ouTree.roleRemoved($event)"></organization-unit-roles>
+                            </tab>
+                        </tabset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

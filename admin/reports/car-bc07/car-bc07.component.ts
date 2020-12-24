@@ -1,0 +1,143 @@
+import { Injector, Component, OnInit, ViewEncapsulation, AfterViewInit, ViewChild } from "@angular/core";
+import { ReportInfo, AsposeServiceProxy, CM_BRANCH_ENTITY, CAR_MASTER_ENTITY } from "@shared/service-proxies/service-proxies";
+import { appModuleAnimation } from "@shared/animations/routerTransition";
+import { FileDownloadService } from "@shared/utils/file-download.service";
+import { ReportTypeConsts } from "@app/admin/core/ultils/consts/ReportTypeConsts";
+import { DefaultComponentBase } from "@app/ultilities/default-component-base";
+import { PreviewTemplateService } from "@app/admin/common/preview-template/preview-template.service";
+import * as moment from 'moment';
+import { BranchModalComponent } from "@app/admin/core/controls/branch-modal/branch-modal.component";
+import { CarMasterModalComponent } from "@app/admin/core/controls/car-modal/car-master-modal.component";
+import { AuthStatusConsts } from "@app/admin/core/ultils/consts/AuthStatusConsts";
+import { DateFormatPipe } from "@app/admin/core/pipes/date-format.pipe";
+import { Select2CustomComponent } from "@app/admin/core/controls/custom-select2/select2-custom.component";
+import { ReportTemplateModalComponent } from "@app/admin/core/controls/report-template-modal/report-template-modal.component";
+
+@Component({
+    templateUrl: './car-bc07.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+
+export class CarBc07Component extends DefaultComponentBase implements OnInit, AfterViewInit {
+    @ViewChild('branchModal') branchModal: BranchModalComponent;
+    @ViewChild('carModal') carModal: CarMasterModalComponent;
+    @ViewChild('carSelect') carSelect: Select2CustomComponent;
+    @ViewChild('reportTemplate') reportTemplate: ReportTemplateModalComponent;
+
+    hidden: boolean = false;
+
+    filterInput: any = {};
+
+    levels: any[];
+    years: any[];
+    ngAfterViewInit(): void {
+        this.updateView();
+    }
+
+    constructor(injector: Injector,
+        private fileDownloadService: FileDownloadService,
+        private asposeService: AsposeServiceProxy,
+        private previewTemplateService: PreviewTemplateService) {
+        super(injector);
+        // COMMENT: this.stopAutoUpdateView();
+    }
+
+
+    ngOnInit(): void {
+        this.initCombobox();
+        this.initModal();
+        this.initFilter();
+    }
+    initCombobox() {
+        this.levels = this.getLevelsCombobox();
+        this.years = this.getYearsCombobox();
+    }
+    initFilter() {
+        this.filterInput.brancH_ID = this.appSession.user.subbrId;
+        this.filterInput.brancH_NAME = this.appSession.user.branchName;
+        this.filterInput.level = 'ALL';
+        this.filterInput.fromYear = moment().year();
+        this.filterInput.toYear = moment().year() + 1;
+    }
+    initModal() {
+        this.initBranchModal();
+        this.initCarModal();
+    }
+    initBranchModal() {
+        this.branchModal.filterInput.brancH_LOGIN = this.appSession.user.subbrId;
+    }
+    initCarModal() {
+        this.carModal.filterInput.brancH_ID = this.appSession.user.subbrId;
+        this.carModal.filterInput.autH_STATUS = AuthStatusConsts.Approve;
+        this.carModal.filterInput.level = 'UNIT';
+    }
+
+    exportToExcel() {
+        if (Number(this.filterInput.fromYear) > Number(this.filterInput.toYear)) {
+            this.showErrorMessage(this.l('FromYearMustSmallerThanToYear'));
+            return;
+        }
+        let reportInfo = new ReportInfo();
+        reportInfo.typeExport = ReportTypeConsts.Excel;
+        reportInfo.parameters = this.GetParamsFromFilter({
+            CAR_ID: this.filterInput.caR_ID,
+            BRANCH_LOGIN: this.appSession.user.subbrId,
+            Branch_ID : this.filterInput.brancH_ID,
+            LEVEL: this.filterInput.level,
+            FROM_YEAR: this.filterInput.fromYear,
+            TO_YEAR: this.filterInput.toYear
+        });
+        reportInfo.values = this.GetParamsFromFilter({
+            fullName: this.appSession.user.userName,
+            datePrint: (new DateFormatPipe()).transform(moment()),
+            A4: (this.l('Branch').toUpperCase() + ': ' + this.appSession.user.branchCode + ' ' + this.appSession.user.branchName),
+            A5: (this.l('FromYear') + " " + this.filterInput.fromYear + " " + this.l('ToYear') + " " + this.filterInput.toYear)
+        });
+
+        reportInfo.pathName = "/REPORT/XE_BC07.xlsx";
+        reportInfo.storeName = "rpt_XE_BC07_Excel";
+
+        this.asposeService.getReport(reportInfo).subscribe(x => {
+            this.fileDownloadService.downloadTempFile(x);
+            this.showSuccessMessage(this.l('ExportFileSuccess'));
+        });
+    }
+
+    onSelectBranch(branch: CM_BRANCH_ENTITY) {
+        if (!branch) return;
+        this.filterInput.brancH_ID = branch.brancH_ID;
+        this.filterInput.brancH_NAME = branch.brancH_NAME;
+        this.updateView();
+    }
+
+    showReportTemplate() {
+        if (Number(this.filterInput.fromYear) > Number(this.filterInput.toYear)) {
+            this.showErrorMessage(this.l('FromYearMustSmallerThanToYear'));
+            return;
+        }
+        let parameters = this.GetParamsFromFilter({
+            CAR_ID: this.filterInput.caR_ID,
+            BRANCH_LOGIN: this.appSession.user.subbrId,
+            Branch_ID : this.filterInput.brancH_ID,
+            LEVEL: this.filterInput.level,
+            FROM_YEAR: this.filterInput.fromYear,
+            TO_YEAR: this.filterInput.toYear
+        });
+
+        let values = this.GetParamsFromFilter({
+            branchCode: this.appSession.user.branchCode,
+            branchName: this.appSession.user.branchName,
+            fromYear: this.filterInput.fromYear,
+            toYear: this.filterInput.toYear,
+            datePrint: (new DateFormatPipe()).transform(moment()),
+            level: this.filterInput.LEVEL == 'ALL' ? this.l('AllGoods') : this.l('Branch'),
+            fullName: this.appSession.user.name
+        });
+        this.reportTemplate.show('CarBc07_report', parameters, values);
+        // this.previewTemplateService.printReportTemplate('CarBc07_report', parameters, values);
+        this.showSuccessMessage(this.l('ExportFileSuccess'));
+
+    }
+
+}

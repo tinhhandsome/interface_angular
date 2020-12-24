@@ -1,0 +1,160 @@
+<div bsModal #mySettingsModal="bs-modal" (onShown)="onShown()" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" [config]="{backdrop: 'static'}">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form *ngIf="active" #mySettingsModalForm="ngForm" (ngSubmit)="save()">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <span>{{"MySettings" | localize}}</span>
+                    </h5>
+                    <button type="button" class="close" [attr.aria-label]="l('Close')" (click)="close()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" *ngIf="user">
+                    <tabset class="tab-container tabbable-line">
+                        <tab heading="{{'Profile' | localize}}" customClass="m-tabs__item">
+
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group required">
+                                        <label for="UserName">{{"UserName" | localize}}</label>
+                                        <div *ngIf="isNormalLoginMethod">
+                                            <input id="UserName" maxlength="15" #userNameInputModal="ngModel" type="text" [disabled]="true" name="UserName" class="form-control" [(ngModel)]="user.userName" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>{{l("Roles")}} </label>
+                                        <input type="text" class="form-control" disabled value="{{roles}}">
+                                    </div>
+
+                                    <div class="form-group required">
+                                        <label for="Name">{{"Name" | localize}}</label>
+                                        <input id="nameInput" #nameInputModal="ngModel" type="text" name="nameInput" class="form-control" [(ngModel)]="user.name" required maxlength="256" />
+                                        <div class="error-message" *ngIf="(isLdapLoginMethod || isAdfsLoginMethod) && nameInputModal && nameInputModal.invalid && isShowError">
+                                            <span class="help-block" *ngIf="!canChangeUserName">{{"CanNotChangeAdminUserName" | localize}}</span>
+                                            <span *ngIf="userNameInputModal?.errors.required">{{l('UserName')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group required">
+                                <label for="EmailAddress">{{"EmailAddress" | localize}}</label>
+                                <input id="EmailAddress" #emailAddressInputModal="ngModel" type="email" name="EmailAddress" class="form-control" [(ngModel)]="user.emailAddress" required maxlength="256" email />
+                                <div class="error-message" *ngIf="emailAddressInputModal && emailAddressInputModal.invalid && isShowError">
+                                    <span *ngIf="emailAddressInputModal?.errors.required">{{l('EmailAddress')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="!emailAddressInputModal?.errors.required">{{l('EmailAddress')}}
+                                        {{l("InvalidEmailAddress")}}</span>
+                                </div>
+                            </div>
+
+                            <!-- change -->
+                            <div class="form-group required">
+                                <label for="SubbrId">{{l("SubbrId")}}</label>
+                                <select2-custom name="subbrId" required [(ngModel)]="user.subbrId" #subbrId="ngModel" [(list)]="branchs" [emptyText]="l('NullSelect')" [valueMember]="'brancH_ID'" [displayMember]="'brancH_CODE|brancH_NAME'">
+                                </select2-custom>
+                                <div class="error-message" *ngIf="subbrId && subbrId.invalid && isShowError">
+                                    <span *ngIf="subbrId?.errors.required">{{l('SubbrId')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="DepId">{{l("DepId")}} </label>
+                                <select2-custom name="deP_ID" #depId="ngModel" [(ngModel)]="user.deP_ID" [list]="departments" [emptyText]="l('NullSelect')" [valueMember]="'deP_ID'" [displayMember]="'deP_CODE|deP_NAME'">
+                                </select2-custom>
+                            </div>
+
+                            <div *ngIf="smsEnabled && !isPhoneNumberEmpty">
+                                <div class="form-group">
+                                    <label>{{"PhoneNumber" | localize}}</label>
+                                    <div class="input-group">
+                                        <input type="text" #phoneNumberModal="ngModel" [pattern]="s('gAMSProCore.PhoneNumberRegexValidation')" name="PhoneNumber" class="form-control" [(ngModel)]="user.phoneNumber" maxlength="24">
+
+                                        <span *ngIf="!isPhoneNumberConfirmed" id="SpanSmsVerificationUnverified" class="input-group-btn">
+                                            <button id="btnSmsVerification" (click)="smsVerify()"
+                                                class="btn btn-primary" type="button"><i
+                                                    class="fa fa-exclamation-triangle"></i>{{'Verify' | localize}}</button>
+                                        </span>
+
+                                        <div *ngIf="!isPhoneNumberConfirmed" class="input-group-append" id="SpanSmsVerificationVerified" style="display: none;">
+                                            <span class="input-group-text">
+                                                <i class="la la-check m--font-success"
+                                                    [attr.aria-label]="l('Verified')"></i>
+                                            </span>
+                                        </div>
+
+                                        <div *ngIf="isPhoneNumberConfirmed" class="input-group-append">
+                                            <span class="input-group-text">
+                                                <i class="la la-check m--font-success"
+                                                    [attr.aria-label]="l('Verified')"></i>
+                                            </span>
+                                        </div>
+                                        <div class="error-message" *ngIf="phoneNumberModal && phoneNumberModal.invalid && isShowError">
+                                            <span *ngIf="phoneNumberModal?.errors.pattern">
+                                                {{l("PhoneNumberInvalid")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div *ngIf="!smsEnabled || isPhoneNumberEmpty">
+                                <div class="form-group">
+                                    <label for="PhoneNumber">{{"PhoneNumber" | localize}}</label>
+                                    <input id="PhoneNumber" #phoneNumberModal="ngModel" [pattern]="s('gAMSProCore.PhoneNumberRegexValidation')" type="text" name="PhoneNumber" class="form-control" [(ngModel)]="user.phoneNumber" maxlength="24">
+                                    <div class="error-message" *ngIf="phoneNumberModal && phoneNumberModal.invalid && isShowError">
+                                        <span *ngIf="phoneNumberModal?.errors.pattern">
+                                            {{l("PhoneNumberInvalid")}}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <label *ngIf="isTwofactorLoginEnable" for="MySetting_IsTwoFactorEnabled" class="m-checkbox">
+                                <input id="MySetting_IsTwoFactorEnabled" type="checkbox" name="IsTwoFactorEnabled"
+                                    [(ngModel)]="user.isTwoFactorEnabled">
+                                {{"IsTwoFactorEnabled" | localize}}
+                                <span></span>
+                            </label>
+
+
+                        </tab>
+                        <tab *ngIf="user.isTwoFactorEnabled && isTwofactorLoginEnable" heading="{{'TwoFactorLogin' | localize}}" customClass="m-tabs__item">
+                            <div>
+                                <h4>
+                                    Google Authenticator
+                                </h4>
+
+                                <div [hidden]="!isGoogleAuthenticatorEnabled">
+                                    <div>
+                                        {{"ScanQrCodeWithYourMobileApp" | localize}}
+                                    </div>
+                                    <div class="text-center">
+                                        <img [src]="user.qrCodeSetupImageUrl" />
+                                    </div>
+                                    <small>
+                                        {{"GoogleAuthenticatorReferrerLink" | localize}}: <a
+                                            href="https://support.google.com/accounts/answer/1066447" target="_blank"
+                                            rel="noopener noreferrer">Google Authenticator</a>
+                                    </small>
+                                </div>
+
+                                <div [hidden]="isGoogleAuthenticatorEnabled">
+                                    <button type="button" class="btn blue" (click)="updateQrCodeSetupImageUrl()">{{"Enable" | localize}}</button>
+                                </div>
+
+                            </div>
+                        </tab>
+                    </tabset>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="close()" [disabled]="saving"><i class="fa fa-ban"></i>{{"Cancel" | localize}}</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i>
+                        <span>{{"Save" | localize}}</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<smsVerificationModal #smsVerificationModal (modalSave)="changePhoneNumberToVerified()"></smsVerificationModal>

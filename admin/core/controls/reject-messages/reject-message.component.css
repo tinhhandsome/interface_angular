@@ -1,0 +1,76 @@
+reject-message .notes-message {
+    border: solid 1px #e7e7e7;
+    margin-top: 10px;
+    overflow: hidden;
+    padding: 0px 10px;
+}
+
+reject-message .btn-danger {
+    margin-left: 10px;
+    padding: 5px;
+}
+
+reject-message .btn-danger:after {
+    content: "\e924";
+    font-family: 'primeicons';
+}
+
+reject-message .notes-message>p {
+    margin-top: 10px!important;
+    margin-bottom: 10px!important;
+    margin-left: 10px;
+}
+
+reject-message .notes-message>li>p {
+    margin-bottom: 0px;
+}
+
+reject-message .notes-message>li>p>span {
+    font-weight: bold;
+    display: block;
+}
+
+reject-message .notes-message>li {
+    background: #ebe9e957;
+    /* color: white; */
+    padding: 10px;
+    margin-top: 10px;
+    position: relative;
+}
+
+reject-message .notes-message>li>span.branch {
+    font-weight: bold;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    padding: 5px;
+    background: #e7e7e7;
+    border-radius: 1px;
+}
+
+reject-message .notes-message>li:first-child {
+    margin-top: 10px;
+}
+
+reject-message .notes-message>li:last-child {
+    margin-bottom: 10px;
+}
+
+reject-message>div>div>span {
+    font-weight: bold;
+    color: #f4516c;
+}
+
+reject-message>div {
+    margin-bottom: 18px;
+}
+
+reject-message>div>div {
+    position: absolute;
+    top: 10px;
+    right: 30px;
+}
+
+reject-message {
+    width: 100%;
+}

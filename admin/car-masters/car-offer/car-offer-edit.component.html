@@ -1,0 +1,412 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("CarOffer")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                        <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel?.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <input hidden class="form-control" type="text" #caR_OFF_ID="ngModel" name="caR_OFF_ID" [(ngModel)]="inputModel.caR_OFF_ID">
+
+                        <!-- Thông tin xe -->
+                        <div class="col-md-12">
+                            <h5 class="popup-title col-md-12">{{l("CarInfo")}}</h5>
+                        </div>
+
+                        <!-- Số xe -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("N_Plate")}}</label>
+                                <div class="input-group">
+                                    <input class="form-control" maxlength="20" type="text" required #n_PLATE="ngModel" [disabled]="disableInput || !isAddPage()" name="n_PLATE" (change)='getCarOfferByN_Plate()' [(ngModel)]="inputModel.n_PLATE">
+                                    <span class="input-group-btn">
+                                        <button [disabled]="disableInput || !isAddPage()" type="button"
+                                            class="btn btn-primary" (click)="inputModelModal?.show()">...</button>
+                                    </span>
+
+                                </div>
+                                <div class="error-message" *ngIf="n_PLATE?.invalid && isShowError">
+                                    <span *ngIf="n_PLATE?.errors.required">{{l('N_Plate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="n_PLATE?.errors.pattern">{{l('N_Plate')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Tên loại xe -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("CarTypeName")}}</label>
+                                <input class="form-control" name="caR_TYPE_NAME" disabled [ngModel]="inputModel.caR_TYPE_NAME">
+                            </div>
+                        </div>
+
+                        <!-- Màu xe -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("CarColor")}}</label>
+                                <input class="form-control" name="caR_COLOR" disabled [ngModel]="inputModel.caR_COLOR">
+                            </div>
+                        </div>
+
+                        <!-- Số máy -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("MachinesId")}}</label>
+                                <input [ngModel]="inputModel?.machineS_ID" name="machineS_ID" disabled class="form-control m-input" type="text">
+                            </div>
+                        </div>
+
+                        <!-- Số sườn -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("SlopesId")}}</label>
+                                <input [ngModel]="inputModel?.slopeS_ID" name="slopeS_ID" disabled class="form-control m-input" type="text">
+                            </div>
+                        </div>
+
+                        <!-- Nội dung sửa chữa gần nhất -->
+                        <div class="col-md-12">
+                            <h5 class="popup-title col-md-12">{{l("LastRepairContent")}}</h5>
+                        </div>
+
+                        <!-- Ngày sửa chữa gần nhất -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("LastRepairDate")}}</label>
+                                <date-control [disabled]='true' [inpCss]="'form-control'" type="text" name="last_repaiR_DT" [ngModel]="lr_inputModel.repaiR_DT">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Đơn vị sửa chữa -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("RepairDivision")}}</label>
+                                <input class="form-control" name="last_repaiR_DIVISION" [disabled]='true' [ngModel]="lr_inputModel.repaiR_DIVISION">
+                            </div>
+                        </div>
+
+                        <!-- Chi phí sửa chữa -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("RepairAMT")}}</label>
+                                <money-input name="last_repaiR_AMT" [disabled]='true' [ngModel]="lr_inputModel.repaiR_AMT">
+                                </money-input>
+                            </div>
+                        </div>
+
+                        <!-- Nội dung đề xuất -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("OfferContent")}}</label>
+                                <input class="form-control" name="last_offeR_CONTENT" [disabled]='true' [ngModel]="lr_inputModel.offeR_CONTENT">
+                            </div>
+                        </div>
+
+                        <!-- Ghi chú -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("RepairNote")}}</label>
+                                <input class="form-control" name="last_repaiR_NOTE" [disabled]='true' [ngModel]="lr_inputModel.repaiR_NOTE">
+                            </div>
+                        </div>
+
+                        <!-- Lý do sửa chữa -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("OfferReason")}}</label>
+                                <input class="form-control" name="last_offeR_REASON" [disabled]='true' [ngModel]="lr_inputModel.offeR_REASON">
+                            </div>
+                        </div>
+
+                        <!-- Nội dung sửa chữa thực tế -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("RepairContent")}}</label>
+                                <input class="form-control" name="last_repaiR_CONTENT" [disabled]='true' [ngModel]="lr_inputModel.repaiR_CONTENT">
+                            </div>
+                        </div>
+
+                        <!-- Đề xuất sửa chữa | chỉ add mới enable input -->
+                        <div class="col-md-12">
+                            <h5 class="popup-title col-md-12">{{l("RepairOffer")}}</h5>
+                        </div>
+
+                        <!-- Ngày đề xuất -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("OfferDate")}}</label>
+                                <date-control [disabled]="disableInput || !isAddPage()" required [inpCss]="'form-control'" type="text" #RO_offeR_DT="ngModel" name="RO_offeR_DT" [(ngModel)]="inputModel.offeR_DT">
+                                </date-control>
+                                <div class="error-message" *ngIf="RO_offeR_DT.invalid && isShowError">
+                                    <span *ngIf="RO_offeR_DT?.errors.required">{{l('OfferDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="RO_offeR_DT?.errors.pattern">{{l('OfferDate')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ngày dự kiến sửa xong -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("FinishDate")}}</label>
+                                <date-control [disabled]="disableInput || !isAddPage()" required [inpCss]="'form-control'" type="text" #RO_finisH_DT="ngModel" name="RO_finisH_DT" [(ngModel)]="inputModel.finisH_DT">
+                                </date-control>
+                                <div class="error-message" *ngIf="RO_finisH_DT.invalid && isShowError">
+                                    <span *ngIf="RO_finisH_DT?.errors.required">{{l('FinishDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="RO_finisH_DT?.errors.pattern">{{l('FinishDate')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Đơn vị sửa chữa đề xuất -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("OfferRepDivision")}}</label>
+                                <input class="form-control" name="RO_offeR_REP_DIVISION" [disabled]='disableInput || !isAddPage()' required #RO_offeR_REP_DIVISION='ngModel' [(ngModel)]="inputModel.offeR_REP_DIVISION">
+                                <div class="error-message" *ngIf="RO_offeR_REP_DIVISION?.invalid && isShowError">
+                                    <span *ngIf="RO_offeR_REP_DIVISION?.errors.required">{{l('OfferRepDivision')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Đơn vị đề xuất -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("OfferBranch")}}</label>
+                                <input class="form-control" name="RO_brancH_NAME" disabled [ngModel]="inputModel.brancH_NAME">
+
+                            </div>
+                        </div>
+
+                        <!-- Người đề xuất -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("OfferPerson")}}</label>
+                                <div class="input-group">
+                                    <input class="form-control" maxlength="50" type="text" #RO_offeR_PERSON="ngModel" [disabled]="disableInput || !isAddPage()" name="RO_offeR_PERSON" [(ngModel)]="empInput.emP_NAME">
+                                    <span class="input-group-btn">
+                                        <button [disabled]="disableInput || !isAddPage()" type="button"
+                                            (click)="empModal?.show()" class="btn btn-primary">...</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chi phí dự kiến -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("OfferAMT")}}</label>
+                                <money-input #RO_offeR_AMT="ngModel" name="RO_offeR_AMT" required [disabled]='disableInput || !isAddPage()' [(ngModel)]="inputModel.offeR_AMT">
+                                </money-input>
+                                <div class="error-message" *ngIf="RO_offeR_AMT?.invalid && isShowError">
+                                    <span *ngIf="RO_offeR_AMT?.errors.required">{{l('OfferAMT')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lý do sửa chữa -->
+                        <div class="col-md-12">
+                            <div class="form-group required">
+                                <label>{{l("OfferReason")}}</label>
+                                <input class="form-control" required name="RO_offeR_REASON" [disabled]='disableInput || !isAddPage()' #RO_offeR_REASON="ngModel" [(ngModel)]="inputModel.offeR_REASON">
+                                <div class="error-message" *ngIf="RO_offeR_REASON?.invalid && isShowError">
+                                    <span *ngIf="RO_offeR_REASON?.errors.required">{{l('OfferReason')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nội dung đề xuất -->
+                        <div class="col-md-12">
+                            <div class="form-group required">
+                                <label>{{l("OfferContent")}}</label>
+                                <input class="form-control" name="RO_offeR_CONTENT" #RO_offeR_CONTENT="ngModel" [disabled]='disableInput || !isAddPage()' required [(ngModel)]="inputModel.offeR_CONTENT">
+                                <div class="error-message" *ngIf="RO_offeR_CONTENT?.invalid && isShowError">
+                                    <span *ngIf="RO_offeR_CONTENT?.errors.required">{{l('OfferContent')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ghi chú -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("RepairNote")}}</label>
+                                <input class="form-control" name="RO_offeR_NOTE" [disabled]='disableInput || !isAddPage()' [(ngModel)]="inputModel.offeR_NOTE">
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group" *ngIf="editPageState == EditPageState.edit && !enablePrintBtnPDN">
+                                <button class="btn btn-primary" type="button" (click)="exportDocuments('/CAR_MASTER/TOTRINH_car_offer.docx', 'rpt_CAR_OFFER_TOTRINH')">{{l("PrintStatement")}}</button>
+                                <button class="btn btn-primary" type="button" (click)="exportDocuments('/CAR_MASTER/PHIEUDEXUAT_car_offer.docx', 'rpt_XE_PDX')">{{l("PrintOfferStateMent")}}</button>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin sửa chữa thực tế -->
+                        <ng-template [ngIf]='!isAddPage()'>
+                            <div class="col-md-12">
+                                <h5 class="popup-title col-md-12">{{l("RealRepairInfo")}}</h5>
+                            </div>
+
+                            <!-- Số hóa đơn/biên lai -->
+                            <div class="col-md-6">
+                                <div class="form-group required">
+                                    <label>{{l("InvoiceNo")}}</label>
+                                    <input class="form-control" name="RR_invoicE_NO" [disabled]='disableInput || disableInputRealRepair' required [(ngModel)]="inputModel.invoicE_NO" #RR_invoicE_NO='ngModel'>
+                                    <div class="error-message" *ngIf="RR_invoicE_NO?.invalid && isShowError">
+                                        <span *ngIf="RR_invoicE_NO?.errors.required">{{l('InvoiceNo')}}
+                                            {{l("ValidationRequired")}}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ngày xuất hóa đơn -->
+                            <div class="col-md-6">
+                                <div class="form-group required">
+                                    <label>{{l("InvoiceDate")}}</label>
+                                    <date-control [disabled]="disableInput || disableInputRealRepair " required [inpCss]="'form-control'" type="text" #RR_invoicE_DT="ngModel" name="RR_invoicE_DT" [(ngModel)]="inputModel.invoicE_DT">
+                                    </date-control>
+                                    <div class="error-message" *ngIf="RR_invoicE_DT?.invalid && isShowError">
+                                        <span *ngIf="RR_invoicE_DT?.errors.required">{{l('InvoiceDate')}}
+                                            {{l("ValidationRequired")}}</span>
+                                        <span *ngIf="RR_invoicE_DT?.errors.pattern">{{l('InvoiceDate')}}
+                                            {{l("Invalidation")}}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Đơn vị sửa chữa -->
+                            <div class="col-md-6">
+                                <div class="form-group required">
+                                    <label>{{l("OfferRepDivision")}}</label>
+                                    <input class="form-control" name="RR_repaiR_DIVISION" [disabled]='disableInput || disableInputRealRepair' required #RR_repaiR_DIVISION="ngModel" [(ngModel)]="inputModel.repaiR_DIVISION">
+                                    <div class="error-message" *ngIf="RR_repaiR_DIVISION?.invalid && isShowError">
+                                        <span *ngIf="RR_repaiR_DIVISION?.errors.required">{{l('OfferRepDivision')}}
+                                            {{l("ValidationRequired")}}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ngày sửa chữa -->
+                            <div class="col-md-6">
+                                <div class="form-group required">
+                                    <label>{{l("RepairDate")}}</label>
+                                    <date-control [disabled]="disableInput || disableInputRealRepair" required [inpCss]="'form-control'" type="text" #RR_repaiR_DT="ngModel" name="RR_repaiR_DT" [(ngModel)]="inputModel.repaiR_DT">
+                                    </date-control>
+                                    <div class="error-message" *ngIf="RR_repaiR_DT?.invalid && isShowError">
+                                        <span *ngIf="RR_repaiR_DT?.errors.required">{{l('RepairDate')}}
+                                            {{l("ValidationRequired")}}</span>
+                                        <span *ngIf="RR_repaiR_DT?.errors.pattern">{{l('RepairDate')}}
+                                            {{l("Invalidation")}}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Chi phí sửa chữa -->
+                            <div class="col-md-6">
+                                <div class="form-group required">
+                                    <label>{{l("RepairAMT")}}</label>
+                                    <money-input name="RR_repaiR_AMT" required #RR_repaiR_AMT="ngModel" [disabled]='disableInput || disableInputRealRepair' [(ngModel)]="inputModel.repaiR_AMT">
+                                    </money-input>
+                                    <div class="error-message" *ngIf="RR_repaiR_AMT?.invalid && isShowError">
+                                        <span *ngIf="RR_repaiR_AMT?.errors.required">{{l('RepairAMT')}}
+                                            {{l("ValidationRequired")}}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Nội dung sửa chữa thực tế -->
+                            <div class="col-md-12">
+                                <div class="form-group required">
+                                    <label>{{l("RepairContent")}}</label>
+                                    <input class="form-control" name="RR_repaiR_CONTENT" [disabled]='disableInput || disableInputRealRepair' required [(ngModel)]="inputModel.repaiR_CONTENT" #RR_repaiR_CONTENT="ngModel">
+                                    <div class="error-message" *ngIf="RR_repaiR_CONTENT?.invalid && isShowError">
+                                        <span *ngIf="RR_repaiR_CONTENT?.errors.required">{{l('RepairContent')}}
+                                            {{l("ValidationRequired")}}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ghi chú -->
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>{{l("RepairNote")}}</label>
+                                    <input class="form-control" name="RR_repaiR_NOTE" [disabled]='disableInput || disableInputRealRepair' [(ngModel)]="inputModel.repaiR_NOTE">
+                                </div>
+                            </div>
+
+                            <!-- File đính kèm -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{l("FileAttachment")}}</label>
+                                    <file-picker type="text" [folderUpload]="'CarOffer'" [inpCss]="'form-control'" [(ngModel)]="inputModel.filE_ATTACHMENT" name="filE_ATTACHMENT"></file-picker>
+
+                                </div>
+                            </div>
+
+                            <!-- Thay đổi công năng -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label></label>
+                                    <checkbox-control name="performance" [label]="l('Performance')" [checked]="true" [TrueValue]="1" [FalseValue]="0" [(ngModel)]="inputModel.performance" [disabled]='disableInput || disableInputRealRepair'></checkbox-control>
+                                </div>
+                            </div>
+
+                            <!-- In phiếu đề nghị thanh toán -->
+                            <div class="col-md-4" *ngIf='!disableInput && disableInputRealRepair && enablePrintBtnPDN'>
+                                <div class="form-group">
+                                    <button (click)="showReportTemplate()" type="button" class="btn btn-primary">{{l('PrintPDN')}}</button>
+                                </div>
+                            </div>
+                        </ng-template>
+
+                    </div>
+                </form>
+            </div>
+
+            <!-- Begin Form -->
+        </div>
+    </div>
+</div>
+
+<car-master-modal (onSelect)="onSelectCar($event)" [multiple]='false' #inputModelModal></car-master-modal>
+<employee-modal (onSelect)="onSelectEmp($event)" [multiple]='false' #empModal></employee-modal>
+<report-template #reportTemplate></report-template>

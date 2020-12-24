@@ -1,0 +1,271 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("ConstDetail_Title")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- <reject-message [transactionId]="inputModel.plaN_ID"></reject-message> -->
+
+                        <!-- Ngày hiệu lực -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("EffectDt")}}</label>
+                                <date-control [disabled]="disableInput" required [inpCss]="'form-control'" type="text" #effecT_DT="ngModel" name="effecT_DT" [(ngModel)]="inputModel.effecT_DT">
+                                </date-control>
+                                <div class="error-message" *ngIf="effecT_DT.invalid && isShowError">
+                                    <span *ngIf="effecT_DT?.errors.required">{{l('EffectDt')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Năm thực hiện -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("PlanYear")}}</label>
+                                <input [disabled]="disableInput" class="form-control left" min="0" type="number" max="9999" (focusout)="year_focusout($event)" #year="ngModel" name="year" [(ngModel)]="inputModel.year">
+                                <div class="error-message" *ngIf="year.invalid && isShowError">
+                                    <span *ngIf="year?.errors.required">{{l('PlanYear')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+                        <!-- Tên kế hoạch -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("PlanName")}}</label>
+                                <input disabled class="form-control" type="text" #plaN_NAME="ngModel" name="plaN_NAME" [(ngModel)]="inputModel.plaN_NAME" />
+                            </div>
+                        </div>
+                        <!-- Mã đơn vị -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label *ngIf="editPageState == EditPageState.add">{{l("BranchCode")}}</label>
+                                <label *ngIf="editPageState != EditPageState.add">{{l("PlanBelong")}}</label>
+                                <input disabled class="form-control" value="{{inputModel.brancH_NAME}}" name="brancH_ID" />
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+                        <!-- Ghi chú -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <textarea [disabled]="disableInput" class="form-control" #Notes="ngModel" type="text" name="Notes" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+                        <!-- File đính kèm -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("FileAttachment")}}</label>
+                                <file-picker [disabled]="disableInput" type="text" #filE_ATTACHMENT="ngModel" [folderUpload]="'ConstDetail'" [inpCss]="'form-control'" [(ngModel)]="inputModel['filE_ATTACHMENT']" name="filE_ATTACHMENT"></file-picker>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="editable-title-group">
+                        <h5 class="popup-title col-md-12">{{l("ConstructionSubTitle")}}</h5>
+                        <div class="action-button">
+                            <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="addNewPlan()"><i class="pi pi-plus"></i>{{l("Add")}}</button>
+                            <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="editTable.removeAllCheckedItem()"><i
+                                    class="pi pi-times"></i>{{l("Delete")}}</button>
+                        </div>
+                    </div>
+                    <div class="primeng-datatable-container">
+                        <editable-table [requiredFields]="['diV_ID', 'consT_NAME', 'exE_DT', 'montH_OF_AMORT', 'amorT_END_DT', 'expecteD_VALUE', 'verifY_VALUE', 'approvE_VALUE', 'consT_TYPE']" #editTable class="custom-table ui-table">
+                            <thead>
+                                <tr>
+                                    <!-- Checkbox -->
+                                    <th>
+                                        <span style="width: 40px">
+                                            <checkbox-control [disabled]="disableInput"
+                                                (onchange)="editTable.checkAll($event.target.checked)"
+                                                [checked]="editTable.isCheckAll"></checkbox-control>
+                                        </span>
+                                    </th>
+                                    <!-- STT -->
+                                    <th><span style="width: 40px">{{l("No")}}</span></th>
+                                    <!-- Địa điểm -->
+                                    <th sortField="diV_ID"><span style="width: 200px">{{l("Division")}}</span>
+                                    </th>
+                                    <!-- Tên công trình -->
+                                    <th sortField="consT_NAME"><span style="width: 200px">{{l("ConstructName")}}</span>
+                                    </th>
+                                    <!-- Ngày dự kiến xây dựng -->
+                                    <th sortField="starT_DT"><span style="width: 180px">{{l("ConstructExpectedDate")}}</span>
+                                    </th>
+                                    <!-- Thời gian thực hiện (tháng) -->
+                                    <th sortField="exE_DT"><span style="width: 210px">{{l("MonthTimeProcess")}}</span>
+                                    </th>
+                                    <!-- Ngày dự kiến hoàn thành -->
+                                    <th sortField="enD_DT"><span style="width: 200px">{{l("DateExpectedFinish")}}</span>
+                                    </th>
+                                    <!-- Tháng khấu hao đầu tiên -->
+                                    <th sortField="amorT_FIRT_DT" *ngIf="showAmortColumns"><span style="width: 200px">{{l("FirstAmortMonth")}}</span>
+                                    </th>
+                                    <!-- Số tháng khấu hao (tháng) -->
+                                    <th sortField="montH_OF_AMORT" *ngIf="showAmortColumns"><span style="width: 160px">{{l("AmortMonth")}}</span>
+                                    </th>
+                                    <!-- Tháng kết thúc khấu hao -->
+                                    <th sortField="amorT_END_DT" *ngIf="showAmortColumns"><span style="width: 195px">{{l("EndAmortMonth")}}</span>
+                                    </th>
+                                    <!-- Kinh phí đề xuất (vnđ) -->
+                                    <th sortField="expecteD_VALUE"><span style="width: 180px">{{l("ProposeExpense")}}</span>
+                                    </th>
+                                    <!-- Kinh phí trình -->
+                                    <th *ngIf="showExpenseColumns" sortField="verifY_VALUE"><span style="width: 160px">{{l("VerifyExpense")}}</span>
+                                    </th>
+                                    <!-- Kinh phí được duyệt -->
+                                    <th *ngIf="showExpenseColumns" sortField="approvE_VALUE"><span style="width: 200px">{{l("ApproveExpense")}}</span>
+                                    </th>
+                                    <!-- Loại công trình -->
+                                    <th sortField="consT_TYPE"><span style="width: 150px">{{l("ConstructType")}}</span>
+                                    </th>
+                                    <!-- Nội dung xây mới/sửa chữa -->
+                                    <th sortField="content"><span style="width: 250px">{{l("NoteConstructRepair")}}</span>
+                                    </th>
+                                    <!-- Ghi chú -->
+                                    <th sortField="notes"><span style="width: 150px">{{l("Notes")}}</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of editTable.dataInPage; let in = index" [hidden]="item.page != editTable.currentPage">
+                                    <!-- Checkbox -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <checkbox-control [disabled]="disableInput" (onchange)="item.isChecked = $event.target.checked" [checked]="item['isChecked']"></checkbox-control>
+                                    </td>
+                                    <!-- STT -->
+                                    <td class="center"><span class="mo-header"></span>{{item.no}}</td>
+                                    <!-- Địa điểm -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <select2-custom class="transparent" [disabled]="disableInput" name="diV_ID-{{in}}" [(ngModel)]="item.diV_ID" [(list)]="divisions" [valueMember]="'diV_ID'" [displayMember]="'diV_CODE|diV_NAME'">
+                                        </select2-custom>
+                                    </td>
+                                    <!-- Tên công trình -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="consT_NAME-{{in}}" [(ngModel)]="item.consT_NAME" />
+                                    </td>
+                                    <!-- Ngày dự kiến xây dựng -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <date-control class="transparent" [disabled]="disableInput" [inpCss]="'form-control'" (focusout)="starT_DT_change(item);" type="text" name="starT_DT-{{in}}" [(ngModel)]="item.starT_DT"></date-control>
+                                    </td>
+                                    <!-- Thời gian thực hiện (tháng) -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="number" min="0" (focusout)="exE_DT_change(item);" name="exE_DT-{{in}}" [(ngModel)]="item.exE_DT" />
+                                    </td>
+                                    <!-- Ngày dự kiến hoàn thành -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <date-control class="transparent" [disabled]="true" [inpCss]="'form-control'" type="text" name="enD_DT-{{in}}" [(ngModel)]="item.enD_DT"></date-control>
+                                    </td>
+                                    <!-- Tháng khấu hao đầu tiên -->
+                                    <td *ngIf="showAmortColumns">
+                                        <span class="mo-header"></span>
+                                        <date-control class="transparent" [disabled]="disableInput" (focusout)="amorT_FIRT_DT_change(item);" [inpCss]="'form-control'" type="text" name="amorT_FIRT_DT-{{in}}" [(ngModel)]="item.amorT_FIRT_DT"></date-control>
+                                    </td>
+                                    <!-- Số tháng khấu hao (tháng) -->
+                                    <td *ngIf="showAmortColumns">
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" (focusout)="montH_OF_AMORT_change(item);" type="text" name="montH_OF_AMORT-{{in}}" [(ngModel)]="item.montH_OF_AMORT" />
+                                    </td>
+                                    <!-- Tháng kết thúc khấu hao -->
+                                    <td *ngIf="showAmortColumns">
+                                        <span class="mo-header"></span>
+                                        <date-control class="transparent" [disabled]="true" [inpCss]="'form-control'" type="text" name="amorT_END_DT-{{in}}" [(ngModel)]="item.amorT_END_DT"></date-control>
+                                    </td>
+                                    <!-- Kinh phí đề xuất (vnđ) -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <money-input [disabled]="disableInput" class="transparent" type="text" name="expecteD_VALUE-{{in}}" [(ngModel)]="item.expecteD_VALUE">
+                                        </money-input>
+                                    </td>
+                                    <!-- Kinh phí trình (vnđ) -->
+                                    <td *ngIf="showExpenseColumns">
+                                        <span class="mo-header"></span>
+                                        <money-input [disabled]="disableInput" class="transparent" type="text" name="verifY_VALUE-{{in}}" [(ngModel)]="item.verifY_VALUE">
+                                        </money-input>
+                                    </td>
+                                    <!-- Kinh phí được duyệt -->
+                                    <td *ngIf="showExpenseColumns">
+                                        <span class="mo-header"></span>
+                                        <money-input [disabled]="disableInput" class="transparent" type="text" name="approvE_VALUE-{{in}}" [(ngModel)]="item.approvE_VALUE">
+                                        </money-input>
+                                    </td>
+                                    <!-- Loại công trình -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <all-code-select class="transparent" [disabled]="disableInput" [cdName]="'CONSTRUCT_TYPE'" name="consT_TYPE-{{in}}" [(ngModel)]="item.consT_TYPE" [cdType]="'CON'">
+                                        </all-code-select>
+                                    </td>
+                                    <!-- Nội dung xây mới/sửa chữa -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="content-{{in}}" [(ngModel)]="item.content" />
+                                    </td>
+                                    <!-- Ghi chú -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="notes-{{in}}" [(ngModel)]="item.notes" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </editable-table>
+                    </div>
+                   
+                    <div class="col-md-12 mt-4 right">
+                        <!-- Không duyệt -->
+                        <button type="button" (click)="dontApprovePlan()"
+                            *ngIf="this.editPageState == EditPageState.viewDetail && inputModel.status == PLAN_STATUS.POST && inputModel.makeR_ID && inputModel.makeR_ID != userInfo.userName" class="btn btn-primary">{{l('DontApprove')}}</button>
+                        <!-- Gửi kế hoạch -->
+                        <button type="button" (click)="submitPlan()" *ngIf="userInfo.branch.brancH_TYPE != 'HS'
+                        && editPageState != EditPageState.viewDetail
+                        && this.inputModel.status == PLAN_STATUS.NOT_APPROVE
+                        && (editPageState == EditPageState.add || editPageState == EditPageState.edit)" class="btn btn-primary">{{l('Submit')}} {{l('Plan').toLowerCase()}}</button>
+                        <!-- điều kiện ở trên: User khác hội sở & chưa gửi kế hoạch & khác trang detail -->
+                    </div>
+                </form>
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<reject-modal #rejectModal [title]="l('ReturnContent') + ' ' + inputModel.plaN_NAME" (onSubmitEvent)="onReturn($event)">
+</reject-modal>

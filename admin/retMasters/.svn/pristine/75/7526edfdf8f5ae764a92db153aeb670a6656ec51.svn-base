@@ -1,0 +1,467 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("RetRepairList")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                        <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <!-- Thông tin bất động sản -->
+                        <div class="col-md-12">
+                            <h5 class="popup-title col-md-12">{{l("RetInfo")}}</h5>
+                        </div>
+                        <!-- Mã bất động sản -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("RetCode")}}</label>
+                                <div class="user-group">
+                                    <input [readOnly]="false" (focusOut)="focusOutRetCode()" required class="form-control m-input" name="reT_ID" #reT_ID="ngModel" type="text" [(ngModel)]="inputModel.reT_ID">
+                                    <button [disabled]="disableInput" class="btn btn-primary" (click)="retModal.show()" type='button'>...</button>
+                                </div>
+                                <div class="error-message" *ngIf="reT_ID.invalid && isShowError">
+                                    <span *ngIf="reT_ID?.errors.required">{{l('RetCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+
+                        <!-- Địa chỉ -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("Address")}}</label>
+                                <input [disabled]="true" class="form-control m-input" name="addr" type="text" [(ngModel)]="inputModel.addr">
+                            </div>
+                        </div>
+
+                        <!-- Hiện trạng bất động sản -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("RetCurrentState")}}</label>
+                                <input readonly="true" #currenT_STATE="ngModel" class="form-control m-input" name="currenT_STATE" type="text" [(ngModel)]="retMaster.currenT_STATE">
+                            </div>
+                        </div>
+
+                        <!-- Loại bất động sản -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("RetType")}}</label>
+                                <all-code-select [disabled]="true" #reT_TYPE="ngModel" name="RetType" [(ngModel)]="retMaster.reT_TYPE" [emptyText]="l('SelectAll')" [cdName]="'RET_TYPE'" [displayMember]="'cdval|content'" [cdType]="'RET'"></all-code-select>
+
+                            </div>
+                        </div>
+
+                        <!-- Diện tích đất -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("LandSquare")}}</label>
+                                <div class="user-group">
+                                    <money-input [disabled]="true" class="align-left" #lanD_SQUARE="ngModel" name="lanD_SQUARE" [(ngModel)]="retMaster.lanD_SQUARE">
+                                    </money-input>
+                                    <label>({{l("MeterSquare")}})</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Chiều rộng -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("RetWidth")}}</label>
+                                <div class="user-group">
+                                    <money-input [disabled]="true" class="align-left" #width="ngModel" name="width" [(ngModel)]="retMaster.width">
+                                    </money-input>
+                                    <label>({{l("Meters")}})</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Diện tích xây dựng -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("ConstructSquare")}}</label>
+                                <div class="user-group">
+                                    <money-input [disabled]="true" class="align-left" #construcT_SQUARE="ngModel" name="construcT_SQUARE" [(ngModel)]="retMaster.construcT_SQUARE">
+                                    </money-input>
+                                    <label>({{l("MeterSquare")}})</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Chiều dài -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("Length")}}</label>
+                                <div class="user-group">
+                                    <money-input [disabled]="true" class="align-left" #length="ngModel" name="length" [(ngModel)]="retMaster.length">
+                                    </money-input>
+                                    <label>({{l("Meters")}})</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Diện tích sàn sử dụng -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("TotalSquare")}}</label>
+                                <div class="user-group">
+                                    <money-input class="align-left" #totaL_SQUARE="ngModel" [disabled]="true" name="totaL_SQUARE" [(ngModel)]="retMaster.totaL_SQUARE">
+                                    </money-input>
+                                    <label>({{l("MeterSquare")}})</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Thời hạn sử dụng -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("TotalSquare")}}</label>
+                                <div class="user-group">
+                                    <input readonly="true" #usE_PERIOD="ngModel" class="form-control m-input" name="usE_PERIOD" type="text" [(ngModel)]="retMaster.usE_PERIOD">
+                                    <label>({{l("Month").toLowerCase()}})</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tình trạng sử dụng đất -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("RetUseStatus")}}</label>
+                                <all-code-select name="usE_STATUS" [disabled]="true" #usE_STATUS="ngModel" [(ngModel)]="retMaster.usE_STATUS" [emptyText]="l('NullSelect')" [displayMember]="'cdval|content'" [cdName]="'USE_STATUS'" [cdType]="'RET'">
+                                </all-code-select>
+
+                            </div>
+                        </div>
+                        <!-- Tình trạng xây dựng -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("RetConstStatus")}}</label>
+                                <all-code-select name="consT_STATUS" [disabled]="true" #consT_STATUS="ngModel" [(ngModel)]="retMaster.consT_STATUS" [emptyText]="l('NullSelect')" [displayMember]="'cdval|content'" [cdName]="'CONST_STATUS'" [cdType]="'RET'">
+                                </all-code-select>
+
+                            </div>
+                        </div>
+
+                        <!-- Mục đích sử dụng đất -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("RetPurposeInUse")}}</label>
+                                <all-code-select name="purposE_IN_USE" [disabled]="true" #purposE_IN_USE="ngModel" [(ngModel)]="retMaster.purposE_IN_USE" [emptyText]="l('NullSelect')" [displayMember]="'cdval|content'" [cdName]="'RET_PURPOSE'" [cdType]="'RET'">
+                                </all-code-select>
+                                <div class="error-message" *ngIf="purposE_IN_USE.invalid && isShowError">
+                                    <span *ngIf="purposE_IN_USE?.errors.required">{{l('RetPurposeInUse')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Công năng sử dụng -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("RetWUserCon")}}</label>
+                                <input [disabled]="true" class="form-control m-input" name="w_USE_CON" #w_USE_CON="ngModel" type="text" [(ngModel)]="retMaster.w_USE_CON">
+                            </div>
+                        </div>
+
+                        <!-- Kết cấu nhà -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("RetHouseDes")}}</label>
+                                <textarea class="form-control" [disabled]="true" #housedes="ngModel" name="housedes" [(ngModel)]="retMaster.housedes"></textarea>
+                            </div>
+                        </div>
+
+
+                        <!-- Ranh giới -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("RetBoundary")}}</label>
+                                <input [disabled]="true" class="form-control m-input" name="boundary" #boundary="ngModel" type="text" [(ngModel)]="retMaster.boundary">
+                            </div>
+                        </div>
+
+                        <!-- Loại sở hữu -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("OwnerType")}}</label>
+                                <all-code-select name="owneR_TYPE" [disabled]="true" #owneR_TYPE="ngModel" [(ngModel)]="retMaster.owneR_TYPE" [emptyText]="l('NullSelect')" [displayMember]="'cdval|content'" [cdName]="'OWNER_TYPE'" [cdType]="'RET'">
+                                </all-code-select>
+
+                            </div>
+                        </div>
+                        <!-- Hiện trạng pháp lý -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("LegalStatus")}}</label>
+                                <all-code-select name="status" [disabled]="true" #status="ngModel" [(ngModel)]="retMaster.status" [emptyText]="l('NullSelect')" [displayMember]="'cdval|content'" [cdName]="'RET_STATUS'" [cdType]="'RET'">
+                                </all-code-select>
+
+                            </div>
+                        </div>
+                        <!-- Chủ sở hữu -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("Owner")}}</label>
+                                <textarea class="form-control" [disabled]="true" type="text" #owner="ngModel" name="owner" [(ngModel)]="retMaster.owner"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Nội dung sửa chữa gần nhất-->
+                        <div class="col-md-12">
+                            <h5 class="popup-title col-md-12">{{l("NearestRepairContent")}}</h5>
+                        </div>
+
+                        <!-- Ngày sửa chữa gần nhất -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("LastRepairDate")}}</label>
+                                <date-control #repaiR_DT="ngModel" [disabled]="true" name="repaiR_DT" [(ngModel)]="inputModel.repaiR_DT"></date-control>
+
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <!-- Đơn vị sửa chữa -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("RepairDivision")}}</label>
+                                <input class="form-control m-input" #repaiR_DIVISON="ngModel" [disabled]="true" name="repaiR_DIVISON" [(ngModel)]="inputModel.repaiR_DIVISION">
+
+                            </div>
+                        </div>
+                        <!-- Nội dung đề xuất -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("OfferContent")}}</label>
+                                <input class="form-control m-input" #offeR_CONTENT2="ngModel" [disabled]="true" name="offeR_CONTENT2" [(ngModel)]="inputModel.offeR_CONTENT">
+
+                            </div>
+                        </div>
+
+                        <!-- Ghi chú -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <input class="form-control m-input" #repaiR_NOTE="ngModel" [disabled]="true" name="repaiR_NOTE" [(ngModel)]="inputModel.repaiR_NOTE">
+
+                            </div>
+                        </div>
+
+                        <!-- Lý do sửa chữa -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("OfferReason")}}</label>
+                                <input class="form-control m-input" #offeR_REASON1="ngModel" [disabled]="true" name="offeR_REASON1" [(ngModel)]="inputModel.offeR_REASON">
+
+                            </div>
+                        </div>
+
+                        <!-- Nội dung sửa chữa thực tế -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("RepairContent")}}</label>
+                                <input class="form-control m-input" #offeR_CONTENT1="ngModel" [disabled]="true" name="offeR_CONTENT1" [(ngModel)]="inputModel.offeR_CONTENT">
+
+                            </div>
+                        </div>
+
+                        <!-- Đề xuất sửa chữa-->
+                        <div class="col-md-12">
+                            <h5 class="popup-title col-md-12">{{l("RepairOffer")}}</h5>
+                        </div>
+                        <!-- Ngày đề xuất -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("OfferDate")}}</label>
+                                <date-control required #offeR_DT="ngModel" [disabled]="disableInput ||editPageState == EditPageState.edit" name="offeR_DT" [(ngModel)]="inputModel.offeR_DT"></date-control>
+                                <div class="error-message" *ngIf="offeR_DT.invalid && isShowError">
+                                    <span *ngIf="offeR_DT?.errors.required">{{l('OfferDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ngày dự kiến sửa xong -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("FinishRepairDate")}}</label>
+                                <date-control required #finisH_DT="ngModel" [disabled]="disableInput ||editPageState == EditPageState.edit" name="finisH_DT" [(ngModel)]="inputModel.finisH_DT"></date-control>
+                                <div class="error-message" *ngIf="finisH_DT.invalid && isShowError">
+                                    <span *ngIf="finisH_DT?.errors.required">{{l('FinishRepairDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Đề xuất nơi sửa chữa -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("OfferDivison")}}</label>
+                                <input class="form-control m-input" required #offeR_REP_DIVISION="ngModel" [disabled]="disableInput ||editPageState == EditPageState.edit" name="offeR_REP_DIVISION" [(ngModel)]="inputModel.offeR_REP_DIVISION">
+                                <div class="error-message" *ngIf="offeR_REP_DIVISION.invalid && isShowError">
+                                    <span *ngIf="offeR_REP_DIVISION?.errors.required">{{l('OfferDivison')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!-- Đơn vị đề xuất -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("BranchOffer")}}</label>
+                                <input class="form-control m-input" #offeR_BRANCH="ngModel" [disabled]="true" name="offeR_BRANCH" [(ngModel)]="appSession.user.branchName">
+                            </div>
+                        </div>
+                        <!-- Người đề xuất -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("PersonOffer")}}</label>
+                                <div class="group">
+                                    <input class="form-control m-input" required class="form-control" type="text" #offeR_PERSON="ngModel" name="offeR_PERSON" readonly [(ngModel)]="inputModel.emP_NAME">
+                                    <button class="btn btn-primary ng-star-inserted" type='button' [disabled]="disableInput ||editPageState == EditPageState.edit" (click)="employeeModal.show()">{{l("...")}}</button>
+                                </div>
+                                <div class="error-message" *ngIf="offeR_PERSON.invalid && isShowError">
+                                    <span *ngIf="offeR_PERSON?.errors.required">{{l('PersonOffer')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Chi phí dự kiến-->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("ExpectedCost")}}</label>
+                                <money-input required [disabled]="disableInput ||editPageState == EditPageState.edit" class="align-left" #offeR_AMT="ngModel" name="offeR_AMT" [(ngModel)]="inputModel.offeR_AMT">
+                                </money-input>
+                                <div class="error-message" *ngIf="offeR_AMT.invalid && isShowError">
+                                    <span *ngIf="offeR_AMT?.errors.required">{{l('ExpectedCost')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Lý do sửa chữa -->
+                        <div class="col-md-12">
+                            <div class="form-group required">
+                                <label>{{l("RepairReason")}}</label>
+                                <input [disabled]="disableInput ||editPageState == EditPageState.edit" class="form-control m-input" #offeR_REASON="ngModel" required name="offeR_REASON" [(ngModel)]="inputModel.offeR_REASON">
+                                <div class="error-message" *ngIf="offeR_REASON.invalid && isShowError">
+                                    <span *ngIf="offeR_REASON?.errors.required">{{l('RepairReason')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Nội dung đề xuất -->
+                        <div class="col-md-12">
+                            <div class="form-group required">
+                                <label>{{l("ContentOffer")}}</label>
+                                <input [disabled]="disableInput ||editPageState == EditPageState.edit" class="form-control m-input" #offeR_CONTENT="ngModel" required name="offeR_CONTENT" [(ngModel)]="inputModel.offeR_CONTENT">
+                                <div class="error-message" *ngIf="offeR_CONTENT.invalid && isShowError">
+                                    <span *ngIf="offeR_CONTENT?.errors.required">{{l('ContentOffer')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ghi chú -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <input [disabled]="disableInput ||editPageState == EditPageState.edit" class="form-control m-input" #offeR_NOTE="ngModel" name="offeR_NOTE" [(ngModel)]="inputModel.offeR_NOTE">
+
+                            </div>
+                        </div>
+                        <div *ngIf="inputModel.offeR_STATUS == '0'" class="modal-footer">
+                            <button type="button" class="btn btn-primary" (click)="exportOfferStateMent()">{{l("PrintOfferStateMent")}}</button>
+
+                        </div>
+                        <!-- Thông tin sửa chữa thực tế-->
+                        <div *ngIf="editPageState == EditPageState.edit" class="col-md-12">
+                            <h5 class="popup-title col-md-12">{{l("RealRepairInfo")}}</h5>
+                        </div>
+                        <!-- Ngày sửa chữa -->
+                        <div *ngIf="editPageState == EditPageState.edit" class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("RepairDate")}}</label>
+                                <date-control required #repaiR_DT="ngModel" [disabled]="disableInput" name="repaiR_DT" [(ngModel)]="inputModel.repaiR_DT"></date-control>
+                                <div class="error-message" *ngIf="repaiR_DT.invalid && isShowError">
+                                    <span *ngIf="repaiR_DT?.errors.required">{{l('RepairDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-100"></div>
+                        <!-- Đơn vị sửa chữa -->
+                        <div *ngIf="editPageState == EditPageState.edit" class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("OfferRepDivision")}}</label>
+                                <input class="form-control m-input" required class="form-control" type="text" #repaiR_DIVISION="ngModel" name="repaiR_DIVISION" [disabled]="disableInput" [(ngModel)]="inputModel.repaiR_DIVISION">
+                                <div class="error-message" *ngIf="repaiR_DIVISION.invalid && isShowError">
+                                    <span *ngIf="repaiR_DIVISION?.errors.required">{{l('OfferRepDivision')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Chi phí sửa chữa-->
+                        <div *ngIf="editPageState == EditPageState.edit" class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("RepairPayment")}}</label>
+                                <money-input required [disabled]="disableInput" class="align-left" #repaiR_AMT="ngModel" name="repaiR_AMT" [(ngModel)]="inputModel.repaiR_AMT">
+                                </money-input>
+                                <div class="error-message" *ngIf="repaiR_AMT.invalid && isShowError">
+                                    <span *ngIf="repaiR_AMT?.errors.required">{{l('RepairPayment')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Nội dung sửa chữa thực tế-->
+                        <div *ngIf="editPageState == EditPageState.edit" class="col-md-12">
+                            <div class="form-group required">
+                                <label>{{l("RepairContent")}}</label>
+                                <input class="form-control m-input" required class="form-control" type="text" #repaiR_CONTENT="ngModel" name="repaiR_CONTENT" [disabled]="disableInput" [(ngModel)]="inputModel.repaiR_CONTENT">
+                                <div class="error-message" *ngIf="repaiR_CONTENT.invalid && isShowError">
+                                    <span *ngIf="repaiR_CONTENT?.errors.required">{{l('RepairContent')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ghi chú -->
+                        <div *ngIf="editPageState == EditPageState.edit" class="col-md-12">
+                            <div class="form-group required">
+                                <label>{{l("Notes")}}</label>
+                                <input class="form-control m-input" class="form-control" type="text" #repaiR_NOTE1="ngModel" name="repaiR_NOTE1" [disabled]="disableInput" [(ngModel)]="inputModel.repaiR_NOTE">
+
+                            </div>
+                        </div>
+                        <!-- Thay đổi công năng -->
+                        <div *ngIf="editPageState == EditPageState.edit" class="col-md-12">
+                            <div class="form-group">
+                                <checkbox-control [readOnly]="disableInput" [TrueValue]="'1'" [FalseValue]="'0'" [label]="l('ChangePerformance')" [(ngModel)]="inputModel.performance" name="performance"></checkbox-control>
+                            </div>
+                        </div>
+                        <div *ngIf="inputModel.offeR_STATUS == '1'" class="modal-footer">
+                            <button type="button" class="btn btn-primary" (click)="exportPDN()">{{l("PrintPDN")}}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <ret-modal [hideFields]="'AssetCode,DivisionCode,DivisionName,autH_STATUS'" [showBuyPrice]="false" [showAssetName]="false" [showDivisionName]="false" [showAddress]="false" [showChargeTerms]="false" [showApproveStatus]="false" #retModal [multiple]="false"
+        (onSelect)="onSelectRet($event)"></ret-modal>
+    <employee-modal [hideFields]="'EmployeeCode'" [showEmployeeCode]="false" (onSelect)="onSelectEmployee($event)" [multiple]="false" #employeeModal></employee-modal>
+    <!-- <asset-modal #assetModal [multiple]="false" (onSelect)="onSelectAsset($event)"></asset-modal> -->
+</div>

@@ -1,0 +1,92 @@
+<div [@routerTransition]>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 class="m-subheader__title m-subheader__title--separator">
+                    <!-- Begin Title -->
+                    <span>{{l("ConRequestPayment")}}</span>
+                    <!-- End Title -->
+                </h3>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <form class="horizontal-form filter-form" autocomplete="off">
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-30">
+                            <!-- Begin Filter -->
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <!-- Năm ngân sách -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("YearBudget")}}</label>
+
+                                            <select2-custom [emptyText]="" [(ngModel)]="filterInput.budget"
+                                                [ngModelOptions]="{standalone: true}" [(list)]="years"
+                                                [valueMember]="'value'" [displayMember]="'display'">
+                                            </select2-custom>
+                                        </div>
+                                    </div>
+                                    <!-- Ngày tờ trình -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("RequestDt")}}</label>
+                                            <select2-custom [emptyText]="" [(ngModel)]="filterInput.REQ_DT"
+                                                [ngModelOptions]="{standalone: true}" [(list)]="monthAndyear"
+                                                [valueMember]="'value'" [displayMember]="'display'">
+                                            </select2-custom>
+                                        </div>
+                                    </div>
+                                    <!-- Đơn vị  -->
+                                    <div class="col-md-6">
+                                        <div class="form-group required">
+                                            <label>{{l("Branch")}}</label>
+                                            <div class="group">
+                                                <input class="form-control" type="text" #brancH_NAME="ngModel"
+                                                    name="brancH_NAME" [disabled]="true"
+                                                    [(ngModel)]="filterInput.brancH_NAME">
+                                                <button class="btn btn-primary ng-star-inserted" type='button'
+                                                    (click)="branchModal.show()">{{l("...")}}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Loại ngân sách -->
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>{{l("BudgetType")}}</label>
+                                            <all-code-select name="REQ_BUDGET" [(ngModel)]="filterInput.REQ_BUDGET"
+                                                [emptyText]="l('SelectAll')" [cdName]="'REQ_BUDGET'" [cdType]="'CON'">
+                                            </all-code-select>
+                                        </div>
+                                    </div>
+                                    <!-- Report -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label></label>
+                                            <div>
+                                                <button (click)="exportToExcel()"
+                                                    class="btn btn-primary">{{l('Excel')}}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+<branch-modal (onSelect)="onSelectBranch($event)" [multiple]="false" #branchModal></branch-modal>

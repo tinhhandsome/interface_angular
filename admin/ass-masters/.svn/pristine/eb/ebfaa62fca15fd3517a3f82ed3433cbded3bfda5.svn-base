@@ -1,0 +1,332 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("AssTAddNew")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                        <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page #authStatusMessage [authStatus]="inputModel.autH_STATUS">
+                                </auth-status-input-page>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <ass-t-add-new-table-edit-po #assAddNewTable [inputModel]="inputModel" (onModalGoodsSelect)="onChangeBuyPrice()" (onSelectGood)="onSelectGoods($event)" [isShowError]="isShowError" [disableInput]="disableInput"></ass-t-add-new-table-edit-po>
+                        </div>
+
+                        <hr>
+
+                        <div class="col-md-12">
+                            <h5 class="popup-title col-md-12">{{l("AssInfo")}}</h5>
+                        </div>
+
+
+                        <div class="col-md-8">
+
+                            <div class="row">
+
+                                <!-- Mã nhóm tài sản -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("AssGroupCode")}} </label>
+                                        <select2-custom [disabled]="disableInput" (onChangeSelect2)="onAssGroupChange($event)" required name="grouP_ID" [disabled]="disableInput" #grouP_ID="ngModel" [(ngModel)]="inputModel.grouP_ID" [list]="this.assGroups" [emptyText]="" [valueMember]="'grouP_ID'"
+                                            [displayMember]="'grouP_CODE|grouP_NAME'">
+                                        </select2-custom>
+                                        <div class="error-message" *ngIf="grouP_ID.invalid && isShowError">
+                                            <span *ngIf="grouP_ID?.errors.required">{{l('AssGroupCode')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ngày nhập -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("InputDate")}}</label>
+                                        <date-control [disabled]="true" required [inpCss]="'form-control'" [disabled]="disableInput" type="text" #buY_DATE="ngModel" name="buY_DATE" [(ngModel)]="inputModel.buY_DATE">
+                                        </date-control>
+
+                                        <div class="error-message" *ngIf="buY_DATE.invalid && isShowError">
+                                            <span *ngIf="buY_DATE?.errors.required">{{l('InputDate')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tên tài sản -->
+                                <div class="col-md-12">
+                                    <div class="form-group required">
+                                        <label>{{l("AssetName")}}</label>
+                                        <input [(ngModel)]="inputModel.asseT_NAME" required name="asseT_NAME" #asseT_NAME="ngModel" [disabled]="disableInput" class="form-control m-input" type="text">
+
+                                        <div class="error-message" *ngIf="asseT_NAME.invalid && isShowError">
+                                            <span *ngIf="asseT_NAME?.errors.required">{{l('AssetName')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Thông tin mô tả -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("Description")}}</label>
+                                        <textarea [disabled]="disableInput" class="form-control" #asseT_DESC="ngModel" name="asseT_DESC" [(ngModel)]="inputModel.asseT_DESC"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Nhập theo lô -->
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>{{l("ImportWithBatch")}}</label>
+                                        <checkbox-control style="padding-top:0px!important" [TrueValue]="'1'" [FalseValue]="'0'" name="iS_MULTIPLE" #iS_MULTIPLE="ngModel" (onchange)="updateView()" [disabled]="disableInput" [(ngModel)]="inputModel.iS_MULTIPLE"></checkbox-control>
+                                    </div>
+                                </div>
+
+                                <!-- Số lượng -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("Quantity")}}</label>
+                                        <input [disabled]="disableInput || inputModel.iS_MULTIPLE == '0'" (focusout)="updateView()" [class]="'form-control quatity-input'" #qty="ngModel" type="number" min="0" name="qty" [(ngModel)]="inputModel.qty">
+                                    </div>
+                                </div>
+
+                                <!-- Tổng cộng -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("Total")}}</label>
+                                        <disabled-input class="right" #totalAmt [value]="quanty*inputModel.buY_PRICE | moneyFormatPipe">
+                                        </disabled-input>
+                                    </div>
+                                </div>
+
+                                <!-- Đơn giá trước thuế -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("PriceBeforeTax")}}</label>
+                                        <money-input #buY_PRICE="ngModel" (focusout)="onChangeBuyPrice()" required [disabled]="disableInput" name="buY_PRICE" [(ngModel)]="inputModel.buY_PRICE">
+                                        </money-input>
+
+                                        <div class="error-message" *ngIf="buY_PRICE.invalid && isShowError">
+                                            <span *ngIf="buY_PRICE?.errors.required">{{l('PriceBeforeTax')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+
+                                        <div class="error-message" *ngIf="inputModel.buY_PRICE >= valTSCD && isShowError">
+                                            <span>{{l('AssTAddNewTotalAmtValidation', formatMoney(valTSCD))}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- % VAT -->
+                                <div class="col-md-2">
+                                    <div class="form-group required">
+                                        <label>{{l("VatPercent")}}</label>
+                                        <money-input [disabled]="disableInput" required (focusout)="onChangeVat()" [isDecimal]="true" #vat="ngModel" type="number" min="0" name="vat" [(ngModel)]="inputModel.vat"></money-input>
+
+                                        <div class="error-message" *ngIf="vat.invalid && isShowError">
+                                            <span *ngIf="vat?.errors.required">{{l('VatPercent')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <!-- VAT -->
+                                <div class="col-md-4">
+                                    <div class="form-group required">
+                                        <label>{{l("Vat")}}</label>
+                                        <money-input required #pricE_VAT="ngModel" (focusout)="onChangePriceVat()" [disabled]="disableInput" name="pricE_VAT" [(ngModel)]="inputModel.pricE_VAT">
+                                        </money-input>
+
+                                        <div class="error-message" *ngIf="pricE_VAT.invalid && isShowError">
+                                            <span *ngIf="pricE_VAT?.errors.required">{{l('Vat')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <!-- Số seri -->
+                            <div class="form-group">
+                                <label>{{l("SerialNo")}}</label>
+                                <textarea rows="12" class="form-control" name="asseT_SERIAL_NO" #asseT_SERIAL_NO="ngModel" type="text" [(ngModel)]="inputModel.asseT_SERIAL_NO">
+                                </textarea>
+                            </div>
+                        </div>
+
+                        <!-- Giá trị CCLĐ -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("ASSTValue")}}</label>
+                                <disabled-input class="right" #buY_PRICEDisp [value]="inputModel.buY_PRICE | moneyFormatPipe"></disabled-input>
+                            </div>
+                        </div>
+
+                        <!-- Đơn giá sau thuế -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("PriceAfterTax")}}</label>
+                                <disabled-input class="right" #PriceAfterTax [value]="(inputModel.buY_PRICE + inputModel.pricE_VAT) | moneyFormatPipe">
+                                </disabled-input>
+                                <div class="error-message" *ngIf="(inputModel.buY_PRICE + inputModel.pricE_VAT >= valTSCD) && isShowError">
+                                    <span>{{l('AssTAddNewPriceAfterTaxValidation', formatMoney(valTSCD))}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- File đính kèm -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("FileAttachment")}}</label>
+                                <file-picker [disabled]="disableInput" #filE_ATTACHMENT="ngModel" [folderUpload]="'AssTAddNew'" [inpCss]="'form-control'" [(ngModel)]="inputModel['filE_ATTACHMENT']" name="filE_ATTACHMENT"></file-picker>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+
+                        <!-- Ghi chú -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <textarea [disabled]="disableInput" class="form-control" #notes="ngModel" name="notes" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="col-md-12">
+                            <!-- Thông tin lịch bảo hành -->
+                            <h5 class="popup-title col-md-12">{{l("WarantyInfo")}}</h5>
+
+                            <!-- Bảng con Lịch bảo hành -->
+                            <div class="editable-title-group">
+                                <!-- Thời gian bảo hành -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("WarMonth")}}</label>
+                                            <div class="group">
+                                                <input [disabled]="disableInput" style="text-align: left; margin-bottom: 5px;" class="form-control ng-pristine ng-valid ng-touched" (focusout)="onChange_warrantY_MONTHS()" min="0" name="warrantyMonthsValue" [disabled]="isWarMonthDisabled" type="number"
+                                                    #warrantyMonthsValue="ngModel" [(ngModel)]="inputModel.warrantY_MONTHS">
+                                                <span>{{l("Month")}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="action-button">
+                                    <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="editTableWar.addNewItem()"><i
+                                            class="pi pi-plus"></i>{{l('Add')}}</button>
+                                    <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="editTableWar.removeAllCheckedItem()"><i
+                                            class="pi pi-times"></i>{{l("Delete")}}</button>
+                                </div>
+                            </div>
+                            <div class="primeng-datatable-container">
+                                <editable-table #editTableWar class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <!-- Checkbox -->
+                                            <th>
+                                                <span style="width: 40px">
+                                                    <checkbox-control
+                                                        (onchange)="editTableWar.checkAll($event.target.checked)"
+                                                        [checked]="editTableWar.isCheckAll"></checkbox-control>
+                                                </span>
+                                            </th>
+                                            <!-- Begin Table Column -->
+                                            <!-- STT -->
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <!-- Ngày bảo hành -->
+                                            <th style="width:40%" sortField="waR_DT">
+                                                <span style="width: 150px">{{l("WarDt")}}</span>
+                                            </th>
+
+                                            <!-- Ngày hết hạn -->
+                                            <th style="width:40%" sortField="waR_EXPIRED">
+                                                <span style="width: 150px">{{l("WarExpiredDt")}}</span>
+                                            </th>
+
+
+                                            <!-- Tên đơn hàng -->
+                                            <th style="width:60%" sortField="waR_CONTENT">
+                                                <span style="width: 230px">{{l("WarContent")}}</span>
+                                            </th>
+                                            <!-- End Table Column -->
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of editTableWar.dataInPage; let in = index" [hidden]="item['page'] != editTableWar.currentPage" (click)="editTableWar.selectRow($event,item); updateView();">
+                                            <!-- Checkbox -->
+                                            <td>
+                                                <span class="mo-header"></span>
+                                                <checkbox-control (onchange)="item.isChecked = $event.target.checked" [checked]="item['isChecked']">
+                                                </checkbox-control>
+                                            </td>
+                                            <!-- STT -->
+                                            <td class="center"><span class="mo-header"></span>{{item['no']}}</td>
+
+                                            <!-- Ngày bảo hành -->
+                                            <td>
+                                                <span class="mo-header"></span>
+                                                <date-control [disabled]="disableInput" (focusout)="onChange_waR_DT(item)" [inpCss]="'form-control'" type="text" name="waR_DT-{{in}}" [(ngModel)]="item.waR_DT">
+                                                </date-control>
+                                            </td>
+
+                                            <!-- Ngày hết hạn -->
+                                            <td>
+                                                <span class="mo-header"></span>
+                                                <date-control [disabled]="true" [inpCss]="'form-control'" type="text" name="waR_EXPIRED-{{in}}" [(ngModel)]="item.waR_EXPIRED">
+                                                </date-control>
+                                            </td>
+
+                                            <!-- Tên đơn hàng -->
+                                            <td>
+                                                <span class="mo-header"></span>
+                                                <textarea [disabled]="disableInput" class="form-control transparent" type="text" name="waR_CONTENT-{{in}}" [(ngModel)]="item.waR_CONTENT"></textarea>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <ass-t-add-new-export-use #assAddNewExportUse style="width:100%;display: contents;" [disableInput]="disableInput" [isShowError]="isShowError" [inputModel]="inputModel">
+                        </ass-t-add-new-export-use>
+                    </div>
+                </form>
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <con-master-modal #conMasterModal (onSelect)="onSelectConMaster($event)"></con-master-modal> -->

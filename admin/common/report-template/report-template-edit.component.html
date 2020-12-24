@@ -1,0 +1,173 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("TemplateDetail")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                        <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <input hidden class="form-control" type="text" #reporT_TEMPLATE_ID="ngModel" name="reporT_TEMPLATE_ID" [(ngModel)]="inputModel.reporT_TEMPLATE_ID">
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("TemplateCode")}}</label>
+                                <input [disabled]="disableInput" required class="form-control" type="text" #reporT_TEMPLATE_CODE="ngModel" name="reporT_TEMPLATE_CODE" [(ngModel)]="inputModel.reporT_TEMPLATE_CODE">
+                                <div class="error-message" *ngIf="reporT_TEMPLATE_CODE.invalid && isShowError">
+                                    <span *ngIf="reporT_TEMPLATE_CODE?.errors.required">{{l('TemplateCode')}}
+                                                {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("TemplateName")}}</label>
+                                <input [disabled]="disableInput" required class="form-control" type="text" #reporT_TEMPLATE_NAME="ngModel" name="reporT_TEMPLATE_NAME" [(ngModel)]="inputModel.reporT_TEMPLATE_NAME">
+                                <div class="error-message" *ngIf="reporT_TEMPLATE_NAME.invalid && isShowError">
+                                    <span *ngIf="reporT_TEMPLATE_NAME?.errors.required">{{l('TemplateName')}}
+                                                {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("TemplateStore")}}</label>
+                                <input [disabled]="disableInput" required class="form-control" type="text" #reporT_TEMPLATE_STORE="ngModel" name="reporT_TEMPLATE_STORE" [(ngModel)]="inputModel.reporT_TEMPLATE_STORE">
+                                <div class="error-message" *ngIf="reporT_TEMPLATE_STORE.invalid && isShowError">
+                                    <span *ngIf="reporT_TEMPLATE_STORE?.errors.required">{{l('TemplateStore')}}
+                                                {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <input [disabled]="disableInput" class="form-control" type="text" #notes="ngModel" name="notes" [(ngModel)]="inputModel.notes">
+
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <h5 class="popup-title col-md-12">{{l("TemplateDetail")}}</h5>
+
+                    <div class="action-button">
+                        <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="addNewPlan()"><i class="pi pi-plus"></i>{{l("Add")}}</button>
+                        <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="editTable.removeAllCheckedItem()"><i
+                                        class="pi pi-times"></i>{{l("Delete")}}</button>
+                    </div>
+                    <div class="primeng-datatable-container">
+                        <editable-table #editTable class="custom-table ui-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <div class="outter-vertical-center">
+                                            <span class="inner-vertical-center" style="width: 60px">
+                                                        <label class="m-checkbox" for="checkAll">
+                                                            <input type="checkbox" id="checkAll" #checkAll name="checkAll"
+                                                                [checked]="editTable.isCheckAll"
+                                                                (change)="editTable.checkAll(checkAll.checked)">
+                                                            <span class="label-span"></span>
+                                            </label>
+                                            </span>
+                                        </div>
+                                    </th>
+                                    <th><span style="width: 40px">{{l("No")}}</span></th>
+
+                                    <th sortField="pagE_SIZE"><span style="width: 150px">{{l("PageSize")}}</span></th>
+                                    <th sortField="reporT_TEMPLATE_DETAIL_CONTENT"><span style="width: 150px">{{l("DetailContent")}}</span></th>
+                                    <th sortField="notes"><span style="width: 150px">{{l("Notes")}}</span></th>
+                                    <th sortField="isDefault"><span style="width: 150px">{{l("Default")}}</span></th>
+                                    <th><span style="width: 150px">{{l("Preview")}}</span></th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of editTable.dataInPage" #editRow ng-form [hidden]="item.page != editTable.currentPage">
+                                    <td>
+                                        <div class="outter-vertical-center">
+                                            <span class="inner-vertical-center" style="width: 60px">
+                                                        <label class="m-checkbox" for="check{{item.no}}">
+                                                            <input type="checkbox" id="check{{item.no}}" name="check{{item.no}}"
+                                                                [checked]="item.isChecked"
+                                                                (change)="item.isChecked = $event.target.checked">
+                                                            <span class="label-span"></span>
+                                            </label>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td><span class="mo-header"></span>{{item.no}}</td>
+
+
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <!-- <input [disabled]="disableInput" name="pagE_SIZE{{item.no}}"
+                                                    class="form-control m-input" [(ngModel)]="item.pagE_SIZE"> -->
+                                        <all-code-select (onChangeSelect2)="updateView()" [disabled]="disableInput" name="pagE_SIZE{{item.no}}" [(ngModel)]="item.pagE_SIZE" [emptyText]="l('SelectNull')" [cdName]="'PAGE_SIZE'">
+                                        </all-code-select>
+
+                                    </td>
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <textarea [disabled]="disableInput" name="reporT_TEMPLATE_DETAIL_CONTENT{{item.no}}" class="form-control m-input" [(ngModel)]="item.reporT_TEMPLATE_DETAIL_CONTENT" name="reporT_TEMPLATE_DETAIL_CONTENT"></textarea>
+                                    </td>
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" name="notes{{item.no}}" class="form-control m-input" [(ngModel)]="item.notes">
+                                    </td>
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <div class="outter-vertical-center">
+                                            <span class="inner-vertical-center" style="width: 60px">
+                                                        <label class="m-checkbox" for="isDefault{{item.no}}">
+                                                            <input [disabled]="disableInput" type="checkbox"
+                                                                id="isDefault{{item.no}}" #checkAll name="isDefault{{item.no}}"
+                                                                [checked]="item.isDefault" (change)="defaultChange(item.no)">
+                                                            <span class="label-span"></span>
+                                            </label>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <button type="button" class="btn btn-primary" (click)="showPreviewModal(item.reporT_TEMPLATE_DETAIL_CONTENT, item.no)"><i class="flaticon-eye"></i>{{l("EditContent")}}</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </editable-table>
+                    </div>
+                </form>
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+    <previewTemplateModal #previewTemplateModal (modalSave)="changeTemplateContent($event)"></previewTemplateModal>
+    <!-- <report-template #reportTemplateModal></report-template> -->
+
+</div>

@@ -1,0 +1,171 @@
+<!-- Bảng con PO -->
+<div class="editable-title-group">
+    <h5 class="popup-title col-md-12">{{l("PoInfo")}}</h5>
+    <div class="action-button">
+        <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="tradePoMasterModal.show()"><i class="pi pi-plus"></i>{{l('Add')}}</button>
+        <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="removePo()"><i
+                    class="pi pi-times"></i>{{l("Delete")}}</button>
+    </div>
+</div>
+<div class="primeng-datatable-container">
+    <editable-table #editTablePo class="custom-table ui-table">
+        <thead>
+            <tr>
+                <!-- Checkbox -->
+                <th>
+                    <span style="width: 40px">
+                        <checkbox-control [disabled]="disableInput" (onchange)="editTablePo.checkAll($event.target.checked)" [checked]="editTablePo.isCheckAll"></checkbox-control>
+                    </span>
+                </th>
+                <!-- Begin Table Column -->
+                <!-- STT -->
+                <th><span style="width: 40px">{{l("No")}}</span></th>
+                <!-- Số PO -->
+                <th style="width:30%" sortField="pO_CODE">
+                    <span style="width: 150px">{{l("PoMasterCode")}}</span>
+                </th>
+                <!-- Tên đơn hàng -->
+                <th style="width:40%" sortField="pO_NAME">
+                    <span style="width: 230px">{{l("PoMasterName")}}</span>
+                </th>
+                <!-- Số hợp đồng -->
+                <th style="width:30%" sortField="c_CONTRACT_CODE">
+                    <span style="width: 120px">{{l("ContractCode")}}</span>
+                </th>
+                <!-- Tổng số tiền -->
+                <th class="right" sortField="totaL_AMT">
+                    <span style="width: 150px">{{l("TotalMoney")}}</span>
+                </th>
+                <!-- Nhà cung cấp -->
+                <th sortField="s_SUP_NAME">
+                    <span style="width: 150px">{{l("Supplier")}}</span>
+                </th>
+                <!-- End Table Column -->
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of editTablePo.dataInPage; let in = index" class="selectable {{item['editableIsSelected']? 'selected' : ''}}" [hidden]="item['page'] != editTablePo.currentPage" (click)="editTablePo.selectRow($event,item); updateView();">
+                <!-- Checkbox -->
+                <td>
+                    <span class="mo-header"></span>
+                    <checkbox-control [disabled]="disableInput" (onchange)="item.isChecked = $event.target.checked" [checked]="item['isChecked']"></checkbox-control>
+                </td>
+                <!-- STT -->
+                <td class="center"><span class="mo-header"></span>{{item['no']}}</td>
+
+                <!-- Số PO -->
+                <td><span class="mo-header"></span>{{item.pO_CODE}}</td>
+
+                <!-- Tên đơn hàng -->
+                <td><span class="mo-header"></span>{{item.pO_NAME}}</td>
+
+                <!-- Số hợp đồng -->
+                <td><span class="mo-header"></span>{{item.c_CONTRACT_CODE}}</td>
+
+                <!-- Tổng số tiền -->
+                <td class="right"><span class="mo-header"></span>{{item.totaL_AMT | moneyFormatPipe}}</td>
+
+                <!-- Nhà cung cấp -->
+                <td><span class="mo-header"></span>{{item.s_SUP_NAME}}</td>
+            </tr>
+        </tbody>
+    </editable-table>
+</div>
+
+
+<!-- Bảng con Danh sách hàng hóa thuộc PO -->
+<div class="editable-title-group">
+    <h5 class="popup-title col-md-12">{{l("PoGoodsDetails")}}</h5>
+    <div class="action-button">
+        <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="showPoGoodsModal()"><i class="pi pi-plus"></i>{{l('Add')}}</button>
+        <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="editablePoGoods.removeAllCheckedItem()"><i
+                    class="pi pi-times"></i>{{l("Delete")}}</button>
+    </div>
+</div>
+
+<div class="primeng-datatable-container">
+    <editable-table (onSelectRow)="onSelectGood.emit($event)" #editablePoGoods class="custom-table ui-table">
+        <thead>
+            <tr>
+                <!-- Checkbox -->
+                <th>
+                    <span style="width: 40px">
+                        <checkbox-control [disabled]="disableInput" (onchange)="editablePoGoods.checkAll($event.target.checked)" [checked]="editablePoGoods.isCheckAll"></checkbox-control>
+                    </span>
+                </th>
+                <!-- Begin Table Column -->
+                <!-- STT -->
+                <th><span style="width: 40px">{{l("No")}}</span></th>
+
+                <!-- Tên hàng hóa -->
+                <th style="width:40%" sortField="gooD_NAME">
+                    <span style="width: 150px">{{l("GoodsName")}}</span>
+                </th>
+
+                <!-- Số hóa đơn -->
+                <th style="width:30%" sortField="invoicE_NO">
+                    <span style="width: 150px">{{l("InvoiceNo")}}</span>
+                </th>
+
+                <!-- Ngày hóa đơn -->
+                <th style="width:30%" sortField="invoicE_DT">
+                    <span style="width: 150px">{{l("DateInvoice")}}</span>
+                </th>
+
+                <!-- Đơn giá -->
+                <th class="center" sortField="price">
+                    <span style="width: 150px">{{l("UnitPrice")}}</span>
+                </th>
+
+                <!-- % VAT -->
+                <th class="center" sortField="vat">
+                    <span style="width: 150px">{{l("VatPercent")}}</span>
+                </th>
+
+                <!-- VAT -->
+                <th class="right" sortField="pricE_VAT">
+                    <span style="width: 150px">{{l("Vat")}}</span>
+                </th>
+                <!-- End Table Column -->
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of editablePoGoods.dataInPage; let in = index" class="selectable {{item['editableIsSelected']? 'selected' : ''}}" (click)="editablePoGoods.selectRow($event,item); updateView();">
+                <!-- Checkbox -->
+                <td>
+                    <span class="mo-header"></span>
+                    <checkbox-control [disabled]="disableInput" (onchange)="item.isChecked = $event.target.checked" [checked]="item['isChecked']"></checkbox-control>
+                </td>
+                <!-- STT -->
+                <td class="center"><span class="mo-header"></span>{{item['no']}}</td>
+
+                <!-- Tên hàng hóa -->
+                <td><span class="mo-header"></span>{{item.goodS_NAME}}</td>
+
+                <!-- Số hóa đơn -->
+                <td><span class="mo-header"></span>
+                    <input [disabled]="disableInput" class="form-control transparent" type="text" name="invoicE_NO-n-{{in}}" [(ngModel)]="item.invoicE_NO" />
+                </td>
+
+                <!-- Ngày hóa đơn -->
+                <td><span class="mo-header"></span>
+                    <date-control class="transparent" [disabled]="disableInput" required [inpCss]="'form-control'" type="text" name="invoicE_DT-n-{{in}}" [(ngModel)]="item.invoicE_DT"></date-control>
+                </td>
+
+                <!-- Đơn giá -->
+                <td class="right"><span class="mo-header"></span>{{item.price | moneyFormatPipe}}</td>
+
+                <!-- % VAT -->
+                <td class="center"><span class="mo-header"></span>{{item.vat}}</td>
+
+                <!-- VAT -->
+                <td class="right"><span class="mo-header"></span>{{item.pricE_VAT | moneyFormatPipe}}</td>
+            </tr>
+        </tbody>
+    </editable-table>
+</div>
+
+<trade-po-master-modal #tradePoMasterModal (onSelect)="onSelectPo($event)"></trade-po-master-modal>
+<tr-po-goods-modal [gdType]="'TSCD'" [poIds]="poIds" #poGoodsModal (onSelect)="onSelectGoodsPo($event)"></tr-po-goods-modal>

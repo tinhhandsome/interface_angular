@@ -1,0 +1,129 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("CategoryTrade")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                    <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                    <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <input hidden class="form-control" type="text" #plaN_ID="ngModel" name="plaN_ID"
+                            [(ngModel)]="inputModel.cgT_ID">
+                        <!-- Năm thực hiện -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("PlanYear")}}</label>
+                                <input style="text-align: left;" required [disabled]="disableInput" class="form-control" type="number" #cgT_YEAR="ngModel" name="cgT_YEAR" [(ngModel)]="inputModel.cgT_YEAR" />
+                                <div class="error-message" *ngIf="cgT_YEAR.invalid && isShowError">
+                                    <span *ngIf="cgT_YEAR?.errors.required">{{l('PlanMasterYear')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bảng con: Thông tin chi tiết hạn mục -->
+                    <div class="editable-title-group">
+                        <h5 class="popup-title col-md-12"></h5>
+                        <div class="action-button">
+                            <button type="button" class="btn btn-primary" (click)="onAddNewAssetsItem()"><i
+                                    class="pi pi-plus"></i>{{l("Add")}}</button>
+                            <button type="button" class="btn btn-danger" (click)="onRemoveAssetsItem()"><i
+                                    class="pi pi-times"></i>{{l("Delete")}}</button>
+                        </div>
+                    </div>
+
+                    <div class="primeng-datatable-container">
+                        <editable-table  #editTable
+                            class="custom-table ui-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <span style="width: 40px">
+                                            <checkbox-control [disabled]="disableInput"
+                                                (onchange)="editTable.checkAll($event.target.checked)"
+                                                [checked]="editTable.isCheckAll"></checkbox-control>
+                                        </span>
+                                    </th>
+                                    <!-- STT -->
+                                    <th><span style="width: 40px">{{l("No")}}</span></th>
+                                    <!-- Mã hạng mục -->
+                                    <th style="width:30%" sortField="goodS_CODE"><span
+                                            style="width: 150px">{{l("CategoryTradeCode")}}</span>
+                                    </th>
+                                    <!-- Tên hạng mục -->
+                                    <th style="width:30%" sortField="goodS_NAME"><span
+                                            style="width: 150px">{{l("CategoryTradeName")}}</span>
+                                    </th>
+                                    <!-- Đơn giá -->
+                                    <th style="width:20%" sortField="Price"><span style="width: 150px">{{l("CategoryTradePrice")}}</span></th>
+                                    <!-- Cấp độ đơn vị -->
+                                    <th style="width:20%" sortField="level"><span style="width: 150px">{{l("CategoryTradeLevel")}}</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of editTable.dataInPage; let in = index"
+                                    class="selectable {{item['editableIsSelected']? 'selected' : ''}}"
+                                    [hidden]="item['page'] != editTable.currentPage"
+                                    (click)="editTable.selectRow($event,item);">
+                                    <!-- Checkbox -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <checkbox-control [disabled]="disableInput"
+                                            (onchange)="item.isChecked = $event.target.checked"
+                                            [checked]="item['isChecked']"></checkbox-control>
+                                    </td>
+                                    <!-- STT -->
+                                    <td class="center"><span class="mo-header"></span>{{item['no']}}</td>
+                                    <!-- Mã hạng mức -->
+                                    <td>{{item.goodS_CODE}}</td>
+                                    <!-- Tên hạng mức -->
+                                    <td>{{item.goodS_NAME}}</td>
+                                    <!-- Đơn giá-->
+                                    <td>{{item.price|moneyFormatPipe}}</td>
+                                    <!-- Cấp độ đơn vị -->
+                                    <td>
+                                        <all-code-select name="level-{{in}}" 
+                                        [(ngModel)]="item.level" 
+                                        [cdName]="'TRADELEVEL'" [cdType]="'TRLV'">
+                                        </all-code-select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </editable-table>
+                    </div>
+                    <!-- Begin Form -->
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<goods-modal-clone  (onSelect)="onSelectTrRequestGoods($event)" #trRequestGoodsModal>
+</goods-modal-clone>

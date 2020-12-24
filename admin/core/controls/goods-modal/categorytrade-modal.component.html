@@ -1,0 +1,143 @@
+<popup-frame [title]="l('Categorytrade_ModalTitle')" (onSearchEvent)="buttonSearch()" (onSelectEvent)="accept()" #popupFrame>
+    <form class="horizontal-form filter-form" autocomplete="off">
+        <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+                <!-- Begin Filter -->
+
+                <!-- Mã loại hàng hóa -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("GoodsTypeCode")}}</label>
+                        <select2-custom name="gD_TYPE_ID" #gD_TYPE_ID="ngModel" [(ngModel)]="filterInput.gD_TYPE_ID" [(list)]="goodTypes" [emptyText]="l('SelectAll')" [valueMember]="'gD_TYPE_ID'" [displayMember]="'gD_TYPE_NAME'">
+                        </select2-custom>
+                        <!-- <input [(ngModel)]="filterInput.gD_CODE" name="gD_CODE" autoFocus class="form-control m-input" type="text"> -->
+                    </div>
+                </div>
+
+                <!-- Mã hàng hóa -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("GoodsCode")}}</label>
+                        <input [(ngModel)]="filterInput.goodS_CODE" name="gD_CODE" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+
+                <!-- Tên hàng hóa -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("GoodsName")}}</label>
+                        <input [(ngModel)]="filterInput.goodS_NAME" name="gD_NAME" class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <!-- End Filter -->
+
+             
+
+                <div style="display:none;" class="col-md-12">
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-search" (click)="search()"></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+    <div class="row align-items-center">
+        <div class="primeng-datatable-container popup-modal-container {{dataTable.isLoading}}">
+            <div class="spinner-border m-5" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <core-table [reloadPageOnInit]="false" #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                <thead>
+                    <tr>
+                        <!-- Begin Table Column -->
+                        <!-- multiple -->
+                        <th class="center" *ngIf="multiple">
+                            <span style="width:60px">
+                                <checkbox-control #checkAllElement
+                                    (change)="onCheckAll(checkAllElement.inputRef.nativeElement)"
+                                    [checked]="checkAll">
+                                </checkbox-control>
+                            </span>
+                        </th>
+                        <th class="center">
+                            <span style="width: 40px">{{l("No")}}</span>
+                        </th>
+
+                        <!-- Hàng hóa (mã hàng hóa) -->
+                        <th class="center" style="width:10%" sortField="GD_CODE">
+                            <span style="width: 120px">{{l("Goods")}}</span>
+                        </th>
+
+                        <!-- Tên hàng hóa -->
+                        <th class="center" style="width:45%" sortField="GD_NAME">
+                            <span style="width: 350px">{{l("GoodsName")}}</span>
+                        </th>
+
+                        <!-- <th sortField="GD_TYPE_CODE">
+                            <span style="width: 150px">{{l("GoodsTypeCode")}}</span>
+                        </th>
+                        <th sortField="GD_TYPE_CODE">
+                            <span style="width: 150px">{{l("GoodsTypeCode")}}</span>
+                        </th>
+                        <th sortField="DESCRIPTION">
+                            <span style="width: 150px">{{l("Description")}}</span>
+                        </th>
+                        <th sortField="SUP_CODE">
+                            <span style="width: 250px">{{l("SupplierCode")}}</span>
+                        </th> -->
+
+                        <!-- Đơn giá -->
+                        <th class="center" style="width:10%" sortField="PRICE">
+                            <span style="width: 100px">{{l("UnitPrice")}}</span>
+                        </th>
+                        <!-- <th sortField="UNIT_CODE">
+                            <span style="width: 150px">{{l("UnitCode")}}</span>
+                        </th> -->
+
+                        <!-- Đơn vị (đơn vị tính) -->
+                        <th class="center" style="width:5%" sortField="UNIT_NAME">
+                            <span style="width: 140px">{{l("Branch")}}</span>
+                        </th>
+
+                        <!-- Nhà cung cấp -->
+                        <th class="center" style="width:20%" sortField="SUP_NAME">
+                            <span style="width: 200px">{{l("Supplier")}}</span>
+                        </th>
+                        <!-- <th sortField="NOTES">
+                            <span style="width: 150px">{{l("Notes")}}</span>
+                        </th> -->
+                        <!-- End Table Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- multiple dblclick -->
+                    <tr *ngFor="let record of dataTable.records" class="selectable" (click)="selectRow($event,record)" (dblclick)="onDoubleClick(record)">
+                        <!-- Begin Table Value -->
+                        <!-- multiple -->
+                        <td class="center" *ngIf="multiple">
+                            <span class="mo-header"></span>
+                            <checkbox-control (onchange)="setChecked($event.target.checked, record)" [checked]="record['isChecked']"></checkbox-control>
+                        </td>
+                        <td class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                        </td>
+                        <td><span class="mo-header"></span>{{record.goodS_CODE}}</td>
+                        <td><span class="mo-header"></span>{{record.goodS_NAME}}</td>
+                        <!-- <td><span class="mo-header"></span>{{record.gD_TYPE_NAME}}</td>
+                        <td><span class="mo-header"></span>{{record.description}}</td>
+                        <td><span class="mo-header"></span>{{record.suP_CODE}}</td> -->
+
+                        <td class="right"><span class="mo-header"></span>{{formatMoney(record.price)}}</td>
+                        <!-- <td><span class="mo-header"></span>{{record.uniT_CODE}}</td> -->
+                        <td><span class="mo-header"></span>{{record.uniT_NAME}}</td>
+                        <td><span class="mo-header"></span>{{record.suP_NAME}}</td>
+                        <!-- <td><span class="mo-header"></span>{{record.notes}}</td> -->
+                        <!-- End Table Value -->
+                    </tr>
+                </tbody>
+            </core-table>
+
+
+        </div>
+    </div>
+</popup-frame>

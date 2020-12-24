@@ -1,0 +1,4 @@
+<label class="m-radio" for="{{id}}">{{label}}
+    <input [disabled]="disabled" #control name="{{nameInput}}" [checked]="checked" type="radio" (change)="checkedChange($event.target.checked)" id="{{id}}">
+    <span></span>
+</label>

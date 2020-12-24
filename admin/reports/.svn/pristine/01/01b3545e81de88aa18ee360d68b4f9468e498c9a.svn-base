@@ -1,0 +1,112 @@
+import { Injector, Component, OnInit, ViewEncapsulation, AfterViewInit, ViewChild, ElementRef } from "@angular/core";
+import { ReportInfo, AsposeServiceProxy, CM_DEPARTMENT_ENTITY, CM_BRANCH_ENTITY, CM_TERM_ENTITY, TermServiceProxy } from "@shared/service-proxies/service-proxies";
+import { appModuleAnimation } from "@shared/animations/routerTransition";
+import { FileDownloadService } from "@shared/utils/file-download.service";
+import { ReportTypeConsts } from "@app/admin/core/ultils/consts/ReportTypeConsts";
+import { DefaultComponentBase } from "@app/ultilities/default-component-base";
+import * as moment from 'moment';
+
+@Component({
+    templateUrl: './ass-list-branch-inventory.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+
+export class AssListBranchInventory extends DefaultComponentBase implements OnInit, AfterViewInit {
+
+    didsableInput: boolean = true;
+    terms: CM_TERM_ENTITY[] = [];
+    filterInput: any = {};
+
+    termName: string = '';
+    levels: any[];
+    isShowError: boolean = false;
+    @ViewChild('exportForm') exportForm: ElementRef;
+    
+    ngAfterViewInit(): void {
+        // COMMENT: this.stopAutoUpdateView();
+        this.setupValidationMessage();
+    }
+
+    constructor(injector: Injector,
+        private fileDownloadService: FileDownloadService,
+        private asposeService: AsposeServiceProxy,
+        private termService: TermServiceProxy) {
+        super(injector);
+    }
+
+    ngOnInit(): void {
+        this.levels = this.getLevelsCombobox();
+        this.initTerms();
+
+        this.filterInput.brancH_LOGIN = this.appSession.user.subbrId;
+        this.filterInput.level = 'ALL';
+        this.filterInput.brancH_ID = this.appSession.user.subbrId;
+        this.filterInput.brancH_NAME = this.appSession.user.branchName;
+        this.filterInput.FROMDATE = moment().startOf('year');
+        this.filterInput.TODATE = moment().endOf('year');
+    }
+
+    exportToExcel() {
+        if ((this.exportForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();    
+            return;
+        }
+        if(this.filterInput.FROMDATE > this.filterInput.TODATE){
+            this.showErrorMessage(this.l('FromDateMustSmallerThanToDate'));
+            this.updateView();
+            return;
+        }
+        if(!this.filterInput.TODATE){
+            this.showErrorMessage(this.l('ChooseDateRequired'));
+            this.updateView();
+            return;
+        }
+        this.didsableInput = true;
+
+        let reportInfo = new ReportInfo();
+        reportInfo.typeExport = ReportTypeConsts.Excel;
+        
+        
+        reportInfo.values = this.GetParamsFromFilter({
+            p_Header: 'BÁO CÁO TỔNG HỢP TÌNH HÌNH THỰC HIỆN KIỂM KÊ TÀI SẢN ĐẾN NGÀY ' + this.filterInput.TODATE.format('DD/MM/YYYY')
+            + '\n' + this.termName + ' NĂM ' + (new Date().getFullYear()) + ' (Ngày kiểm kê: ' + this.filterInput.inventorY_DT.format('DD/MM/YYYY') + ' )'
+        });
+        this.filterInput.autH_STATUS = (this.filterInput.autH_STATUS) ? this.filterInput.autH_STATUS : '';
+        if (!this.filterInput.FROMDATE)
+            this.filterInput.FROMDATE = '';
+        reportInfo.parameters = this.GetParamsFromFilter(this.filterInput);
+
+        reportInfo.pathName = "/REPORT/INVENTORY_BY_ALL_BRANCH.xlsx";
+        reportInfo.storeName = "rpt_INVENTORY_BY_ALL_BRANCH";
+
+        this.asposeService.getReport(reportInfo).subscribe(x => {
+            this.fileDownloadService.downloadTempFile(x);
+            this.didsableInput = false;
+            this.showSuccessMessage(this.l('ExportFileSuccess'));
+            this.updateView();
+        });
+    }
+
+    initTerms(): void {
+        this.termService.cM_TERM_Search(this.getFillterForCombobox()).subscribe(Result => {
+            this.didsableInput = false;
+            this.terms = Result.items;
+            this.updateView();
+        });
+        
+    }
+
+    getItemName(event: CM_TERM_ENTITY){
+        this.termName = event.terM_NAME;
+        this.filterInput.terM_ID = event.terM_ID;
+    }
+
+    onSelectBranch(branch: CM_BRANCH_ENTITY) {
+        this.filterInput.brancH_ID = branch.brancH_ID;
+        this.filterInput.brancH_NAME = branch.brancH_NAME;
+    }
+
+}

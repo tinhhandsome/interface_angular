@@ -1,0 +1,78 @@
+<!-- #region Bảng con lịch thanh toán -->
+
+<div class="editable-title-group">
+    <h5 class="popup-title col-md-12">{{l("PoPayment")}}</h5>
+    <div class="action-button">
+        <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="addNewTrPoRepairPayment()"><i class="pi pi-plus"></i>{{l("Add")}}</button>
+        <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="editTablePoRepairPayment.removeAllCheckedItem()"><i
+                                        class="pi pi-times"></i>{{l("Delete")}}</button>
+    </div>
+</div>
+
+<div class="primeng-datatable-container">
+    <editable-table (onSort)="updateView()" #editTablePoRepairPayment class="custom-table ui-table">
+        <thead>
+            <tr>
+                <!-- Checkbox -->
+                <th>
+                    <span style="width: 40px"><checkbox-control [disabled]="disableInput" (onchange)="editTablePoRepairPayment.checkAll($event.target.checked)" [checked]="editTablePoRepairPayment.isCheckAll"></checkbox-control></span>
+                </th>
+                <!-- STT -->
+                <th><span style="width: 40px">{{l("No")}}</span></th>
+                <!-- Đợt -->
+                <th sortField="paY_PHASE" class="required"><span style="width: 80px">{{l("PayPhase")}}</span></th>
+                <!-- Ngày dự kiến thanh toán -->
+                <th style="width:50%" sortField="expecteD_DT"><span style="width: 200px">{{l("ExpectedPaymentDate")}}</span></th>
+                <!-- % -->
+                <th sortField="percent" class="required"><span style="width: 200px">{{l("Percent")}}</span></th>
+                <!-- Số tiền -->
+                <th style="width:50%" sortField="amount" class="required"><span style="width: 200px">{{l("Amount")}}</span></th>
+                <!-- Diễn giải -->
+                <th sortField="notes"><span style="width: 200px">{{l("DescriptionInfo")}}</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of editTablePoRepairPayment.dataInPage; let in = index" [hidden]="item.page != editTablePoRepairPayment.currentPage">
+                <!-- Checkbox -->
+                <td>
+                    <span class="mo-header"></span>
+                    <checkbox-control (onchange)="item.isChecked = $event.target.checked" [checked]="item['isChecked']"></checkbox-control>
+                </td>
+                <!-- STT -->
+                <td class="center"><span class="mo-header"></span>{{item.no}}</td>
+                <!-- Đợt -->
+                <td><span class="mo-header"></span>
+                    <input required [disabled]="disableInput" class="form-control transparent" type="number" min="0" name="paY_PHASE-{{in}}-2" [(ngModel)]="item.paY_PHASE" />
+                    <div class="error-message" *ngIf="isShowError">
+                        <span *ngIf="isNull(item.paY_PHASE)">{{l('PayPhase')}}
+                                                    {{l("ValidationRequired")}}</span>
+                    </div>
+                </td>
+                <!-- Ngày dự kiến thanh toán -->
+                <td><span class="mo-header"></span>
+                    <date-control class="transparent" [disabled]="disableInput" [inpCss]="'form-control'" type="text" name="expecteD_DT-{{in}}-2" [(ngModel)]="item.expecteD_DT"></date-control>
+                </td>
+                <!-- % -->
+                <td><span class="mo-header"></span>
+                    <input required [disabled]="disableInput" (focusout)="item.percent = $event.target.value; reloadPaymentAmount(item);" class="form-control transparent" type="number" min="0" max="100" name="percent-{{in}}-2" [(ngModel)]="item.percent" />
+                </td>
+                <!-- Số tiền -->
+                <td>
+                    <span class="mo-header"></span>
+                    <money-input required [disabled]="disableInput" (focusout)="reloadPaymentPercent(item)" name="amount-{{in}}-2" class="transparent" [(ngModel)]="item.amount">
+                    </money-input>
+                    <div class="error-message" *ngIf="isShowError">
+                        <span *ngIf="isNull(item.amount)">{{l('Amount')}}
+                                                    {{l("ValidationRequired")}}</span>
+                    </div>
+                </td>
+                <!-- Diễn giải -->
+                <td><span class="mo-header"></span>
+                    <textarea [disabled]="disableInput" name="notes-{{in}}-2" class="form-control transparent" min="0" [(ngModel)]="item.notes"></textarea>
+                </td>
+            </tr>
+        </tbody>
+    </editable-table>
+</div>
+
+<!-- #endregion -->

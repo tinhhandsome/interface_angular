@@ -1,0 +1,266 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("TradeDetail_Title")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+
+              
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <h5 class="popup-title col-md-12">{{l("DetailInfo")}}</h5>
+                        </div>
+
+                       
+                        <div class="col-md-12" [hidden]="!IS_REJECT">                                                      
+                                    <a class="btn btn-outline-warning" (click)="showReject()">
+                                        {{l("ViewRejectNotes")}}
+                                    </a>
+
+                                    <div [hidden]="!IS_SHOW_REJECT">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item"> <label>{{l("RejectName")}}:</label> {{reject.rejecteD_BY}}</li>
+                                            <li class="list-group-item"> <label>{{l("RejectDate")}}:</label> {{reject.rejecteD_DT| dateFormatPipe}}</li>
+                                            <li class="list-group-item"> <label>{{l("ViewRejectNotes")}}:</label> {{reject.lasteD_REASON}}
+                                                
+                                            </li>
+                                            
+                                          </ul>
+                                    </div>
+                                 
+                        </div>
+
+                        <!-- Mã kế hoạch -->
+                        <!-- <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("TradeDetailCode")}}</label>
+                                <input autoFocus [disabled]="disableInput" required class="form-control" maxlength="15" type="text" #plaN_CODE="ngModel" name="plaN_CODE" [(ngModel)]="inputModel.plaN_CODE">
+                                <div class="error-message" *ngIf="plaN_CODE.invalid && isShowError">
+                                    <span *ngIf="plaN_CODE?.errors.required">{{l('TradeDetailCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div> -->
+                        <!-- Tên kế hoạch -->
+                        <!-- <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("PlanMasterName")}}</label>
+                                <input [disabled]="disableInput" required class="form-control" type="text" #plaN_NAME="ngModel" name="plaN_NAME" [(ngModel)]="inputModel.plaN_NAME" maxlength="200">
+                                <div class="error-message" *ngIf="plaN_NAME.invalid && isShowError">
+                                    <span *ngIf="plaN_NAME?.errors.required">{{l('PlanMasterName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div> -->
+
+                        <!-- Đơn vị -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("Branch")}}</label>
+                                <input disabled class="form-control" value="{{inputModel.brancH_CODE}}" name="brancH_CODE" />
+                            </div>
+                        </div>
+
+                        <!-- Năm thực hiện -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("PlanYear")}}</label>
+                                <input style="text-align: left;" required [disabled]="disableInput" class="form-control" type="number" #year="ngModel" name="year" [(ngModel)]="inputModel.year" />
+                                <div class="error-message" *ngIf="year.invalid && isShowError">
+                                    <span *ngIf="year?.errors.required">{{l('PlanMasterYear')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tên đơn vị -->
+                        <!-- <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("BranchName")}}</label>
+                                <input class="form-control" value="{{inputModel.brancH_NAME}}" disabled name="brancH_NAME">
+                            </div>
+                        </div> -->
+                        <!-- Tên phòng ban -->
+                        <!-- <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("DepartmentName")}}</label>
+                                <select2-custom [disabled]="disableInput" name="deP_ID" #depId="ngModel" [(ngModel)]="inputModel.depT_ID" [list]="departments" [emptyText]="l('NullSelect')" [valueMember]="'deP_ID'" [displayMember]="'deP_CODE|deP_NAME'">
+                                </select2-custom>
+                            </div>
+                        </div> -->
+
+                        <div class="col-md-4"></div>
+
+                        <!-- Tổng giá trị -->
+                        <div class="col-md-4" [hidden]="!isApp">
+                            <div class="form-group">
+                                <label>{{l("TotalAmt")}}</label>
+                                <input style="text-align: right;" [disabled]="disableInput" readonly class="form-control" value="{{formatMoney(totalAmt)}}" name="totalAmt">
+                            </div>
+                        </div>
+                        
+                        <!-- Giá trị thực hiện -->
+                        <div class="col-md-4" [hidden]="!isApp">
+                            <div class="form-group">
+                                <label>{{l("ProcessValue")}}</label>
+                                <input style="text-align: right;" [disabled]="disableInput" readonly class="form-control" value="{{formatMoney(processValue)}}" name="processValue">
+                            </div>
+                        </div>
+                        <!-- Giá trị còn lại -->
+                        <div class="col-md-4" [hidden]="!isApp">
+                            <div class="form-group">
+                                <label>{{l("RemainValue")}}</label>
+                                <input style="text-align: right;" [disabled]="disableInput" readonly class="form-control" value="{{formatMoney(totalAmt - processValue)}}" name="remainValue">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="editable-title-group">
+                        <h5 class="popup-title col-md-12">{{l("PlanDetail")}}</h5>
+                        <div class="action-button">
+                            <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="onAddNewGoodsItem()"><i class="pi pi-plus"></i>{{l('Add')}}</button>
+                            <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="onRemoveGoodsItem();"><i
+                                        class="pi pi-times"></i>{{l("Delete")}}</button>
+                        </div>
+                    </div>
+                    <div class="primeng-datatable-container">
+                        <editable-table #editTable [requiredFields]="['plaN_MONTH', 'quantity' ]" class="custom-table ui-table">
+                            <thead>
+                                <tr>
+                                    <!-- Checkbox -->
+                                    <th>
+                                        <span style="width: 40px">
+                                            <checkbox-control [disabled]="disableInput"
+                                                (onchange)="editTable.checkAll($event.target.checked)"
+                                                [checked]="editTable.isCheckAll"></checkbox-control>
+                                        </span>
+                                    </th>
+                                    <!-- STT -->
+                                    <th><span style="width: 40px">{{l("No")}}</span></th>
+                                    <!-- Tháng kế hoạch -->
+                                    <!-- <th sortField="plaN_MONTH"><span style="width: 150px">{{l("PlanMonth")}}</span></th> -->
+                                    <!-- Tên sản phẩm -->
+                                    <th style="width:25%" sortField="goodS_NAME"><span style="width: 300px">{{l("ProductName")}}</span>
+                                    </th>
+                                    <!-- Đơn vị tính -->
+                                    <!-- <th sortField="uniT_NAME"><span style="width: 150px">{{l("Unit")}}</span></th> -->
+                                    <!-- Đơn giá -->
+                                    <th sortField="price"><span style="width: 150px">{{l("UnitPrice")}}</span></th>
+                                    <!-- Số lượng -->
+                                    <th sortField="quantity"><span style="width: 150px">{{l("Quantity")}}</span></th>
+                                    <!-- Số lượng đã thực hiện -->
+                                    <th [hidden]="!isApp"  sortField="quantitY_EXE"><span style="width: 180px">{{l("QuantityExe")}}</span>
+                                    </th>
+                                    <!-- Số lượng còn lại -->
+                                    <th [hidden]="!isApp" sortField="quantitY_REMAIN"><span style="width: 180px">{{l("QuantityRemain")}}</span></th>
+                                    <!-- Tổng giá trị -->
+                                    <th style="width:25%" class="right" sortField="totaL_AMT"><span style="width: 150px">{{l("TotalAmount")}}</span>
+                                    </th>
+                                    <!-- Giá trị đã thực hiện -->
+                                    <th [hidden]="!isApp" style="width:25%" class="right" sortField="valuE_EXE"><span style="width: 150px">{{l("ValueExe")}}</span></th>
+                                    <!-- Giá trị còn lại -->
+                                    <th [hidden]="!isApp" style="width:25%" class="right" sortField="valuE_REMAIN"><span style="width: 150px">{{l("RemainValue")}}</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of editTable.dataInPage; let in = index" [hidden]="item.page != editTable.currentPage">
+                                    <!-- Checkbox -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <checkbox-control [disabled]="disableInput" (onchange)="item.isChecked = $event.target.checked" [checked]="item['isChecked']"></checkbox-control>
+                                    </td>
+                                    <!-- STT -->
+                                    <td class="center"><span class="mo-header"></span>{{item.no}}</td>
+                                    <!-- Tháng kế hoạch -->
+                                    <!-- <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" name="plaN_MONTH-{{in}}" min="1" max="12" class="form-control transparent" type="number" [(ngModel)]="item.plaN_MONTH" (focusout)="item.plaN_MONTH = $event.target.value;" />
+                                    </td> -->
+                                    <!-- Tên sản phẩm -->
+                                    <td><span class="mo-header"></span>{{item.goodS_NAME}}</td>
+                                    <!-- Đơn vị tính -->
+                                    <!-- <td><span class="mo-header"></span>{{item.uniT_NAME}}</td> -->
+                                    <!-- Đơn giá -->
+                                    <!-- <td>
+                                        <span class="mo-header"></span>
+                                        <money-input [disabled]="disableInput" name="price-{{in}}" class="transparent" [(ngModel)]="item.price" (focusout)="price_change(item)">
+                                        </money-input>
+                                    </td> -->
+                                    <td class="right"><span class="mo-header"></span>{{item.price | moneyFormatPipe}}</td>
+                                    <!-- Số lượng -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <input [disabled]="disableInput" name="quantity-{{in}}" min="1" max="{{s('gAMSProCore.MaxQuantityNumber')}}" class="form-control transparent" type="number" [(ngModel)]="item.quantity" (focusout)="quantity_change(item);item.quantity = $event.target.value;"
+                                        />
+                                    </td>
+                                    <!-- Số lượng đã thực hiện -->
+                                    <td [hidden]="!isApp"><span class="mo-header"></span>{{item.quantitY_EXE}}</td>
+                                    <!-- Số lượng còn lại -->
+                                    <td [hidden]="!isApp"><span class="mo-header"></span>{{(item.quantitY_REMAIN) | moneyFormatPipe}}</td>
+                                    <!-- Tổng giá trị -->
+                                    <td class="right"><span class="mo-header"></span>{{item.totaL_AMT | moneyFormatPipe}}</td>
+                                    <!-- Giá trị đã thực hiện -->
+                                    <td [hidden]="!isApp"  class="right"><span class="mo-header"></span>{{item.valuE_EXE | moneyFormatPipe}}</td>
+                                    <!-- Giá trị còn lại -->
+                                    <td [hidden]="!isApp" class="right"><span class="mo-header"></span>{{(item.valuE_REMAIN) | moneyFormatPipe}}</td>
+
+
+                                </tr>
+                            </tbody>
+                        </editable-table>
+                    </div>
+                    <div>
+
+                    </div>
+                </form>
+                <div class="col-md-12"></div>
+                <br/>
+                <div [hidden]="!isSendApp" class="action-button col-md-4 offset-md-8">
+        
+                    <button [disabled]="isDisable" type="button" class="btn btn-primary" (click)="SendApp()"><i class="pi pi-eject"></i>{{l("SendApp")}}</button>
+                </div>
+                <div [hidden]="!isReject" class="action-button col-md-4 offset-md-8">
+                    <button [disabled]="isDisable" type="button" class="btn btn-primary" (click)="Reject()"><i class="pi pi-arrow-left"></i>{{l("DontApp")}}</button>
+                </div>
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<categorytrade-modal (onSelect)="onSelectGoods($event)" #categorytradeModal [cgtyear]="inputModel.year"></categorytrade-modal>
+<reject-notes #rejectModal [title]="l('ReturnContent') + ' ' + inputModel.plaN_NAME" (onSubmitEvent)="onReturn($event)">
+</reject-notes>

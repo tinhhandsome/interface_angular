@@ -1,0 +1,120 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <!-- Begin Title -->
+                        <span>{{l("SupplierType")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-suP_TYPE dropdown mr-2">
+                        <button class=" btn btn-outline-success" (click)="exportToExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("SupplierTypeCode")}}</label>
+                                        <input [(ngModel)]="filterInput.suP_TYPE_CODE" name="suP_TYPE_CODE" autoFocus class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("SupplierTypeName")}}</label>
+                                        <input [(ngModel)]="filterInput.suP_TYPE_NAME" name="suP_TYPE_NAME"  class="form-control m-input" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("AuthStatus")}}</label>
+                                        <all-code-select name="autH_STATUS" [(ngModel)]="filterInput.autH_STATUS" [emptyText]="l('SelectAll')" [cdName]="'AUTH_STATUS'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+                                <!-- End Filter -->
+                                <div style="display:none;" class="col-md-12">
+                                    <div class="form-group">
+                                        <button class="btn btn-primary btn-search" (click)="onSearch()">{{l('Search')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="getSupplierTypes()">
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th>
+                                            <span style="width: 60px">{{l("No")}}</span>
+                                        </th>
+                                        <th sortField="SUPPLIER_TYPE.suP_TYPE_CODE">
+                                            <span style="width: 200px">{{l("SupplierTypeCode")}}</span>
+                                        </th>
+                                        <th sortField="SUPPLIER_TYPE.suP_TYPE_NAME">
+                                            <span style="width: 200px">{{l("SupplierTypeName")}}</span>
+                                        </th>
+                                        <th sortField="SUPPLIER_TYPE.notes">
+                                            <span style="width: 150px">{{l("Notes")}}</span>
+                                        </th>
+                                        <th sortField="SUPPLIER_TYPE.recorD_STATUS">
+                                            <span style="width: 150px">{{l("IsActive")}}</span>
+                                        </th>
+                                        <th sortField="SUPPLIER_TYPE.autH_STATUS">
+                                            <span style="width: 150px">{{l("AuthStatus")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onUpdate(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <td><span class="mo-header"></span>{{(filterInput.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <td><span class="mo-header"></span>{{record.suP_TYPE_CODE}}</td>
+                                        <td><span class="mo-header"></span>{{record.suP_TYPE_NAME}}</td>
+                                        <td><span class="mo-header"></span>{{record.notes}}</td>
+                                        <td><span class="mo-header"></span>{{record.recorD_STATUS_NAME}}</td>
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+
+                            <div class="primeng-no-data" *ngIf="dataTable.records.length == 0">
+                                {{l('NoData')}}
+                            </div>
+                            <div class="primeng-paging-container">
+                                <p-paginator [rows]="filterInput.maxResultCount || dataTable.defaultRecordsCountPerPage" #paginator (onPageChange)="getSupplierTypes($event)" [totalRecords]="dataTable.totalRecordsCount" [rowsPerPageOptions]="dataTable.predefinedRecordsCountPerPage">
+                                </p-paginator>
+
+                                <span class="total-records-count">
+                                    {{l('TotalRecordsCount')}} {{dataTable.totalRecordsCount}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

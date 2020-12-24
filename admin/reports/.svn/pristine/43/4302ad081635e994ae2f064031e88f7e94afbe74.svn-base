@@ -1,0 +1,133 @@
+<div [@routerTransition]>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 class="m-subheader__title m-subheader__title--separator">
+
+                    <!-- Begin Title -->
+                    <span>{{l("AssListBranchInventory")}}</span>
+                    <!-- End Title -->
+                </h3>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <form class="horizontal-form filter-form" #exportForm="ngForm" id='exportForm' autocomplete="off"
+                    novalidate (ngSubmit)="exportToExcel()">
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-30">
+                            <!-- Begin Filter -->
+                            <div class="col-md-8 row">
+                                <!-- Đơn vị -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("Branch")}}</label>
+                                        <div class="input-group">
+                                            <input class="form-control" [disabled]="true"
+                                                [ngModelOptions]="{standalone: true}"
+                                                [ngModel]="filterInput.brancH_NAME">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-primary"
+                                                    (click)="branchModal.show()">...</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Cấp độ -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("Level")}}</label>
+                                        <select2-custom [(ngModel)]="filterInput.level"
+                                            [ngModelOptions]="{standalone: true}" [(list)]="levels"
+                                            [valueMember]="'value'" [displayMember]="'display'">
+                                        </select2-custom>
+                                    </div>
+                                </div>
+
+                                <!-- Từ ngày - Đến ngày -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("FromDate")}}</label>
+                                        <date-control [inpCss]="'form-control'" type="text"
+                                            [ngModelOptions]="{standalone: true}" [(ngModel)]="filterInput.FROMDATE">
+                                        </date-control>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("ToDate")}}</label>
+                                        <date-control required [inpCss]="'form-control'" type="text" name="TODATE"
+                                            #TODATE="ngModel" [(ngModel)]="filterInput.TODATE">
+                                        </date-control>
+                                        <div class="error-message" *ngIf="TODATE.invalid && isShowError">
+                                            <span *ngIf="TODATE?.errors.required">{{l('ToDate')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Trạng thái duyệt -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AuthStatus")}}</label>
+                                        <all-code-select name="autH_STATUS" [(ngModel)]="filterInput.autH_STATUS"
+                                            [emptyText]="l('SelectAll')" [cdName]="'AUTH_STATUS'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+
+                                <!-- Đợt kiểm kê -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("InventTerm")}}</label>
+                                        <select2-custom name="term" [(ngModel)]="filterInput.term" [(list)]="terms"
+                                            (onChangeSelect2)='getItemName($event)' #term="ngModel" [required]='true'
+                                            [valueMember]="'terM_ID'" [displayMember]="'terM_NAME'">
+                                        </select2-custom>
+                                        <div class="error-message" *ngIf="term.invalid && isShowError">
+                                            <span *ngIf="term?.errors.required">{{l('Term')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ngày kiểm kê -->
+                                <div class="col-md-6">
+                                    <div class="form-group required">
+                                        <label>{{l("InventoryDate")}}</label>
+                                        <date-control [inpCss]="'form-control'" type="text" name="inventorY_DT" required
+                                            [(ngModel)]="filterInput.inventorY_DT" #inventorY_DT="ngModel">
+                                        </date-control>
+                                    </div>
+                                    <div class="error-message" *ngIf="inventorY_DT.invalid && isShowError">
+                                        <span *ngIf="inventorY_DT?.errors.required">{{l('InventoryDate')}}
+                                            {{l("ValidationRequired")}}</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for=""></label>
+                                        <button [disabled]="didsableInput"
+                                            class="btn btn-primary">{{l('Excel')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <branch-modal (onSelect)="onSelectBranch($event)" [multiple]="false" [showColPotential]="false"
+        [showColAuthStatus]="false" #branchModal></branch-modal>
+</div>

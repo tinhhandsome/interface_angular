@@ -1,0 +1,121 @@
+<div [@routerTransition]>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 class="m-subheader__title m-subheader__title--separator">
+
+                    <!-- Begin Title -->
+                    <span>{{l("PLBuyAssetOutPlan")}}</span>
+                    <!-- End Title -->
+                </h3>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <form #editForm="ngForm" novalidate class="horizontal-form filter-form" autocomplete="off">
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-30">
+                            <div class="col-md-8 row">
+                                <!-- Begin Filter -->
+
+                                <!-- Đơn vị -->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("Branch")}}</label>
+                                        <div class="user-group">
+                                            <input class="form-control" [disabled]="true"
+                                                [ngModelOptions]="{standalone: true}"
+                                                [ngModel]="filterInput.brancH_NAME">
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-primary"
+                                                    (click)="branchModal.show()">...</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <!-- Từ ngày - Đến ngày -->
+
+                                <div class="col-md-6 form-group">
+                                    <label>{{l("FromDate")}}</label>
+                                    <date-control [inpCss]="'form-control'" type="text"
+                                        [ngModelOptions]="{standalone: true}" [(ngModel)]="filterInput.fromDate">
+                                    </date-control>
+                                </div>
+                                <div class="col-md-6 form-group required">
+                                    <label>{{l("ToDate")}}</label>
+                                    <date-control required [inpCss]="'form-control'" type="text" name="TODATE"
+                                        #TODATE="ngModel" [(ngModel)]="filterInput.toDate">
+                                    </date-control>
+                                    <div class="error-message" *ngIf="TODATE.invalid && isShowError">
+                                        <span *ngIf="TODATE?.errors.required">{{l('ToDate')}}
+                                            {{l("ValidationRequired")}}</span>
+                                    </div>
+                                    <div class="error-message"
+                                        *ngIf="filterInput['fromDate'] > filterInput['toDate'] && isShowError">
+                                        <span>{{l('FromDateMustSmallerThanToDate')}}</span>
+                                    </div>
+                                </div>
+
+
+
+                                <!-- Loại tài sản -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AssType")}}</label>
+                                        <!-- <select2-custom [(ngModel)]="filterInput.TYPE_ID" #TYPE_ID="ngModel" name="TYPE_ID" [valueMember]="'TYPE_ID'" [(list)]="assTypes" [displayMember]="'TYPE_NAME'" [emptyText]="l('SelectAllTSCDCCLD')">
+                                    </select2-custom> -->
+                                        <all-code-select name="TYPE_ID" [(ngModel)]="filterInput.TYPE_ID"
+                                            [emptyText]="l('SelectAllTSCDCCLD')" [cdName]="'ASS_TYPE'" [cdType]="'ASS'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+
+                                <!-- Cấp độ -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("Level")}}</label>
+                                        <select2-custom [(ngModel)]="filterInput.level"
+                                            [ngModelOptions]="{standalone: true}" [(list)]="levels"
+                                            [valueMember]="'value'" [displayMember]="'display'">
+                                        </select2-custom>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="align-center">
+                                            <button (click)="printPreview()" class="btn btn-primary">Report
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="align-center">
+                                            <button (click)="exportToExcel()" class="btn btn-primary">Excel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<branch-modal (onSelect)="onSelectBranch($event)" [multiple]="false" #branchModal></branch-modal>
+<report-template #reportTemplate></report-template>

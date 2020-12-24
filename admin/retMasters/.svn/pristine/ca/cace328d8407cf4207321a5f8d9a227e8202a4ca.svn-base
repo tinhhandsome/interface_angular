@@ -1,0 +1,206 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <!-- Begin Title -->
+                        <span>{{l("RetRepairList")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+                                <!-- Mã bất động sản -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("RetCode")}}</label>
+                                        <div class="user-group">
+                                            <input class="form-control m-input" (focusout)="onRetFocusOut()" name="RetCode" type="text" [(ngModel)]="filterInput.reT_ID">
+                                            <button class="btn btn-primary" (click)="retModal.show()" type='button'>{{l("...")}}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Ngày đề xuất -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("OfferDate")}}</label>
+                                        <date-control #offeR_DT="ngModel" name="offeR_DT" [(ngModel)]="filterInput.offeR_DT"></date-control>
+
+                                    </div>
+                                </div>
+                                <!--Ngày dự kiến sửa xong-->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("FinishRepairDate")}}</label>
+                                        <date-control #finisH_DT="ngModel" name="finisH_DT" [(ngModel)]="filterInput.finisH_DT"></date-control>
+
+                                    </div>
+                                </div>
+
+                                <!-- Mã đơn vị -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("BranchCode")}}</label>
+                                        <select2-custom name="unit" (onChangeSelect2)="onGetUnit($event)" [(ngModel)]="filterInput.offeR_BRANCH" [(list)]="BranchList" [emptyText]="l('SelectAll')" [valueMember]="'brancH_ID'" [displayMember]="'brancH_CODE|brancH_NAME'">
+                                        </select2-custom>
+
+                                    </div>
+                                </div>
+
+                                <!-- Trạng thái duyệt -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("ApproveStatus")}}</label>
+
+                                        <all-code-select name="autH_STATUS" [(ngModel)]="filterInput.autH_STATUS" [emptyText]="l('SelectAll')" [cdName]="'AUTH_STATUS'">
+                                        </all-code-select>
+                                    </div>
+
+                                </div>
+                                <!-- Chi phí sửa chữa-->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("RepairAMT")}}</label>
+
+                                        <money-input name="repaiR_AMT" [(ngModel)]="filterInput.repaiR_AMT">
+                                        </money-input>
+                                    </div>
+                                </div>
+                                <!-- Đơn vị độc lập -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <checkbox-control [ngModelOptions]="{standalone: true}" [TrueValue]="'UNIT'" [FalseValue]="'ALL'" [label]="l('IndependentUnit')" [(ngModel)]="filterInput.level"></checkbox-control>
+                                    </div>
+                                </div>
+
+
+                                <!-- End Filter -->
+
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="getRetMaster()">
+                                <thead>
+                                    <tr>
+                                        <!-- STT -->
+                                        <th>
+                                            <span style="width: 60px">{{l("No")}}</span>
+                                        </th>
+                                        <!-- Mã bất động sản -->
+                                        <th sortField="RET_ID">
+                                            <span style="width: 150px">{{l("RetCode")}}</span>
+                                        </th>
+                                        <!-- Ngày đề xuất -->
+                                        <th sortField="OFFER_DT">
+                                            <span style="width: 150px">{{l("OfferDate")}}</span>
+                                        </th>
+                                        <!-- Ngày sửa chữa -->
+                                        <th sortField="REPAIR_DT">
+                                            <span style="width: 150px">{{l("RepairDate")}}</span>
+                                        </th>
+                                        <!-- Ngày dự kiến sửa xong -->
+                                        <th sortField="FINISH_DT">
+                                            <span style="width: 150px">{{l("FinishRepairDate")}}</span>
+                                        </th>
+                                        <!-- Khu vực  -->
+                                        <th sortField="KHU_VUC">
+                                            <span style="width: 150px">{{l("Area")}}</span>
+                                        </th>
+                                        <!-- Mã đơn vị -->
+                                        <th sortField="CHI_NHANH">
+                                            <span style="width: 150px">{{l("BranchCode")}}</span>
+                                        </th>
+                                        <!-- Phòng giao dịch -->
+                                        <th sortField="PGD">
+                                            <span style="width: 150px">{{l("SubBranch")}}</span>
+                                        </th>
+                                        <!-- Chi phí sửa chữa -->
+                                        <th class="right" sortField="REPAIR_AMT">
+                                            <span style="width: 150px">{{l("RepairAMT")}}</span>
+                                        </th>
+                                        <!-- Nội dung sửa chữa thực tế -->
+                                        <th sortField="REPAIR_CONTENT">
+                                            <span style="width: 150px">{{l("RepairContent")}}</span>
+                                        </th>
+                                        <!-- Trạng thái duyệt -->
+                                        <th sortField="AUTH_STATUS_NAME">
+                                            <span style="width: 150px">{{l("ApproveStatus")}}</span>
+                                        </th>
+                                        <!-- <th class="right" sortField="BUY_PRICE">
+                                            <span style="width: 150px">{{l("AssBuyPrice")}}</span>
+                                        </th> -->
+
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onUpdate(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <!-- STT -->
+                                        <td><span class="mo-header"></span>{{(filterInput.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <!-- Mã bất động sản -->
+                                        <td><span class="mo-header"></span>{{record.reT_ID}}</td>
+                                        <!-- Ngày đề xuất -->
+                                        <td><span class="mo-header"></span>{{record.offeR_DT | dateFormatPipe}}</td>
+                                        <!-- Ngày sửa chữa -->
+                                        <td><span class="mo-header"></span>{{record.repaiR_DT | dateFormatPipe}}</td>
+                                        <!-- Ngày dự kiến sửa xong -->
+                                        <td><span class="mo-header"></span>{{record.finisH_DT | dateFormatPipe}}</td>
+                                        <!-- Khu vực  -->
+                                        <td><span class="mo-header"></span>{{record.khU_VUC}}</td>
+                                        <!-- Mã đơn vị -->
+                                        <td><span class="mo-header"></span>{{record.chI_NHANH}}</td>
+                                        <!-- Phòng giao dịch -->
+                                        <td><span class="mo-header"></span>{{record.pgd}}</td>
+                                        <!-- Chi phí sửa chữa -->
+                                        <td class="right"> <span class="mo-header"></span>{{record.repaiR_AMT | moneyFormatPipe}}</td>
+                                        <!-- Nội dung sửa chữa thực tế -->
+                                        <td><span class="mo-header"></span>{{record.repaiR_CONTENT}}</td>
+
+                                        <!-- Trạng thái duyệt -->
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+
+                            <div class="primeng-no-data" *ngIf="dataTable.records.length == 0">
+                                {{l('NoData')}}
+                            </div>
+                            <div class="primeng-paging-container">
+                                <p-paginator [rows]="dataTable.defaultRecordsCountPerPage" #paginator (onPageChange)="getRetMaster($event)" [totalRecords]="dataTable.totalRecordsCount" [rowsPerPageOptions]="dataTable.predefinedRecordsCountPerPage">
+                                </p-paginator>
+
+                                <span class="total-records-count">
+                                    {{l('TotalRecordsCount')}} {{dataTable.totalRecordsCount}}
+                                </span>
+                            </div>
+                        </div>
+                        <!-- Ket thuc bang entries post list-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <ret-modal #retModal [multiple]="false" (onSelect)="onSingleSelectRet($event)"></ret-modal>
+
+    <!-- <asset-modal #assetModal [multiple]="false" (onSelect)="onSingleSelectAsset($event)"></asset-modal>
+    <division-modal #divisionModal [multiple]="false" (onSelect)="onSingleSelectDivision($event)"></division-modal> -->
+</div>

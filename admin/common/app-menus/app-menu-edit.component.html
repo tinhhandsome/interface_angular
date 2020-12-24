@@ -1,0 +1,116 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("AppMenu")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                        <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <!-- Tên tiếng anh -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("MenuKey")}}</label>
+                                <input [disabled]="disableInput" (input)="menuKeyChange()" pattern="^[a-zA-Z0-9]+$" required class="form-control" type="text" #menU_NAME_EL="ngModel" name="menU_NAME_EL" [(ngModel)]="inputModel.menU_NAME_EL">
+                                <div class="error-message" *ngIf="menU_NAME_EL.invalid && isShowError">
+                                    <span *ngIf="menU_NAME_EL?.errors.required">{{l('MenuKey')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="menU_NAME_EL?.errors.pattern">{{l('MenuKey')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tên trang -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("MenuName")}}</label>
+                                <input [disabled]="disableInput" maxlength="200" required class="form-control" type="text" #menU_NAME="ngModel" name="menU_NAME" [(ngModel)]="inputModel.menU_NAME">
+                                <div class="error-message" *ngIf="menU_NAME.invalid && isShowError">
+                                    <span *ngIf="menU_NAME?.errors.required">{{l('MenuName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:none;" class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("MenuPermission")}}</label>
+                                <app-permission-tree name="menU_PERMISSION" #menU_PERMISSION="ngModel" ngDefaultControl [(ngModel)]="inputModel.menU_PERMISSION"></app-permission-tree>
+                            </div>
+                        </div>
+                        <!-- Biểu tượng -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("MenuIcon")}}</label>
+                                <div class="row outter-vertical-center icon-menu">
+                                    <div>
+                                        <input [disabled]="disableInput" class="form-control" (focusout)="updateView()" type="text" #menU_ICON="ngModel" name="menU_ICON" [(ngModel)]="inputModel.menU_ICON">
+                                    </div>
+                                    <div class="inner-vertical-center">
+                                        <i class="{{inputModel.menU_ICON}}"></i>
+                                    </div>
+                                </div>
+                                <!-- <span [innerHTML]="l('MenuIcon_Description')"></span> -->
+                            </div>
+                        </div>
+                        <!-- Mã trang cha -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("MenuParent")}}</label>
+                                <select2-custom [disabled]="disableInput" name="menU_PARENT" #menU_PARENT="ngModel" [(ngModel)]="inputModel.menU_PARENT" [(list)]="menuItems" [emptyText]="l('NullSelect')" [valueMember]="'menU_ID'" [displayMember]="'menU_ID|menU_NAME'">
+                                </select2-custom>
+                            </div>
+                        </div>
+                        <!-- Đường dẫn -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("MenuRoute")}}</label>
+                                <input [disabled]="disableInput" class="form-control" #menU_LINK="ngModel" type="text" name="menU_LINK" [(ngModel)]="inputModel.menU_LINK">
+                            </div>
+                        </div>
+                        <!-- Thứ tự -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("MenuOrder")}}</label>
+                                <input style="text-align:left!important" [disabled]="disableInput" class="form-control" min="0" #menU_ORDER="ngModel" type="number" name="menU_ORDER" [(ngModel)]="inputModel.menU_ORDER">
+                            </div>
+                        </div>
+                        <div class="col-md-6 outer-vertical-center outter-vertical-center">
+                            <div class="form-group inner-vertical-center">
+                                <checkbox-control name="independenT_UNIT" [label]="l('IsApproveFunct')" [checked]="true" [(ngModel)]="inputModel.isapprovE_FUNC"></checkbox-control>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>

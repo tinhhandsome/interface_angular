@@ -1,0 +1,553 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("AssMaster_Title")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                        <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin tài sản -->
+                        <div class="col-md-12">
+                            <h5 class="popup-title">{{l("AssInfo")}}</h5>
+                        </div>
+
+                        <!-- Mã tài sản -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AssetCode")}}</label>
+                                <input class="form-control" name="asseT_CODE" [disabled]="disableInput" type="text" #asseT_CODE="ngModel" [(ngModel)]="inputModel.asseT_CODE">
+                            </div>
+                        </div>
+
+                        <!-- Mã loại tài sản -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("TypeCode")}}</label>
+                                <input class="form-control" name="typE_NAME" [disabled]="disableInput" type="text" #typE_NAME="ngModel" [(ngModel)]="inputModel.typE_NAME">
+                            </div>
+                        </div>
+
+                        <!-- Mã nhóm tài sản -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AssGroupCode")}}</label>
+                                <input class="form-control" name="grouP_NAME" [disabled]="disableInput" type="text" #grouP_NAME="ngModel" [(ngModel)]="inputModel.grouP_NAME">
+                            </div>
+                        </div>
+
+                        <!-- Tên tài sản -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("AssetName")}}</label>
+                                <input class="form-control" name="asseT_NAME" [disabled]="disableInput" type="text" #asseT_NAME="ngModel" [(ngModel)]="inputModel.asseT_NAME">
+                            </div>
+                        </div>
+
+                        <!-- Ngày nhập -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("InputDate")}}</label>
+                                <date-control [disabled]="disableInput" [inpCss]="'form-control'" type="text" #buY_DATE="ngModel" name="buY_DATE" [(ngModel)]="inputModel.buY_DATE">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Số PO -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("PoMasterCode")}}</label>
+                                <input class="form-control" name="pO_CODE" [disabled]="disableInput" type="text" #pO_CODE="ngModel" [(ngModel)]="inputModel.pO_CODE">
+                            </div>
+                        </div>
+
+                        <!-- Nhà cung cấp -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Supplier")}}</label>
+                                <input class="form-control" name="suP_NAME" [disabled]="disableInput" type="text" #suP_NAME="ngModel" [(ngModel)]="inputModel.suP_NAME">
+                            </div>
+                        </div>
+
+                        <!-- Số tháng khấu hao -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmortMonth")}}</label>
+                                <input class="form-control" name="amorT_MONTH" [disabled]="disableInput" type="text" #amorT_MONTH="ngModel" [(ngModel)]="inputModel.amorT_MONTH">
+                            </div>
+                        </div>
+
+                        <!-- Tỷ lệ khấu hao -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmortRate")}}</label>
+                                <input class="form-control" name="amorT_RATE" [disabled]="disableInput" type="text" #amorT_RATE="ngModel" [(ngModel)]="inputModel.amorT_RATE">
+                            </div>
+                        </div>
+
+                        <!-- Số seri -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("SerialNo")}}</label>
+                                <input class="form-control" name="asseT_SERIAL_NO" [disabled]="disableInput" type="text" #asseT_SERIAL_NO="ngModel" [(ngModel)]="inputModel.asseT_SERIAL_NO">
+                            </div>
+                        </div>
+
+                        <!-- Thông tin mô tả -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Description")}}</label>
+                                <textarea class="form-control" name="asseT_DESC" #asseT_DESC="ngModel" type="text" [disabled]="disableInput" [(ngModel)]="inputModel.asseT_DESC">
+								</textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+
+                        <!-- Nguyên giá -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("OriginalPrice")}}</label>
+                                <input class="form-control" name="buY_PRICE" [disabled]="disableInput" type="text" [value]="inputModel.buY_PRICE | moneyFormatPipe">
+                            </div>
+                        </div>
+
+                        <!-- Giá trị còn lại -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("RemainValue")}}</label>
+                                <input class="form-control" name="buY_PRICE" [disabled]="disableInput" type="text" [value]="(inputModel.buY_PRICE - inputModel.amortizeD_AMT) | moneyFormatPipe">
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+                        <!-- Giá trị khấu hao -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmortPrice")}}</label>
+                                <input class="form-control" name="amorT_AMT" [disabled]="disableInput" type="text" [value]="inputModel.amorT_AMT | moneyFormatPipe">
+                            </div>
+                        </div>
+
+                        <!-- Giá trị khấu hao còn lại -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("RemainAmortPrice")}}</label>
+                                <input class="form-control" name="RemainAmortPrice" [disabled]="disableInput" type="text" [value]="(inputModel.amorT_AMT - inputModel.amortizeD_AMT) | moneyFormatPipe">
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+
+                        <!-- Trạng thái tài sản -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AssetStatus")}}</label>
+                                <input class="form-control" name="asS_STATUS_NAME" [disabled]="disableInput" type="text" #asS_STATUS_NAME="ngModel" [(ngModel)]="inputModel.asS_STATUS_NAME">
+                            </div>
+                        </div>
+
+                        <!-- Trạng thái khấu hao -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmortStatus")}}</label>
+                                <input class="form-control" name="amorT_STATUS_NAME" [disabled]="disableInput" type="text" #amorT_STATUS_NAME="ngModel" [(ngModel)]="inputModel.amorT_STATUS_NAME">
+                            </div>
+                        </div>
+
+                        <!-- Ghi chú -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <textarea class="form-control" name="notes" #notes="ngModel" type="text" [disabled]="disableInput" [(ngModel)]="inputModel.notes">
+								</textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label></label>
+                                <button class="btn btn-primary" (click)="exportExcel()">{{l('ExcelOperations')}}</button>
+                            </div>
+                        </div>
+
+                        <!-- Thời gian bảo hành và lịch bảo hành -->
+                        <div class="col-md-12 top-space">
+                            <ass-waranty [disableInput]="disableInput" [assWars]="inputModel.asS_ADDNEW_WAR_ENTITYs" [warrantyMonths]="inputModel.warrantY_MONTHS"></ass-waranty>
+                        </div>
+
+                        <!-- Bảng con quá trình sử dụng -->
+                        <div class="col-md-12">
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("OperationUseExe")}}</h5>
+                            </div>
+                            <div class="primeng-datatable-container">
+                                <editable-table #editableOperationUseExe class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <!-- Begin Table Column -->
+                                            <!-- STT -->
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <!-- Ngày sử dụng -->
+                                            <th style="width:25%" sortField="usE_START_DT">
+                                                <span style="width: 150px">{{l("UseDate")}}</span>
+                                            </th>
+                                            <!-- Đơn vị sử dụng -->
+                                            <th style="width:25%" sortField="brancH_NAME">
+                                                <span style="width: 230px">{{l("BranchNameUse")}}</span>
+                                            </th>
+                                            <!-- Tên phòng ban -->
+                                            <th style="width:25%" sortField="deP_NAME">
+                                                <span style="width: 230px">{{l("DepartmentName")}}</span>
+                                            </th>
+                                            <!-- Người sử dụng -->
+                                            <th style="width:25%" sortField="emP_NAME">
+                                                <span style="width: 230px">{{l("EmpName")}}</span>
+                                            </th>
+                                            <!-- End Table Column -->
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of editableOperationUseExe.dataInPage; let in = index" [hidden]="item['page'] != editableOperationUseExe.currentPage" (click)="editableOperationUseExe.selectRow($event,item); updateView();">
+                                            <!-- STT -->
+                                            <td class="center"><span class="mo-header"></span>{{item['no']}}</td>
+
+                                            <!-- Ngày sử dụng -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.usE_START_DT | dateFormatPipe}}
+                                            </td>
+                                            <!-- Đơn vị sử dụng -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.brancH_NAME}}
+                                            </td>
+                                            <!-- Tên phòng ban -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.deP_NAME}}
+                                            </td>
+                                            <!-- Người sử dụng -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.emP_NAME}}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+                        </div>
+
+                        <!-- Bảng con quá trình sửa chữa -->
+                        <div class="col-md-12">
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("RepairOperation")}}</h5>
+                            </div>
+                            <div class="primeng-datatable-container">
+                                <editable-table #editableOperationRepairExe class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <!-- Begin Table Column -->
+                                            <!-- STT -->
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <!-- Ngày đề xuất -->
+                                            <th style="width:25%" sortField="OFFER_DT">
+                                                <span style="width: 150px">{{l("OfferDate")}}</span>
+                                            </th>
+                                            <!-- Đơn vị đề xuất -->
+                                            <th style="width:25%" sortField="brancH_NAME">
+                                                <span style="width: 230px">{{l("OfferBranch")}}</span>
+                                            </th>
+                                            <!-- Người đề xuất -->
+                                            <th sortField="offeR_PERSON">
+                                                <span style="width: 230px">{{l("OfferPerson")}}</span>
+                                            </th>
+                                            <!-- Chi phí dự kiến -->
+                                            <th sortField="offeR_AMT">
+                                                <span style="width: 230px">{{l("OfferAMT")}}</span>
+                                            </th>
+                                            <!-- Ngày sửa chữa -->
+                                            <th style="width:25%" sortField="repaiR_DT">
+                                                <span style="width: 230px">{{l("RepairDate")}}</span>
+                                            </th>
+                                            <!-- Đơn vị sửa chữa -->
+                                            <th style="width:25%" sortField="offeR_REP_DIVISION">
+                                                <span style="width: 230px">{{l("RepairDivision")}}</span>
+                                            </th>
+                                            <!-- End Table Column -->
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of editableOperationRepairExe.dataInPage; let in = index" [hidden]="item['page'] != editableOperationRepairExe.currentPage" (click)="editableOperationRepairExe.selectRow($event,item); updateView();">
+                                            <!-- STT -->
+                                            <td class="center"><span class="mo-header"></span>{{item['no']}}</td>
+
+                                            <!-- Ngày đề xuất -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.offeR_DT | dateFormatPipe}}
+                                            </td>
+                                            <!-- Đơn vị đề xuất -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.brancH_NAME}}
+                                            </td>
+                                            <!-- Người đề xuất -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.offeR_PERSON}}
+                                            </td>
+                                            <!-- Chi phí dự kiến -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.offeR_AMT | moneyFormatPipe}}
+                                            </td>
+                                            <!-- Ngày sửa chữa -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.repaiR_DT | dateFormatPipe}}
+                                            </td>
+                                            <!-- Đơn vị sửa chữa -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.offeR_REP_DIVISION}}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+                        </div>
+
+                        <!-- Bảng con thông tin chi tiết sửa chữa -->
+                        <div class="col-md-12">
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("RepairDetailInfo")}}</h5>
+                            </div>
+                            <div class="primeng-datatable-container">
+                                <editable-table #editableRepairDetail class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <!-- Begin Table Column -->
+                                            <!-- STT -->
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <!-- Tên hàng hóa -->
+                                            <th style="width:40%" sortField="goodS_NAME">
+                                                <span style="width: 150px">{{l("GoodsName")}}</span>
+                                            </th>
+                                            <!-- Số PO -->
+                                            <th style="width:30%" sortField="pO_CODE">
+                                                <span style="width: 230px">{{l("PoMasterCode")}}</span>
+                                            </th>
+                                            <!-- Tên đơn hàng -->
+                                            <th style="width:30%" sortField="pO_NAME">
+                                                <span style="width: 230px">{{l("PoMasterName")}}</span>
+                                            </th>
+                                            <!-- End Table Column -->
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of editableRepairDetail.dataInPage; let in = index" [hidden]="item['page'] != editableRepairDetail.currentPage" (click)="editableRepairDetail.selectRow($event,item); updateView();">
+                                            <!-- STT -->
+                                            <td class="center"><span class="mo-header"></span>{{item['no']}}</td>
+
+                                            <!-- Tên hàng hóa -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.goodS_NAME}}
+                                            </td>
+                                            <!-- Số PO -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.pO_CODE}}
+                                            </td>
+                                            <!-- Tên đơn hàng -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.pO_NAME}}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+                        </div>
+
+
+                        <!-- Bảng con thông tin khấu hao -->
+                        <div class="col-md-12">
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("AmortInfo")}}</h5>
+                            </div>
+                            <div class="primeng-datatable-container">
+                                <editable-table #editableAmort class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <!-- Begin Table Column -->
+                                            <!-- STT -->
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <!-- Ngày khấu hao -->
+                                            <th style="width:25%" sortField="executE_DT">
+                                                <span style="width: 150px">{{l("AmortDate")}}</span>
+                                            </th>
+                                            <!-- Đơn vị -->
+                                            <th style="width:25%" sortField="brancH_NAME">
+                                                <span style="width: 230px">{{l("Branch")}}</span>
+                                            </th>
+                                            <!-- Số tiền -->
+                                            <th style="width:25%" sortField="amorT_AMT">
+                                                <span style="width: 230px">{{l("Amount")}}</span>
+                                            </th>
+                                            <!-- Nội dung -->
+                                            <th style="width:25%" sortField="trN_DESC">
+                                                <span style="width: 230px">{{l("Content")}}</span>
+                                            </th>
+                                            <!-- End Table Column -->
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of editableAmort.dataInPage; let in = index" [hidden]="item['page'] != editableAmort.currentPage" (click)="editableAmort.selectRow($event,item); updateView();">
+                                            <!-- STT -->
+                                            <td class="center"><span class="mo-header"></span>{{item['no']}}</td>
+
+                                            <!-- Ngày khấu hao -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.executE_DT | dateFormatPipe}}
+                                            </td>
+                                            <!-- Đơn vị -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.brancH_NAME}}
+                                            </td>
+                                            <!-- Số tiền -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.amorT_AMT | moneyFormatPipe}}
+                                            </td>
+                                            <!-- Nội dung -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.trN_DESC}}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+                        </div>
+
+                        <!-- Bảng con thông tin chi tiết file đính kèm -->
+                        <div class="col-md-12">
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("FileAttachmentDetail")}}</h5>
+                            </div>
+                            <div class="primeng-datatable-container">
+                                <editable-table #editableFileAttachment class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <!-- Begin Table Column -->
+                                            <!-- STT -->
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <!-- Tên chức năng -->
+                                            <th style="width:30%" sortField="functioN_NAME">
+                                                <span style="width: 150px">{{l("FunctionName")}}</span>
+                                            </th>
+                                            <!-- Tên file -->
+                                            <th style="width:40%" sortField="filE_NAME">
+                                                <span style="width: 230px">{{l("FileName")}}</span>
+                                            </th>
+                                            <!-- Ngày tạo -->
+                                            <th style="width:30%" sortField="createD_DT">
+                                                <span style="width: 230px">{{l("CreateDate")}}</span>
+                                            </th>
+                                            <!-- End Table Column -->
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of editableFileAttachment.dataInPage; let in = index" [hidden]="item['page'] != editableFileAttachment.currentPage" (click)="editableFileAttachment.selectRow($event,item); updateView();">
+                                            <!-- STT -->
+                                            <td class="center"><span class="mo-header"></span>{{item['no']}}</td>
+
+                                            <!-- Tên chức năng -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.functioN_NAME}}
+                                            </td>
+                                            <!-- Tên file -->
+                                            <td>
+                                                <span class="mo-header"></span> <a (click)="download(item.filE_REF)" href="javascript:void(0)">{{item.filE_NAME}}</a>
+                                            </td>
+                                            <!-- Ngày tạo -->
+                                            <td>
+                                                <span class="mo-header"></span> {{item.createD_DT | dateFormatPipe}}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin thanh lý -->
+                        <div style="margin-top:20px" class="col-md-12">
+                            <h5 class="popup-title">{{l("LiqInfo")}}</h5>
+                        </div>
+
+                        <!-- Ngày thanh lý -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("DateLiq")}}</label>
+                                <date-control name="liquiD_DT" [disabled]="disableInput" type="text" #liquiD_DT="ngModel" [(ngModel)]="inputModel.asS_MASTER_LIQ_ENTITYs.liquiD_DT">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Số tiền thanh lý -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmountLiq")}}</label>
+                                <input class="form-control" name="liQ_PRICE" [disabled]="disableInput" type="text" [value]="inputModel.asS_MASTER_LIQ_ENTITYs.liQ_PRICE | moneyFormatPipe">
+                            </div>
+                        </div>
+
+                        <!-- Giá trị còn lại khi thanh lý -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("RemainAmountLiq")}}</label>
+                                <input class="form-control" name="remaiN_AMT" [disabled]="disableInput" type="text" [value]="inputModel.asS_MASTER_LIQ_ENTITYs.remaiN_AMT | moneyFormatPipe">
+                            </div>
+                        </div>
+
+                        <!-- Hình thức thanh lý -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("LiquidateMode")}}</label>
+                                <input class="form-control" name="liQ_TYPE_NAME" [disabled]="disableInput" type="text" #liQ_TYPE_NAME="ngModel" [(ngModel)]="inputModel.asS_MASTER_LIQ_ENTITYs.liQ_TYPE_NAME">
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+
+                        <!-- Ghi chú -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <textarea class="form-control" name="noteS" #noteS="ngModel" type="text" [disabled]="disableInput" [(ngModel)]="inputModel.asS_MASTER_LIQ_ENTITYs.notes">
+								</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>

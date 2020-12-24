@@ -1,0 +1,218 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <a [routerLink]="rootPage()"
+                        class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+
+                        <!-- Begin Title -->
+                        <span>{{l("CarInsure")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-group dropdown mr-2">
+                        <button class=" btn btn-outline-success" *ngIf="appToolbar.buttonSearchEnable" (click)="exportExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+
+                                        <label>{{l("N_Plate")}}</label>
+                                        <div class='user-group'>
+
+                                            <input (focusout)="findCar()" [(ngModel)]="filterInput.n_PLATE"
+                                                name="n_PLATE" autoFocus class="form-control m-input" type="text">
+                                            <button type="button" class="btn btn-primary"
+                                                (click)="carMasterModal.show()">...</button>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("Model")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.caR_MASTER.model" name="model"
+                                            autoFocus class="form-control m-input" type="text">
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("CarType")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.caR_MASTER.caR_TYPE_NAME"
+                                            name="caR_TYPE_NAME" autoFocus class="form-control m-input" type="text">
+
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("Manufacturer")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.caR_MASTER.manufacturer"
+                                            name="manufacturer" autoFocus class="form-control m-input" type="text">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("Procountry")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.caR_MASTER.procountry"
+                                            name="procountry" autoFocus class="form-control m-input" type="text">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("ManufacturerYear")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.caR_MASTER.manufacturE_YEAR"
+                                            name="manufacturE_YEAR" autoFocus class="form-control m-input" type="text">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("GearBoxType")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.caR_MASTER.gearboX_TYPE"
+                                            name="gearboX_TYPE" autoFocus class="form-control m-input" type="text">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("FuelsType")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.caR_MASTER.fuelS_TYPE"
+                                            name="fuelS_TYPE" autoFocus class="form-control m-input" type="text">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("PowerRate")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.caR_MASTER.poweR_RATE"
+                                            name="poweR_RATE" autoFocus class="form-control m-input" type="text">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("Volume")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.caR_MASTER.volume" name="volume"
+                                            autoFocus class="form-control m-input" type="text">
+
+                                    </div>
+                                </div>
+
+
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("MachinesId")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.caR_MASTER.machineS_ID"
+                                            name="machineS_ID" autoFocus class="form-control m-input" type="text">
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("SlopesId")}}</label>
+                                        <input disabled [(ngModel)]="filterInput.caR_MASTER.slopeS_ID" name="slopeS_ID"
+                                            autoFocus class="form-control m-input" type="text">
+
+                                    </div>
+                                </div>
+                                <!-- End Filter -->
+                                <div style="display:none;" class="col-md-12">
+                                    <div class="form-group">
+                                        <button *ngIf="appToolbar.buttonSearchEnable" class="btn btn-primary btn-search"
+                                            (click)="onSearch()">{{l('Search')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                                <thead>
+                                    <tr>
+
+                                        <!-- Begin Table Column -->
+                                        <th class="center">
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <th class="center" sortField="n_PLATE">
+                                            <span style="width: 70px">{{l("N_Plate")}}</span>
+                                        </th>
+
+                                        <th class="center" sortField="insU_DT">
+                                            <span style="width: 170px">{{l("InsuDate")}}</span>
+                                        </th>
+                                        <th class="center" sortField="insU_MAT_DT">
+                                            <span style="width: 200px">{{l("InsuMTDate")}}</span>
+                                        </th>
+                                        <th class="center" sortField="insU_COMPANY_NAME">
+                                            <span style="width: 180px">{{l("InsuCompanyName")}}</span>
+                                        </th>
+                                        <th class="center" sortField="insU_TYPE_NAME">
+                                            <span style="width: 150px">{{l("InsuType")}}</span>
+                                        </th>
+                                        <th class="center" sortField="insU_AMT">
+                                            <span style="width: 150px">{{l("InsuAMT")}}</span>
+                                        </th>
+                                        <th class="center" sortField="autH_STATUS_NAME">
+                                            <span style="width: 150px">{{l("AuthStatus")}}</span>
+                                        </th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable"
+                                        (dblclick)="onDblclick(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <td class="center"><span
+                                                class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <td><span class="mo-header"></span>{{record.n_PLATE}}</td>
+                                        <td><span class="mo-header"></span>{{record.insU_DT | dateFormatPipe}}</td>
+                                        <td><span class="mo-header"></span>{{record.insU_MAT_DT | dateFormatPipe}}</td>
+                                        <td><span class="mo-header"></span>{{record.insU_COMPANY_NAME}}</td>
+                                        <td><span class="mo-header"></span>{{record.insU_TYPE_NAME}}</td>
+                                        <td class="right"><span class="mo-header"></span>{{formatMoney(record.insU_AMT)}}</td>
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <car-master-modal [multiple]='false' (onSelect)="onSelectCar($event)" #carMasterModal>
+    </car-master-modal>

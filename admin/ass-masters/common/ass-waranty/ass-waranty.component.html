@@ -1,0 +1,74 @@
+<!-- Thông tin lịch bảo hành -->
+<h5 class="popup-title col-md-12">{{l("WarantyInfo")}}</h5>
+
+<!-- Bảng con Lịch bảo hành -->
+<div class="editable-title-group">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>{{l("WarMonth")}}</label>
+                <div class="group">
+                    <input [disabled]="disableInput" style="text-align: left; margin-bottom: 5px;" class="form-control ng-pristine ng-valid ng-touched" min="0" name="warrantyMonthsValue" [disabled]="isWarMonthDisabled" type="number" #warrantyMonthsValue="ngModel" [(ngModel)]="warrantyMonths">
+                    <span>{{l("Month")}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="action-button">
+        <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="editTableWar.addNewItem()"><i class="pi pi-plus"></i>{{l('Add')}}</button>
+        <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="editTableWar.removeAllCheckedItem()"><i class="pi pi-times"></i>{{l("Delete")}}</button>
+    </div>
+</div>
+<div class="primeng-datatable-container">
+    <editable-table #editTableWar class="custom-table ui-table">
+        <thead>
+            <tr>
+                <!-- Checkbox -->
+                <th *ngIf="!disableInput">
+                    <span style="width: 40px">
+                        <checkbox-control (onchange)="editTableWar.checkAll($event.target.checked)"
+                            [checked]="editTableWar.isCheckAll"></checkbox-control>
+                    </span>
+                </th>
+                <!-- Begin Table Column -->
+                <!-- STT -->
+                <th><span style="width: 40px">{{l("No")}}</span></th>
+                <!-- Ngày bảo hành -->
+                <th sortField="waR_DT">
+                    <span style="width: 150px">{{l("WarDt")}}</span>
+                </th>
+                <!-- Tên đơn hàng -->
+                <th style="width:100%" sortField="waR_CONTENT">
+                    <span style="width: 230px">{{l("WarContent")}}</span>
+                </th>
+                <!-- End Table Column -->
+
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of editTableWar.dataInPage; let in = index" [hidden]="item['page'] != editTableWar.currentPage" (click)="editTableWar.selectRow($event,item); updateView();">
+                <!-- Checkbox -->
+                <td *ngIf="!disableInput">
+                    <span class="mo-header"></span>
+                    <checkbox-control (onchange)="item.isChecked = $event.target.checked" [checked]="item['isChecked']">
+                    </checkbox-control>
+                </td>
+                <!-- STT -->
+                <td class="center"><span class="mo-header"></span>{{item['no']}}</td>
+
+                <!-- Ngày bảo hành -->
+                <td>
+                    <span class="mo-header"></span>
+                    <date-control [disabled]="disableInput" required [inpCss]="'form-control'" type="text" name="waR_DT-{{in}}" [(ngModel)]="item.waR_DT">
+                    </date-control>
+                </td>
+
+                <!-- Tên đơn hàng -->
+                <td>
+                    <span class="mo-header"></span>
+                    <textarea [disabled]="disableInput" class="form-control transparent" type="text" name="waR_CONTENT-{{in}}" [(ngModel)]="item.waR_CONTENT"></textarea>
+                </td>
+            </tr>
+        </tbody>
+    </editable-table>
+</div>

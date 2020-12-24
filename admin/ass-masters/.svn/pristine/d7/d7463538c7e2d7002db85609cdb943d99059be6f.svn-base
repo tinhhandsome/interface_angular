@@ -1,0 +1,238 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 class="m-subheader__title m-subheader__title--separator">
+
+                    <!-- Begin Title -->
+                    <span>{{l("AssAmort")}}</span>
+                    <!-- End Title -->
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form class="horizontal-form filter-form" autocomplete="off" #editForm="ngForm" id="editForm">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="filterInput.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- Tính khấu hao tài sản-->
+                        <div class="col-md-12">
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("AssAmortCalculation")}} </h5>
+                            </div>
+                        </div>
+
+                        <!-- Ngày thực hiện khấu hao -->
+                        <div class="col-md-12">
+                            <div class="group">
+                                <label>{{l("AmortExecuteDate")}}: </label>
+                                <label class="ml-3">{{l(filterInput.executE_DATE | dateFormatPipe)}} </label>
+                            </div>
+                        </div>
+                        <!-- Kỳ khấu hao -->
+
+                        <div class="col-md-4 form-group requried">
+                            <fieldset>
+                                <legend>{{l("AmortTerm")}}</legend>
+                                <div class="user-group">
+                                    <input required class="ml-3 form-control" type="text" name="amorT_TERM"
+                                        #amorT_TERM="ngModel" [(ngModel)]="filterInput.amorT_TERM" placeholder="MM/YY"
+                                        (focusout)="getTermValue($event.target.value)" />
+                                    <button class="btn btn-danger" id="btn-danger" name="btn-danger"
+                                        (click)="deleteAssAmortDo()" type='button'>{{l("Cancel")}}
+                                        {{l("AmortTerm")| lowercase}}</button>
+                                </div>
+                                <div class="error-message" *ngIf="amorT_TERM.invalid && isShowError">
+                                    <span *ngIf="amorT_TERM?.errors?.required">{{l("AmortTerm")}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </fieldset>
+
+                        </div>
+                        <div class="col-md-8"></div>
+
+                        <!-- Kỳ khấu hao -->
+                        <div [hidden]="!isShowApproveAssets" class="col-md-12">
+                            <div class="group">
+                                <label>{{l("AmortTerm")}}: </label>
+                                <label class="ml-3">{{l(filterInput.amorT_TERM)}} </label>
+                            </div>
+                        </div>
+                        <!-- Tổng giá trị khấu hao -->
+                        <div [hidden]="!isShowApproveAssets" class="col-md-12">
+                            <div class="group">
+                                <label>{{l("TotalAmortValue")}}: </label>
+                                <label class="ml-3">{{l(filterInput.totaL_AMT | moneyFormatPipe)}} </label>
+                            </div>
+                        </div>
+                        <!-- Tình trạng khấu hao -->
+                        <div [hidden]="!isShowApproveAssets" class="col-md-12">
+                            <div class="group">
+                                <label>{{l("AmortStatus")}}: </label>
+                                <label class="ml-3">{{l(filterInput.statuS_NAME )}} </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 group">
+                            <!-- Tạo mới kỳ khấu hao -->
+                            <button class="btn btn-primary ng-star-inserted" id="btn-create" name="btn-create"
+                                (click)="createAssAmortDo()" type='button'>{{l("Create")}}
+                                {{l("AmortTerm")| lowercase}}</button>
+                            <!-- Thực thi kỳ khấu hao -->
+                            <div [hidden]="!isShowApproveAssets" class="ml-1">
+                                <button class="btn btn-primary ng-star-inserted" name="btn-execute" id="btn-execute"
+                                    (click)="executeAssAmort()" type='button'>{{l("Execute")}}
+                                    {{l("AmortTerm")| lowercase}}</button>
+                                <button class=" btn btn-outline-success" type="button" id="btn-excel" name="btn-excel"
+                                    (click)="downloadAssAmortExcel()">
+                                    <i class="far fa-file-excel"></i>
+                                    {{l("ExcelOperations")}}
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-12" [hidden]="!isShowUnApproveAssets">
+                            <!--BEGIN DETAIL 1-->
+                            <div class="editable-title-group mb-3">
+                                <h5 class="popup-title col-md-12">{{l("ListUnApprovedAsset")}}</h5>
+                            </div>
+
+                            <div class="primeng-datatable-container">
+                                <editable-table #editTable class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+
+                                            <!-- Begin Table Column -->
+                                            <!-- STT -->
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <!-- Giao dịch -->
+                                            <th sortField="traN_TYPE_NAME">
+                                                <span style="width: 300px">{{l("Transaction")}}</span>
+                                            </th>
+                                            <!--Tình trạng duyệt-->
+                                            <th sortField="autH_STATUS_NAME">
+                                                <span style="width: 150px">{{l("AuthStatus")}}</span>
+                                            </th>
+                                            <!--Người tạo-->
+                                            <th sortField="makeR_ID">
+                                                <span style="width: 150px">{{l("PersonCreate")}}</span>
+                                            </th>
+                                            <!-- End Table Column -->
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of editTable.dataInPage; let in = index"
+                                            class="selectable {{item['editableIsSelected']? 'selected' : ''}}"
+                                            [hidden]="item['page'] != editTable.currentPage"
+                                            (click)="editTable.selectRow($event,item); updateView();">
+
+                                            <!-- STT -->
+                                            <td><span class="mo-header"></span>{{item['no']}}</td>
+                                            <!--Giao dịch-->
+                                            <td><span class="mo-header"></span>{{item.traN_TYPE_NAME}}</td>
+                                            <!--Trạng thái duyệt-->
+                                            <td><span class="mo-header"></span>{{item.autH_STATUS_NAME}}</td>
+                                            <!--Người tạo-->
+                                            <td><span class="mo-header"></span>{{item.makeR_ID}}</td>
+
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+                            <!--END DETAIL 1-->
+                        </div>
+
+                        <div class="col-md-12" [hidden]="!isShowApproveAssets">
+                            <!--BEGIN DETAIL 2-->
+                            <div class="editable-title-group mb-3">
+                                <h5 class="popup-title col-md-12">{{l("ListApprovedAsset")}}</h5>
+                            </div>
+
+                            <div class="primeng-datatable-container">
+                                <editable-table #editTable2 class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+
+                                            <!-- Begin Table Column -->
+                                            <!-- STT -->
+                                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                                            <!--Mã đơn vị-->
+                                            <th sortField="brancH_CODE">
+                                                <span style="width: 150px">{{l("BranchCode")}}</span>
+                                            </th>
+                                            <!--Tên đơn vị-->
+                                            <th sortField="brancH_NAME">
+                                                <span style="width: 150px">{{l("BranchName")}}</span>
+                                            </th>
+                                            <!--Mã tài sản-->
+                                            <th sortField="asseT_CODE">
+                                                <span style="width: 150px">{{l("AssetCode")}}</span>
+                                            </th>
+                                            <!--Tên tài sản-->
+                                            <th sortField="asseT_NAME">
+                                                <span style="width: 250px">{{l("AssetName")}}</span>
+                                            </th>
+                                            <!--Số tiền (khấu hao)-->
+                                            <th sortField="amorT_AMT" class="right">
+                                                <span style="width: 150px">{{l("Amount") | moneyFormatPipe}}</span>
+                                            </th>
+                                            <!--Ghi chú (ghi chú khấu hao)-->
+                                            <th sortField="trN_DESC">
+                                                <span style="width: 200px">{{l("Notes")}}</span>
+                                            </th>
+                                            <!-- End Table Column -->
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of editTable2.dataInPage; let in = index"
+                                            class="selectable {{item['editableIsSelected']? 'selected' : ''}}"
+                                            [hidden]="item['page'] != editTable2.currentPage"
+                                            (click)="editTable2.selectRow($event,item); updateView();">
+
+                                            <!-- STT -->
+                                            <td><span class="mo-header"></span>{{item['no']}}</td>
+                                            <!--Mã đơn vị-->
+                                            <td><span class="mo-header"></span>{{item.brancH_CODE}}</td>
+                                            <!--Tên đơn vị-->
+                                            <td><span class="mo-header"></span>{{item.brancH_NAME}}</td>
+                                            <!--Mã tài sản-->
+                                            <td><span class="mo-header"></span>{{item.asseT_CODE}}</td>
+                                            <!--Tên tài sản-->
+                                            <td><span class="mo-header"></span>{{item.asseT_NAME}}</td>
+                                            <!--Số tiền-->
+                                            <td><span class="mo-header"></span>{{item.amorT_AMT | moneyFormatPipe}}
+                                            </td>
+                                            <!--Ghi chú-->
+                                            <td><span class="mo-header"></span>{{item.trN_DESC}}</td>
+
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                                <!--END DETAIL 2-->
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>

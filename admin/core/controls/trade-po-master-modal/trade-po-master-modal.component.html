@@ -1,0 +1,164 @@
+<popup-frame [title]="l('SearchPoInfo')" (onSearchEvent)="buttonSearch()" (onSelectEvent)="accept()" #popupFrame>
+    <div class="horizontal-form filter-form" autocomplete="off">
+        <form class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+                <!-- Begin Filter -->
+                <!-- <h5 class="popup-title col-md-12">{{l("SearchContains")}}</h5> -->
+
+                <!-- Mã PO -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("PoCode")}}</label>
+                        <input [(ngModel)]="filterInput.pO_CODE" name="pO_CODE" #pO_CODE="ngModel" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+
+                <!-- Tên đơn hàng -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("PoName")}}</label>
+                        <input [(ngModel)]="filterInput.pO_NAME" name="pO_NAME" #pO_NAME="ngModel" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+
+                <!-- Số hợp đồng -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("ContractCode")}}</label>
+                        <input [(ngModel)]="filterInput.contracT_CODE" name="contracT_CODE" #contracT_CODE="ngModel" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+
+                <!-- Mã nhà cung cấp -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("SupplierCode")}}</label>
+                        <div class="user-group">
+                            <input class="form-control" type="text" #suP_ID="ngModel" name="suP_ID" [disabled]="false" [(ngModel)]="filterInput.suP_ID">
+                            <button class="btn btn-primary ng-star-inserted" (click)="supplierModal.show()" type='button'>{{l("...")}}</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loại PO -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("PoType")}}</label>
+                        <select2-custom name="pO_TYPE" [(ngModel)]="filterInput['pO_TYPE1']" [emptyText]="l('SelectAll')" [(list)]="poTypes" [valueMember]="'cdval'" [displayMember]="'content'">
+                        </select2-custom>
+                        <!-- <all-code-select name="pO_TYPE" [(ngModel)]="filterInput['pO_TYPE1']" [emptyText]="l('SelectAll')" [cdName]="'TRTYPE'" [cdType]="'TR'"></all-code-select> -->
+                    </div>
+                </div>
+                <div class="col-md-4"></div>
+
+                <!-- Ngày đặt hàng -->
+                <div class="col-md-8">
+                    <fieldset>
+                        <legend>{{l("DateOrder")}}</legend>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>{{l("FromDate")}}</label>
+                                <date-control [inpCss]="'form-control'" type="text" name="froM_DATE" [(ngModel)]="filterInput.froM_DATE">
+                                </date-control>
+                            </div>
+                            <div class="col-md-6">
+                                <label>{{l("ToDate")}}</label>
+                                <date-control [inpCss]="'form-control'" type="text" name="tO_DATE" [(ngModel)]="filterInput.tO_DATE">
+                                </date-control>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- End Filter -->
+                <div style="display:none;" class="col-md-12">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary btn-search" (click)="search()"></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row align-items-center">
+        <div isLoading="dataTable.isLoading" class="primeng-datatable-container">
+            <div class="spinner-border m-5" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <core-table [reloadPageOnInit]="false" #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                <thead>
+                    <tr>
+                        <!-- Begin Table Column -->
+                        <!-- multiple -->
+                        <th class="center" *ngIf="multiple">
+                            <span style="width: 40px">
+                                <checkbox-control #checkAllElement
+                                    (change)="onCheckAll(checkAllElement.inputRef.nativeElement)" [checked]="checkAll">
+                                </checkbox-control>
+                            </span>
+                        </th>
+                        <!-- STT -->
+                        <th class="center">
+                            <span style="width: 40px">{{l("No")}}</span>
+                        </th>
+                        <!-- Mã PO -->
+                        <th style="width:50%" sortField="PO_CODE">
+                            <span style="width: 150px">{{l("PoCode")}}</span>
+                        </th>
+                        <!-- Tên đơn hàng -->
+                        <th style="width:50%" sortField="PO_NAME">
+                            <span style="width: 250px">{{l("PoName")}}</span>
+                        </th>
+                        <!-- Số tờ trình -->
+                        <th sortField="REQ_DOC_ID">
+                            <span style="width: 150px">{{l("ReqDocCode")}}</span>
+                        </th>
+                        <!-- Số hợp đồng -->
+                        <th sortField="C_CONTRACT_CODE">
+                            <span style="width: 150px">{{l("ContractCode")}}</span>
+                        </th>
+                        <!-- Ngày nhập -->
+                        <th sortField="INPUT_DT">
+                            <span style="width: 150px">{{l("InputDate")}}</span>
+                        </th>
+                        <!-- Tổng số tiền -->
+                        <th class="right" sortField="TOTAL_AMT">
+                            <span style="width: 150px">{{l("TotalMoney")}}</span>
+                        </th>
+                        <!-- End Table Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- multiple dblclick -->
+                    <tr *ngFor="let record of dataTable.records; let no = index;" class="selectable" (click)="selectRow($event,record)" (dblclick)="onDoubleClick(record)">
+                        <!-- Begin Table Value -->
+                        <!-- multiple -->
+                        <td class="center" *ngIf="multiple">
+                            <span class="mo-header"></span>
+                            <checkbox-control (onchange)="setChecked($event.target.checked, record)" [checked]="record['isChecked']"></checkbox-control>
+                        </td>
+                        <!-- STT -->
+                        <td class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                        </td>
+                        <!-- Mã PO -->
+                        <td><span class="mo-header"></span>{{record.pO_CODE}}</td>
+                        <!-- Tên đơn hàng -->
+                        <td><span class="mo-header"></span>{{record.pO_NAME}}</td>
+                        <!-- Số tờ trình -->
+                        <td><span class="mo-header"></span>{{record.reQ_DOC_ID}}</td>
+                        <!-- Số hợp đồng -->
+                        <td><span class="mo-header"></span>{{record.contracT_CODE}}</td>
+                        <!-- Ngày nhập -->
+                        <td><span class="mo-header"></span>{{record.inpuT_DT | dateFormatPipe}}</td>
+                        <!-- Tổng số tiền -->
+                        <td class="right"><span class="mo-header"></span>{{record.totaL_AMT | moneyFormatPipe}}</td>
+                        <!-- End Table Value -->
+                    </tr>
+                </tbody>
+            </core-table>
+
+
+        </div>
+    </div>
+</popup-frame>
+
+<supplier-modal (onSelect)="onSelectSupplier($event)" [multiple]="false" #supplierModal></supplier-modal>

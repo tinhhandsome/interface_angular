@@ -1,0 +1,88 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("SysParameter")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Create")}} {{l("SysParameter") | lowercase}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Edit")}} {{l("SysParameter") | lowercase}} :
+                        {{inputModel.paraKey}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("View")}} {{l("SysParameter") | lowercase}} :
+                        {{inputModel.paraKey}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("ParaKey")}}</label>
+                                <input [disabled]="disableInput" required class="form-control" type="text" #paraKey="ngModel" name="paraKey" [(ngModel)]="inputModel.paraKey">
+                                <div class="error-message" *ngIf="paraKey.invalid && isShowError">
+                                    <span *ngIf="paraKey?.errors.required">{{l('ParaKey')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("ParaValue")}}</label>
+                                <input [disabled]="disableInput" required class="form-control" type="text" #paraValue="ngModel" name="paraValue" [(ngModel)]="inputModel.paraValue">
+                                <div class="error-message" *ngIf="paraValue.invalid && isShowError">
+                                    <span *ngIf="paraValue?.errors.required">{{l('ParaValue')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("DataType")}}</label>
+                                <all-code-select [disabled]="disableInput" required [(ngModel)]="inputModel.dataType" name="dataType" #dataType="ngModel" [emptyText]="" [cdType]="'CM'" [cdName]="'PARAM_DATATYPE'"></all-code-select>
+                                <div class="error-message" *ngIf="dataType.invalid && isShowError">
+                                    <span *ngIf="dataType?.errors.required">{{l('DataType')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("Description")}}</label>
+                                <textarea [disabled]="disableInput" required class="form-control" #description="ngModel" name="description" [(ngModel)]="inputModel.description"></textarea>
+                                <div class="error-message" *ngIf="description.invalid && isShowError">
+                                    <span *ngIf="description?.errors.required">{{l('Description')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group outter-vertical-center">
+                                <div class="form-group inner-vertical-center">
+                                    <label class="m-checkbox" for="recorD_STATUS">{{l("IsActive")}}
+                                        <input [disabled]="disableInput" type="checkbox" id="recorD_STATUS" #recorD_STATUS name="recorD_STATUS"
+                                        [checked]="inputModel.recorD_STATUS == '1'"(change)="inputModel.recorD_STATUS = recorD_STATUS.checked? '1' : '0'">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <button hidden (click)="saveInput()"></button>
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>

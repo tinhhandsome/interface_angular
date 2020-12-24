@@ -1,0 +1,139 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <a [routerLink]="rootPage()"
+                        class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+
+                        <!-- Begin Title -->
+                        <span>{{l("TradeProject")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-group dropdown mr-2">
+                        <button *ngIf="appToolbar.buttonSearchEnable" class=" btn btn-outline-success"
+                            (click)="exportExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <div class=" col-md-8 row">
+                                    <!-- Begin Filter -->
+                                    <!-- Mã dự án -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("ProjectCode")}}</label>
+                                            <input [(ngModel)]="filterInput.projecT_CODE" name="projecT_CODE" autoFocus
+                                                class="form-control m-input" type="text">
+
+                                        </div>
+                                    </div>
+                                    <!-- Tên dự án -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("ProjectName")}}</label>
+                                            <input [(ngModel)]="filterInput.projecT_NAME" name="projecT_NAME" autoFocus
+                                                class="form-control m-input" type="text">
+
+                                        </div>
+                                    </div>
+
+
+                                    <!-- Ngày tạo dự án -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>{{l("CreateProjectDate")}}</label>
+                                            <date-control #creatE_DT="ngModel" name="creatE_DT"
+                                                [(ngModel)]="filterInput.creatE_DT" autoFocus>
+                                            </date-control>
+                                        </div>
+                                    </div>
+
+                                    <!-- End Filter -->
+                                    <div style="display:none;" class="col-md-12">
+                                        <div class="form-group">
+                                            <button *ngIf="appToolbar.buttonSearchEnable"
+                                                class="btn btn-primary btn-search"
+                                                (click)="onSearch()">{{l('Search')}}</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                                <thead>
+                                    <tr>
+
+                                        <!-- Begin Table Column -->
+                                        <th class="center">
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <th style="width: 16.6%" sortField="PROJECT_CODE">
+                                            <span style="width: 150px">{{l("ProjectCode")}}</span>
+                                        </th>
+
+                                        <th style="width: 16.6%" sortField="PROJECT_NAME">
+                                            <span style="width: 200px">{{l("ProjectName")}}</span>
+                                        </th>
+                                        <th style="width: 16.6%" sortField="DISCIPLINES_NAME">
+                                            <span style="width: 200px">{{l("DisciplinesName")}}</span>
+                                        </th>
+                                        <th style="width: 16.6%" sortField="CREATE_DT">
+                                            <span style="width: 150px">{{l("CreateProjectDate")}}</span>
+                                        </th>
+                                        
+                                        <th style="width: 16.6%" sortField="RECORD_STATUS">
+                                            <span style="width: 150px">{{l("RecordStatus")}}</span>
+                                        </th>
+                                        <th style="width: 16.6%" sortField="AUTH_STATUS">
+                                            <span style="width: 150px">{{l("ApproveStatus")}}</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable"
+                                        (dblclick)="onDblclick(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <td class="center"><span
+                                                class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <td><span class="mo-header"></span>{{record.projecT_CODE}}</td>
+                                        <td><span class="mo-header"></span>{{record.projecT_NAME}}</td>
+                                        <td><span class="mo-header"></span>{{record.disciplineS_NAME}}</td>
+                                        <td><span class="mo-header"></span>{{record.creatE_DT | dateFormatPipe}}</td>
+                                        <td><span class="mo-header"></span>{{record.recorD_STATUS_NAME}}</td>
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

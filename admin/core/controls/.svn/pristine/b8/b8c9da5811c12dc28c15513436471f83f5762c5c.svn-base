@@ -1,0 +1,35 @@
+<input hidden #control>
+
+<!-- Quốc gia -->
+<div class="col-md-4">
+    <div class="form-group">
+        <label>{{l('Nation')}}</label>
+        <select2-custom name="NATION" #nationControl (onChangeSelect2)="onChangeNation($event)" [list]="nations" [(ngModel)]="nation" [valueMember]="'naT_ID'" [displayMember]="'naT_NAME'" [disabled]="disabled"></select2-custom>
+    </div>
+</div>
+
+<!-- Tỉnh/Thành -->
+<div class="col-md-4">
+    <div class="form-group">
+        <label>{{l('Province')}}</label>
+        <select2-custom name="PROVINCE" #provinceControl (onChangeSelect2)="onChangeProvince($event)" [list]="provinces" [(ngModel)]="province" [valueMember]="'prO_ID'" [displayMember]="'prO_NAME'" [disabled]="disabled"></select2-custom>
+    </div>
+</div>
+
+<div class="w-100"></div>
+
+<!-- Quận/Huyện -->
+<div class="col-md-4">
+    <div class="form-group">
+        <label>{{l('District')}}</label>
+        <select2-custom name="DISTRICT" #districtControl (onChangeSelect2)="onChangeDistrict($event)" [list]="districts" [(ngModel)]="district" [valueMember]="'diS_ID'" [displayMember]="'diS_NAME'" [disabled]="disabled"></select2-custom>
+    </div>
+</div>
+
+<!-- Phường/Xã -->
+<div class="col-md-4">
+    <div class="form-group">
+        <label>{{l('Ward')}}</label>
+        <select2-custom name="WARD" #wardControl (onChangeSelect2)="onChangeWards($event)" [list]="wards" [(ngModel)]="ward" [valueMember]="'waR_ID'" [displayMember]="'waR_NAME'" [disabled]="disabled"></select2-custom>
+    </div>
+</div>

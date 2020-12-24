@@ -1,0 +1,147 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <a [routerLink]="rootPage()"
+                        class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+
+                        <!-- Begin Title -->
+                        <span>{{l("AdjustPrice")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-group dropdown mr-2">
+                        <button class=" btn btn-outline-success" *ngIf="appToolbar.buttonSearchEnable"
+                            (click)="exportExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+
+                                <!-- Mã tài sản -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("AssetCode")}}</label>
+                                        <div class="user-group">
+                                            <input [(ngModel)]="filterInput.asS_CODE"
+                                                [ngModelOptions]="{standalone: true}" class="form-control" type="text">
+                                            <button class="btn btn-primary" (click)="showAssetModal()"
+                                                type='button'>{{l("...")}}</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Trạng thái duyệt -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("ApproveStatus")}}</label>
+                                        <all-code-select [(ngModel)]="filterInput.autH_STATUS"
+                                            [ngModelOptions]="{standalone: true}" [emptyText]="l('SelectAll')"
+                                            [cdName]="'AUTH_STATUS'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+
+                                <!-- End Filter -->
+                                <div style="display:none;" class="col-md-12">
+                                    <div class="form-group">
+                                        <button *ngIf="appToolbar.buttonSearchEnable" class="btn btn-primary btn-search"
+                                            (click)="onSearch()">{{l('Search')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th class="center">
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <!-- Mã điều chỉnh -->
+                                        <th style="width: 10%" class='center' sortField="ADJUST_CODE">
+                                            <span style="width: 130px">{{l("AdjustCode")}}</span>
+                                        </th>
+                                        <!-- Mã tài sản -->
+                                        <th style="width: 10%" class='center' sortField="ASS_CODE">
+                                            <span style="width: 100px">{{l("AssetCode")}}</span>
+                                        </th>
+                                        <!-- Tên tài sản -->
+                                        <th style="width: 45%" class='center' sortField="ASSET_NAME">
+                                            <span style="width: 250px">{{l("AssetName")}}</span>
+                                        </th>
+                                        <!-- Ngày yêu cầu -->
+                                        <th style="width: 10%" class='center' sortField="REQUEST_DT">
+                                            <span style="width: 130px">{{l("DateRequest")}}</span>
+                                        </th>
+                                        <!-- Ngày điều chỉnh -->
+                                        <th style="width: 10%" class='center' sortField="CREATE_DT">
+                                            <span style="width: 130px">{{l("AdjustDate")}}</span>
+                                        </th>
+                                        <!-- Trạng thái duyệt -->
+                                        <th style="width: 10%" class='center' sortField="AUTH_STATUS_NAME">
+                                            <span style="width: 150px">{{l("AuthStatus")}}</span>
+                                        </th>
+
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable"
+                                        (dblclick)="onDblclick(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <td class="center"><span
+                                                class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <!-- Mã điều chỉnh -->
+                                        <td><span class="mo-header"></span>{{record.adjusT_CODE}}</td>
+                                        <!-- Mã tài sản -->
+                                        <td><span class="mo-header"></span>{{record.asS_CODE}}</td>
+                                        <!-- Tên tài sản -->
+                                        <td><span class="mo-header"></span>{{record.asseT_NAME}}</td>
+                                        <!-- Ngày yêu cầu -->
+                                        <td><span class="mo-header"></span>{{record.requesT_DT | dateFormatPipe}}</td>
+                                        <!-- Ngày điều chỉnh -->
+                                        <td><span class="mo-header"></span>{{record.creatE_DT | dateFormatPipe}}</td>
+                                        <!-- Trạng thái duyệt -->
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<asset-modal #assetModal
+    [multiple]="false"
+    [hideColumns]="'BRANCH_NAME,USE_DATE,DEP_NAME'"
+    [hideFields]="'brancH_ID,dep_ID,level,SearchContains,PlanMonthFilter,PlanLiqFilter'"
+    (onSelect)="getSingleAsset($event)"></asset-modal>

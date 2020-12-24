@@ -1,0 +1,90 @@
+<div [@routerTransition]>
+    <!-- <appToolbar #appToolbar></appToolbar> -->
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 class="m-subheader__title m-subheader__title--separator">
+
+                    <!-- Begin Title -->
+                    <span>{{l("AssWarehousing")}}</span>
+                    <!-- End Title -->
+                </h3>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <form #reportForm="ngForm" id="reportForm" class="horizontal-form filter-form" autocomplete="off">
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-30">
+                            <!-- Begin Filter -->
+                            <!-- Đơn vị nhận -->
+
+                            <div class="col-md-8 row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("Branch")}}</label>
+                                        <input class="form-control" type="text" #branchName="ngModel" name="branchName"
+                                            required [disabled]="true" [(ngModel)]="inputModel.branchName">
+
+                                    </div>
+                                </div>
+
+
+                                <!-- Ngày xuất -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("DateWarehousing")}}</label>
+                                        <date-control #exportDate="ngModel" name="exportDate"
+                                            [(ngModel)]="inputModel.exportDate" required autoFocus>
+                                        </date-control>
+                                        <div class="error-message" *ngIf="isShowError">
+                                            <span *ngIf="isNull(inputModel.exportDate)">{{l('ExportDate')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tình trạng -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AssStatus")}}</label>
+                                        <all-code-select name="REPORT_STATUS" [(ngModel)]="inputModel.reportStatus"
+                                            [emptyText]="l('SelectAll')" [cdName]="'REPORT_STATUS'"
+                                            [cdType]="'RPT_WAREHOUSE'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+
+                                <div style="text-align: center;" class="col-md-6">
+                                    <div class="form-group">
+                                        <button class="btn btn-primary" type='button'
+                                            (click)="printPreview()">Report</button>
+
+                                    </div>
+                                </div>
+                                <div style="text-align: center;" class="col-md-6">
+                                    <div class="form-group">
+                                        <button class="btn btn-primary" type='button' (click)="exportToExcel()">
+                                            Excel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <branch-modal (onSelect)="onSelectBranch($event)" [multiple]="false" #branchModal></branch-modal>
+    <!-- <report-template #previewTemplateModal></report-template> -->
+
+</div>

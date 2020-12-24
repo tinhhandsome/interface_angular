@@ -1,0 +1,255 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("AssAmortPendList")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                    <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                    <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()"
+                    autocomplete="off">
+                    <div class="modal-body row col-md-8">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <input hidden class="form-control" type="text" #pA_ID="ngModel" name="pA_ID"
+                            [(ngModel)]="inputModel.pA_ID">
+                        <!-- Mã tài sản-->
+                        <div class='col-md-6'>
+                            <div class="form-group required">
+                                <label>{{l("AssetCode")}}</label>
+                                <div class="user-group required">
+                                    <input class="form-control" required type="text" #asseT_CODE="ngModel"
+                                        name="asseT_CODE" [disabled]="disableInput || isAssAmortApproved || isAssetNKH" [ngModel]="inputModel.asseT_CODE">
+                                    <button class="btn btn-primary ng-star-inserted" (click)="showAssetModal()"
+                                        [disabled]="disableInput" *ngIf="!isAssAmortApproved && !isAssetNKH" type='button'>{{l("...")}}</button>
+                                </div>
+                                <div class="error-message" *ngIf="asseT_CODE.invalid && isShowError">
+                                    <span *ngIf="asseT_CODE?.errors.required">{{l('AssetCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ngày thực hiện -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("ExecuteDate")}}</label>
+                                <date-control required [inpCss]="'form-control'" name="creatE_DT" [disabled]="true"
+                                    [ngModel]="inputModel.creatE_DT"></date-control>
+                            </div>
+                        </div>
+
+                        <!-- Mã loại tài sản-->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("TypeCode")}}</label>
+                                <input readonly=true type="text" class="form-control" #asseT_typE_NAME="ngModel"
+                                    name="asseT_typE_NAME" [ngModel]="inputModel.asset.typE_NAME" />
+                            </div>
+                        </div>
+
+                        <!-- Mã nhóm tài sản-->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("AssGroupCode")}}</label>
+                                <input readonly=true type="text" class="form-control" #asset_grouP_NAME="ngModel"
+                                    name="asset_grouP_NAME" [ngModel]="inputModel.asset.grouP_NAME" />
+                            </div>
+                        </div>
+
+                        <!--Tên tài sản -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("AssetName")}}</label>
+                                <input readonly=true type="text" class="form-control" #asseT_NAME="ngModel"
+                                    name="asseT_NAME" [ngModel]="inputModel.asseT_NAME" />
+                            </div>
+                        </div>
+
+                        <!-- Thông tin mô tả-->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("Description")}}</label>
+                                <textarea class="form-control" name="asseT_DESC" disabled
+                                    [ngModel]="inputModel.asset.asseT_DESC"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Ngày bắt đầu khấu hao -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("AmortStartDate")}}</label>
+                                <date-control [inpCss]="'form-control'" name="amorT_START_DATE" [disabled]="true"
+                                    [ngModel]="inputModel.amorT_START_DATE"></date-control>
+                            </div>
+                        </div>
+
+                        <!-- Số tháng khấu hao -->
+                        <div class="col-md-6">
+                            <div class="form-group ">
+                                <label>{{l("AmortMonth")}}</label>
+                                <div class="user-group">
+                                    <input class="form-control left" maxlength="5" type="number" #amortmonth="ngModel"
+                                        name="amortmonth" disabled placeholder=0 [ngModel]="inputModel.amortmonth">
+                                    <label for="">{{l("Month")}}</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nguyên giá -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("OriginalPrice")}}</label>
+                                <money-input name="buY_PRICE" [ngModel]="inputModel.buY_PRICE" [disabled]="true"
+                                    [inputCss]="'form-control right'"></money-input>
+                            </div>
+                        </div>
+
+                        <!-- Giá trị khấu hao -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("AmortPrice")}}</label>
+                                <money-input name="amorT_AMT" [ngModel]="inputModel.amorT_AMT" [disabled]="true"
+                                    [inputCss]="'form-control right'"></money-input>
+                            </div>
+                        </div>
+
+                        <!-- Giá trị đã khấu hao -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("AmortizedAmount")}}</label>
+                                <money-input name="amortizeD_AMT" [ngModel]="inputModel.amortizeD_AMT" [disabled]="true"
+                                    [inputCss]="'form-control right'"></money-input>
+                            </div>
+                        </div>
+
+                        <!-- Giá trị còn lại -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("RemainValue")}}</label>
+                                <money-input name="remaiN_VALUE" [ngModel]="inputModel.remaiN_VALUE" [disabled]="true"
+                                    [inputCss]="'form-control right'"></money-input>
+                            </div>
+                        </div>
+
+                        <!-- Tình trạng tài sản -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("AssStatusName")}}</label>
+                                <input disabled type="text" class="form-control" #asS_STATUS_NAME="ngModel"
+                                    name="asS_STATUS_NAME" [ngModel]="inputModel.asset.asS_STATUS_NAME" />
+                            </div>
+                        </div>
+
+                        <!-- Tình trạng khấu hao -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("AmortStatusName")}}</label>
+                                <input disabled type="text" class="form-control" #amorT_STATUS_NAME="ngModel"
+                                    name="amorT_STATUS_NAME" [ngModel]="inputModel.asset.amorT_STATUS_NAME" />
+                            </div>
+                        </div>
+
+                        <!-- Đơn vị sử dụng -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("BranchNameUse")}}</label>
+                                <input disabled type="text" class="form-control" #brancH_NAME="ngModel"
+                                    name="brancH_NAME" [ngModel]="inputModel.brancH_NAME" />
+                            </div>
+                        </div>
+
+                        <!-- Người sử dụng -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("EmpName")}}</label>
+                                <input disabled type="text" class="form-control" #emP_NAME="ngModel" name="emP_NAME"
+                                    [ngModel]="inputModel.asset.emP_NAME" />
+                            </div>
+                        </div>
+
+                        <!-- Tên phòng -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("DeptName")}}</label>
+                                <input disabled type="text" class="form-control" #emP_NAME="ngModel" name="deP_NAME"
+                                    [ngModel]="inputModel.deP_NAME" />
+                            </div>
+                        </div>
+
+                        <!-- Check box tiếp tục khấu hao -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for=""></label>
+                                <div class="mt-3">
+                                    <checkbox-control [hidden]="!enablecountinue" #active (onchange)="checkdactive()"
+                                        [label]="l('ContinueAmort')" [TrueValue]="true" [FalseValue]="false">
+                                    </checkbox-control>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lý do ngưng khấu hao -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("AmortPendReason")}}</label>
+                                <input class="form-control" maxlength="500" type="text" #desC_PENDING="ngModel"
+                                    name="desC_PENDING" [disabled]="disableAmortReason"
+                                    [(ngModel)]="inputModel.desC_PENDING">
+                            </div>
+                        </div>
+
+                        <!--  Lý do tiếp tục khấu hao -->
+                        <div class="col-md-12" [hidden]="!showactivereason">
+                            <div class="form-group">
+                                <label>{{l("AmortActiveReason")}}</label>
+                                <input class="form-control" maxlength="500" [disabled]="disableInput" type="text"
+                                    #desC_ACTIVE="ngModel" name="desC_ACTIVE" [(ngModel)]="inputModel.desC_ACTIVE">
+                            </div>
+                        </div>
+
+                        <!-- Ghi chú -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("Note")}}</label>
+                                <textarea class="form-control" type="text" #notes="ngModel" name="notes"
+                                    [disabled]="disableInput" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<asset-modal [hideFields]="'remaiN_MONTH,buY_DATE,level,SearchContains,PlanLiqFilter,PlanMonthFilter'" [disableFields]="'asseT_TYPE,amorT_STATUS'"
+    (onSelect)="onSingleSelectAsset($event)" [multiple]="false" #assetModal>
+</asset-modal>

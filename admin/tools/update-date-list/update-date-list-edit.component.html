@@ -1,0 +1,258 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("UpdateDateList")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                    <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                    <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()"
+                    autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- <input hidden class="form-control" type="text" #upD_DAY_ID="ngModel" name="upD_DAY_ID" [(ngModel)]="inputModel.upD_DAY_ID"> -->
+                        <!-- Mã tài sản  -->
+                        <div class='col-md-4'>
+                            <div class="form-group required">
+                                <label>{{l("AssetCode")}}</label>
+                                <div class="input-group required">
+                                    <input [readOnly] = 'true' class="form-control" required type="text" #asS_CODE="ngModel"
+                                        name="asS_CODE" [(ngModel)]="inputModel.asS_CODE">
+                                    <button class="btn btn-primary ng-star-inserted" (click)="showAssetModal()"
+                                        [disabled]="disableInput" type='button'>{{l("...")}}</button>
+                                </div>
+                                <div class="error-message" *ngIf="asS_CODE.invalid && isShowError">
+                                    <span *ngIf="asS_CODE?.errors.required">{{l('AssetCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='col-md-8'></div>
+
+                        <!-- Mã loại tài sản -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AssTypeCode")}}</label>
+                                <input disabled type="text" class="form-control" #typE_NAME="ngModel" name="typE_NAME"
+                                    [(ngModel)]="inputModel.asset.typE_NAME" />
+                            </div>
+                        </div>
+
+                        <!-- Mã nhóm tài sản -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AssGroupCode")}}</label>
+                                <input disabled type="text" class="form-control" #grouP_NAME="ngModel" name="grouP_NAME"
+                                    [(ngModel)]="inputModel.asset.grouP_NAME" />
+                            </div>
+                        </div>
+                        <div class='col-md-4'></div>
+
+                        <!-- Tên tài sản -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("AssetName")}}</label>
+                                <input disabled type="text" class="form-control" #asseT_NAME="ngModel" name="asseT_NAME"
+                                    [(ngModel)]="inputModel.asseT_NAME" />
+                            </div>
+                        </div>
+
+                        <!-- Thông tin mô tả -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Description")}}</label>
+                                <!-- <input disabled type="text" class="form-control" #asseT_DESC="ngModel" name="asseT_DESC" [(ngModel)]="inputModel.asset.asseT_DESC" /> -->
+                                <textarea disabled type="text" class="form-control" #asseT_DESC="ngModel"
+                                    name="asseT_DESC" [(ngModel)]="inputModel.asset.asseT_DESC"></textarea>
+                            </div>
+                        </div>
+                        <div class='col-md-4'></div>
+
+                        <!-- Ngày bắt đầu khấu hao -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmortStartDate")}}</label>
+                                <date-control [disabled]='true' [inpCss]="'form-control'" type="text" #amorT_START_DATE="ngModel"
+                                    name="amorT_START_DATE" [(ngModel)]="inputModel.asset.amorT_START_DATE">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Số tháng khấu hao -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmortMonth")}}</label>
+                                <div class="user-group">
+                                    <input class="form-control left" maxlength="5" type="number" #amorT_MONTH="ngModel"
+                                        name="amorT_MONTH" readonly=true [(ngModel)]="inputModel.asset.amorT_MONTH">
+                                    <label>{{l("Month")}}</label>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Ngày kết thúc khấu hao -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmortEndDate")}}</label>
+                                <date-control [disabled]='true' [inpCss]="'form-control'" type="text" #amorT_END_DATE="ngModel"
+                                    name="amorT_END_DATE" [(ngModel)]="inputModel.asset.amorT_END_DATE">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Nguyên giá -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("OriginalPrice")}}</label>
+                                <!-- <input readonly=true type="text" class="form-control" #buY_PRICE="ngModel" name="buY_PRICE" [ngModel]="inputModel.asset.buY_PRICE" /> -->
+                                <money-input [inputCss]="'form-control'" #buY_PRICE="ngModel" name="buY_PRICE"  [disabled]='true'
+                                    [ngModel]="inputModel.asset.buY_PRICE"></money-input>
+                            </div>
+                        </div>
+
+                        <!-- Giá trị khấu hao -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmortAmount")}}</label>
+                                <!-- <input readonly=true type="text" class="form-control" #amorT_AMT="ngModel"
+                                    name="amorT_AMT" [ngModel]="inputModel.asset.amorT_AMT" /> -->
+                                <money-input [inputCss]="'form-control'" #amorT_AMT="ngModel" name="amorT_AMT" [disabled]='true'
+                                    [ngModel]="inputModel.asset.amorT_AMT"></money-input>
+                            </div>
+                        </div>
+                        <div class='col-md-4'></div>
+
+                        <!-- Ngày HCQT tạo -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("HCQTCreateDT")}}</label>
+                                <date-control [disabled]="disableInput" [inpCss]="'form-control'" type="text"
+                                    #hcqT_CREATE_DT="ngModel" name="hcqT_CREATE_DT"
+                                    [(ngModel)]="inputModel.hcqT_CREATE_DT">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Ngày HCQT duyệt -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("HCQTApproveDT")}}</label>
+                                <date-control [disabled]="disableInput" [inpCss]="'form-control'" type="text"
+                                    #hcqT_APP_DT="ngModel" name="hcqT_APP_DT" [(ngModel)]="inputModel.hcqT_APP_DT">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Ngày HCQT xuất -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("HCQTExportDT")}}</label>
+                                <date-control [disabled]="disableInput" [inpCss]="'form-control'" type="text"
+                                    #hcqT_EXP_DT="ngModel" name="hcqT_EXP_DT" [(ngModel)]="inputModel.hcqT_EXP_DT">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Ngày KT tạo -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("KTCreateDT")}}</label>
+                                <date-control [disabled]="disableInput" [inpCss]="'form-control'" type="text"
+                                    #kT_CREATE_DT="ngModel" name="kT_CREATE_DT" [(ngModel)]="inputModel.kT_CREATE_DT">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Ngày KT duyệt -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("KTApproveDT")}}</label>
+                                <date-control [disabled]="disableInput" [inpCss]="'form-control'" type="text"
+                                    #kT_APP_DT="ngModel" name="kT_APP_DT" [(ngModel)]="inputModel.kT_APP_DT">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Ngày KT xuất -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("KTExportDT")}}</label>
+                                <date-control [disabled]="disableInput" [inpCss]="'form-control'" type="text"
+                                    #kT_EXP_DT="ngModel" name="kT_EXP_DT" [(ngModel)]="inputModel.kT_EXP_DT">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Lý do  -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Reason")}}</label>
+                                <!-- <input [disabled]="disableInput" class="form-control" maxlength="500" type="text" #reason="ngModel" name="reason" [disabled]="disableInput" [(ngModel)]="inputModel.reason"> -->
+                                <textarea [disabled]="disableInput" class="form-control" maxlength="500" type="text"
+                                    #reason="ngModel" name="reason" [disabled]="disableInput"
+                                    [(ngModel)]="inputModel.reason"></textarea>
+                            </div>
+                        </div>
+                        <div class='col-md-4'></div>
+
+                        <!-- Người yêu cầu -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("PersonRequest")}}</label>
+                                <input [disabled]="disableInput" type="text" class="form-control"
+                                    #requesT_NAME="ngModel" name="requesT_NAME" [(ngModel)]="inputModel.requesT_NAME" />
+                            </div>
+                        </div>
+
+                        <!--Ngày yêu cầu -->
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("DateRequest")}}</label>
+                                <date-control [disabled]="disableInput" [inpCss]="'form-control'" type="text"
+                                    name="requesT_DT" [(ngModel)]="inputModel.requesT_DT"></date-control>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<asset-modal  (onSelect)="onSingleSelectAsset($event)" 
+    [multiple]="false" 
+    #assetModal
+    [hideColumns]="'BRANCH_NAME,DEP_NAME,USE_DATE'"
+    [hideFields]="'SearchContains,brancH_ID,dep_ID,level,PlanMonthFilter,PlanLiqFilter'"
+    [disableFields]="'DEP_NAME'">
+</asset-modal>

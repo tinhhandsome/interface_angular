@@ -1,0 +1,127 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("DistributionExecuteListDetail")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                    <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                    <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()"
+                    autocomplete="off">
+                    <div class="modal-body row col-md-8">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- <input hidden class="form-control" type="text" #exeC_DISTR_ID="ngModel" name="exeC_DISTR_ID" [(ngModel)]="inputModel.exeC_DISTR_ID"> -->
+                        <!-- Đơn vị -->
+                        <div class='col-md-12'>
+                            <div class="form-group required">
+                                <label>{{l("BranchName")}}</label>
+                                <div class="user-group required">
+                                    <input [readOnly]="true" class="form-control" required type="text"
+                                        #brancH_NAME="ngModel" name="brancH_NAME" [(ngModel)]="inputModel.brancH_NAME">
+                                    <button class="btn btn-primary ng-star-inserted" (click)="showBranchModal()"
+                                        [disabled]="disableInput" type='button'>{{l("...")}}</button>
+
+                                </div>
+                                <div class="error-message" *ngIf="brancH_NAME.invalid && isShowError">
+                                    <span *ngIf="brancH_NAME?.errors.required">{{l('BranchName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Kỳ phân bổ -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("AmortCCLDTerm")}}</label>
+                                <input [disabled]="disableInput" required type="text" class="form-control"
+                                    #distribution="ngModel" name="distribution" [(ngModel)]="inputModel.distribution" />
+                                <div class="error-message" *ngIf="distribution.invalid && isShowError">
+                                    <span *ngIf="distribution?.errors.required">{{l('AmortCCLDTerm')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ngày thực thi -->
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("ExecuteDate")}}</label>
+                                <date-control [disabled]="disableInput" [required]=true [inpCss]="'form-control'"
+                                    type="text" name="executE_DT" #executE_DT="ngModel"
+                                    [(ngModel)]="inputModel.executE_DT"></date-control>
+                                <div class="error-message" *ngIf="executE_DT.invalid && isShowError">
+                                    <span *ngIf="executE_DT?.errors.required">{{l('ExecuteDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lý do  -->
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("Reason")}}</label>
+                                <!-- <input [disabled]="disableInput" class="form-control" maxlength="500" type="text" #reason="ngModel" name="reason" [disabled]="disableAmortReason" [(ngModel)]="inputModel.reason"> -->
+                                <textarea [disabled]="disableInput" class="form-control" name="reason"
+                                    [disabled]="disableAmortReason" [(ngModel)]="inputModel.reason"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Người yêu cầu -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("PersonRequest")}}</label>
+                                <input [disabled]="disableInput" type="text" class="form-control"
+                                    #requesT_NAME="ngModel" name="requesT_NAME" [(ngModel)]="inputModel.requesT_NAME" />
+                            </div>
+                        </div>
+
+                        <!--Ngày yêu cầu -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("DateRequest")}}</label>
+                                <date-control [disabled]="disableInput" [inpCss]="'form-control'" type="text"
+                                    name="requesT_DT" [(ngModel)]="inputModel.requesT_DT"></date-control>
+                            </div>
+                        </div>
+
+
+
+
+
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<branch-modal (onSelect)="onSingleSelectBranch($event)" [multiple]="false" #branchModal>
+</branch-modal>

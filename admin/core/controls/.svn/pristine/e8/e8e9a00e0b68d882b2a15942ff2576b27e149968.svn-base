@@ -1,0 +1,18 @@
+<div class="table-container">
+    <table #table>
+        <ng-content></ng-content>
+    </table>
+</div>
+
+<div *ngIf="!tableState.allData || !tableState.allData.length" class="primeng-no-data">
+    {{l('NoData')}}
+</div>
+
+<div class="primeng-paging-container">
+    <p-paginator2 [rows]="tableState.defaultRecordsCountPerPage" #paginator [page]="tableState.currentPage" (onPageChange)="changePage($event.page);" (onSelectRecordChange)="onSelectRecordChange($event);" [totalRecords]="tableState.allData.length" [rowsPerPageOptions]="tableState.predefinedRecordsCountPerPage">
+    </p-paginator2>
+
+    <span class="total-records-count">
+        {{l('TotalRecordsCount')}} {{tableState.allData.length}}
+    </span>
+</div>

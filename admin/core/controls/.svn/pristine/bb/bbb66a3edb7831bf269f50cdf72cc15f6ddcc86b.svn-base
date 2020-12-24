@@ -1,0 +1,99 @@
+<popup-frame [title]="l('SearchPoInfo')" (onSearchEvent)="buttonSearch()" (onSelectEvent)="accept()" #popupFrame>
+    <form class="horizontal-form filter-form" autocomplete="off">
+        <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+                <!-- Begin Filter -->
+                <h5 class="popup-title col-md-12">{{l("SearchContains")}}</h5>
+
+                <!-- Mã hàng hóa -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{l("GoodsCode")}}</label>
+                        <input [(ngModel)]="filterInput.gD_CODE" name="gD_CODE" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+
+                <!-- Tên hàng hóa -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{l("GoodsName")}}</label>
+                        <input [(ngModel)]="filterInput.gD_NAME" name="gD_NAME" class="form-control m-input" type="text">
+                    </div>
+                </div>
+                <!-- End Filter -->
+
+                <div style="display:none;" class="col-md-12">
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-search" (click)="search()"></button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+    <div class="row align-items-center">
+        <div class="primeng-datatable-container popup-modal-container {{dataEditTable.isLoading}}">
+            <div class="spinner-border m-5" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+
+
+            <div class="primeng-datatable-container">
+                <editable-table #dataEditTable class="custom-table ui-table">
+                    <thead>
+                        <tr>
+                            <!-- Checkbox -->
+                            <th *ngIf="multiple">
+                                <span style="width: 40px"><checkbox-control #checkAllElement (change)="onCheckAll(checkAllElement.inputRef.nativeElement);" [checked]="checkAll"></checkbox-control></span>
+                            </th>
+                            <!-- STT -->
+                            <th><span style="width: 40px">{{l("No")}}</span></th>
+                            <!-- Mã hàng hóa -->
+                            <th sortField="gD_CODE"><span style="width: 200px">{{l("Goods")}}</span>
+                            </th>
+                            <!-- Tên hàng hóa -->
+                            <th sortField="gD_NAME"><span style="width: 200px">{{l("GoodsName")}}</span>
+                            </th>
+                            <!-- Số lượng -->
+                            <th sortField="quantity"><span style="width: 100px">{{l("Quantity")}}</span></th>
+                            <!-- Đơn giá -->
+                            <th sortField="price"><span style="width: 150px">{{l("UnitPrice")}}</span></th>
+                            <!-- % VAT -->
+                            <th sortField="vat"><span style="width: 100px">{{l("VatPercent")}}</span></th>
+                            <!-- VAT -->
+                            <th sortField="pricE_VAT"><span style="width: 200px">{{l("Vat")}}</span></th>
+                            <!-- Tổng số tiền -->
+                            <th sortField="totaL_AMT"><span style="width: 200px">{{l("TotalAmt")}}</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of dataEditTable.dataInPage; let in = index" class="selectable {{item['editableIsSelected']? 'selected' : ''}}" [hidden]="item['page'] != dataEditTable.currentPage" (click)="dataEditTable.selectRow($event,item); updateView();">
+                            <!-- Checkbox -->
+                            <td *ngIf="multiple">
+                                <span class="mo-header"></span>
+                                <checkbox-control (onchange)="setChecked($event.target.checked, item)" [checked]="item['isChecked']"></checkbox-control>
+                            </td>
+                            <!-- STT -->
+                            <td class="center"><span class="mo-header"></span>{{item['no']}}</td>
+                            <!-- Mã hàng hóa -->
+                            <td><span class="mo-header"></span>{{item.gD_CODE}}</td>
+                            <!-- Tên hàng hóa -->
+                            <td><span class="mo-header"></span>{{item.gD_NAME}}</td>
+                            <!-- Số lượng -->
+                            <td class="right"><span class="mo-header"></span>{{item.quantity | moneyFormatPipe}}</td>
+                            <!-- Đơn giá -->
+                            <td class="right"><span class="mo-header"></span>{{item.price | moneyFormatPipe}}</td>
+                            <!-- % VAT -->
+                            <td class="right"><span class="mo-header"></span>{{item.vat | moneyFormatPipe}}</td>
+                            <!-- VAT -->
+                            <td class="right"><span class="mo-header"></span>{{item.pricE_VAT | moneyFormatPipe}}</td>
+                            <!-- Tổng số tiền -->
+                            <td class="right"><span class="mo-header"></span> {{item.totaL_AMT | moneyFormatPipe}} </td>
+                        </tr>
+                    </tbody>
+                </editable-table>
+            </div>
+
+        </div>
+    </div>
+</popup-frame>

@@ -1,0 +1,84 @@
+<div [@routerTransition]>
+    <div id="content" class="m-content">
+
+        <div class="m-portlet">
+            <div class="m-portlet__body m-portlet__body--no-padding">
+
+                <div class="m-invoice-1">
+                    <div class="m-invoice__wrapper">
+                        <div class="m-invoice__head" [ngStyle]="{ 'background': 'url(' + appRootUrl() + 'assets/common/images/bg-6.jpg)', 'background-size': 'cover'}" style="background-image: url(/assets/common/images/bg-6.jpg);">
+                            <div class="m-invoice__container m-invoice__container--centered">
+                                <div class="m-invoice__logo">
+                                    <a href="#">
+                                        <h1>{{'Invoice' | localize}}</h1>
+                                    </a>
+                                    <a href="#">
+                                        <img [src]="companyLogo">
+                                    </a>
+                                </div>
+                                <span class="m-invoice__desc">
+                                    {{invoiceInfo.hostLegalName}}
+                                    <span *ngFor="let addressLine of invoiceInfo.hostAddress">
+                                        <br />{{addressLine}}
+                                    </span>
+                                </span>
+                                <div class="m-invoice__items">
+                                    <div class="m-invoice__item">
+                                        <span class="m-invoice__subtitle">{{'Date' | localize}}</span>
+                                        <span class="m-invoice__text">{{invoiceInfo.invoiceDate | momentFormat:'YYYY-MM-DD'}}</span>
+                                    </div>
+                                    <div class="m-invoice__item">
+                                        <span class="m-invoice__subtitle">{{'Invoice' | localize}}</span>
+                                        <span class="m-invoice__text">#{{invoiceInfo.invoiceNo}}</span>
+                                    </div>
+                                    <div class="m-invoice__item">
+                                        <span class="m-invoice__subtitle">{{'InvoiceTo' | localize}}</span>
+                                        <span class="m-invoice__text">
+                                            {{invoiceInfo.tenantLegalName}}
+                                            <span *ngFor="let addressLine of invoiceInfo.tenantAddress">
+                                                <br />{{addressLine}}
+                                            </span>
+                                        <br />{{"Tax/VatNo" | localize}}: {{invoiceInfo.tenantTaxNo}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-invoice__body m-invoice__body--centered">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px;">#</th>
+                                            <th>{{"Edition" | localize}}</th>
+                                            <th style="width: 100px;">{{"Amount" | localize}}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>{{invoiceInfo.editionDisplayName}}</td>
+                                            <td>{{appSession.application.currencySign}}{{invoiceInfo.amount | number: '1.2-2'}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="m-invoice__footer">
+                            <div class="m-invoice__container m-invoice__container--centered">
+                                <div class="m-invoice__content">
+                                    <button type="button" class="btn btn-primary d-print-none print-btn" onclick="javascript:window.print();">{{("Print")}}</button>
+                                </div>
+                                <div class="m-invoice__content">
+                                    <span>{{"Total" | localize}}</span>
+                                    <span class="m-invoice__price">{{appSession.application.currencySign}}{{invoiceInfo.amount | number: '1.2-2'}}</span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,122 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("Goods")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Create")}} {{l("Goods") | lowercase}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Edit")}} {{l("Goods") | lowercase}} :
+                        {{inputModel.gD_NAME}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("View")}} {{l("Goods") | lowercase}} :
+                        {{inputModel.gD_NAME}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <input hidden class="form-control" type="text" #gD_ID="ngModel" name="gD_ID" [(ngModel)]="inputModel.gD_ID">
+
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("GoodsCode")}}</label>
+                                <input maxlength="15" class="form-control" [disabled]="disableInput" required type="text" #gD_CODE="ngModel" name="gD_CODE" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}" [(ngModel)]="inputModel.gD_CODE">
+                                <div class="error-message" *ngIf="gD_CODE.invalid && isShowError">
+                                    <span *ngIf="gD_CODE?.errors.required">{{l('GoodsCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="gD_CODE?.errors.pattern">{{l('GoodsCode')}}
+                                            {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("GoodsName")}}</label>
+                                <input required class="form-control" [disabled]="disableInput" type="text" #gD_NAME="ngModel" name="gD_NAME" [(ngModel)]="inputModel.gD_NAME" maxlength="200">
+                                <div class="error-message" *ngIf="gD_NAME.invalid && isShowError">
+                                    <span *ngIf="gD_NAME?.errors.required">{{l('GoodsName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("GoodsTypeCode")}}</label>
+                                <select2-custom [disabled]="disableInput" name="gD_TYPE_ID" #gD_TYPE_ID="ngModel" [(ngModel)]="inputModel.gD_TYPE_ID" [(list)]="goodsTypes" [emptyText]="l('NullSelect')" [valueMember]="'gD_TYPE_ID'" [displayMember]="'gD_TYPE_CODE|gD_TYPE_NAME'">
+                                </select2-custom>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("SupplierCode")}}</label>
+                                <select2-custom [disabled]="disableInput" name="suP_ID" #suP_ID="ngModel" [(ngModel)]="inputModel.suP_ID" [(list)]="suppliers" [emptyText]="l('NullSelect')" [valueMember]="'suP_ID'" [displayMember]="'suP_CODE|suP_NAME'">
+                                </select2-custom>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("AssetPrice")}}</label>
+                                <money-input [disabled]="disableInput" #price="ngModel" name="price" [(ngModel)]="inputModel.price">
+                                </money-input>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("Unit")}}</label>
+                                <select2-custom [disabled]="disableInput" required name="uniT_ID" #uniT_ID="ngModel" [(ngModel)]="inputModel.uniT_ID" [(list)]="units" [emptyText]="l('NullSelect')" [valueMember]="'uniT_ID'" [displayMember]="'uniT_CODE|uniT_NAME'">
+                                </select2-custom>
+                                <div class="error-message" *ngIf="uniT_ID.invalid && isShowError">
+                                    <span *ngIf="uniT_ID?.errors.required">{{l('Unit')}}
+                                            {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("Description")}}</label>
+                                <textarea [disabled]="disableInput" class="form-control" type="text" #description="ngModel" name="description" [(ngModel)]="inputModel.description"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group outter-vertical-center">
+                                <div class="form-group inner-vertical-center">
+                                    <label class="m-checkbox" for="recorD_STATUS">{{l("IsActive")}}
+                                        <input [disabled]="disableInput" type="checkbox" id="recorD_STATUS" #recorD_STATUS name="recorD_STATUS"
+                                            [checked]="inputModel.recorD_STATUS == '1'"
+                                            (change)="inputModel.recorD_STATUS = recorD_STATUS.checked? '1' : '0'">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("Notes")}} </label>
+                                <textarea [disabled]="disableInput" class="form-control" type="text" #notes="ngModel" name="notes" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+                        <button hidden (click)="saveInput()"></button>
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,294 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("BidMaster")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- Số hồ sơ -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("BidMasterCode")}}</label>
+                                <input maxlength="15" class="form-control" [disabled]="disableInput" type="text" required #biD_CODE="ngModel" name="biD_CODE" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}" [(ngModel)]="inputModel.biD_CODE">
+                                <div class="error-message" *ngIf="biD_CODE.invalid && isShowError">
+                                    <span *ngIf="biD_CODE?.errors.required">{{l('BidMasterCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="biD_CODE?.errors.pattern">{{l('BidMasterCode')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hạng mục thầu -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("TermBid")}}</label>
+                                <input [disabled]="disableInput" required class="form-control" type="text" #terM_BID="ngModel" name="terM_BID" [(ngModel)]="inputModel.terM_BID">
+                                <div class="error-message" *ngIf="terM_BID.invalid && isShowError">
+                                    <span *ngIf="terM_BID?.errors.required">{{l('TermBid')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- Ngày nhận hồ sơ -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("BidInputDt")}}</label>
+                                <date-control [disabled]="disableInput" required [inpCss]="'form-control'" type="text" #inpuT_DT="ngModel" name="inpuT_DT" [(ngModel)]="inputModel.inpuT_DT" (change)="updateValidate()">
+                                </date-control>
+                                <div class="error-message" *ngIf="inpuT_DT.invalid && isShowError">
+                                    <span *ngIf="inpuT_DT?.errors.required">{{l('BidInputDt')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ngày hết hạn nộp -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("BidExpDt")}}</label>
+                                <date-control [disabled]="disableInput" required [inpCss]="'form-control'" type="text" #exP_DT="ngModel" name="exP_DT" [(ngModel)]="inputModel.exP_DT" (change)="updateValidate()">
+                                </date-control>
+                                <div class="error-message" *ngIf="exP_DT['invalid'] && isShowError">
+                                    <span *ngIf="exP_DT?.errors.required">{{l('BidExpDt')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+
+
+                                <div class="error-message" *ngIf="editForm && (editForm.controls['exP_DT'] || {})['invalid2'] && isShowError">
+                                    <span>{{editForm && (editForm.controls['exP_DT'] || {})['invalid2']}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- Ngày mở thầu -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("BidOpenDt")}}</label>
+                                <date-control [disabled]="disableInput" required [inpCss]="'form-control'" type="text" #opeN_DT="ngModel" name="opeN_DT" [(ngModel)]="inputModel.opeN_DT">
+                                </date-control>
+                                <div class="error-message" *ngIf="opeN_DT.invalid && isShowError">
+                                    <span *ngIf="opeN_DT?.errors.required">{{l('BidOpenDt')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                                <div class="error-message" *ngIf="isShowError">
+                                    <span *ngIf="inputModel.opeN_DT && inputModel.opeN_DT.diff(inputModel.exP_DT) < 0">{{l('BidOpenDt').toLocaleLowerCase()}}
+                                        {{l('NotLessThan')}} {{l('BidExpDt')}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mã dự án -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("ProjectCode")}}</label>
+                                <div class="user-group">
+                                    <input [disabled]="disableInput" class="form-control" type="text" #projecT_ID="ngModel" name="projecT_ID" (focusout)="onProjectCodeChange($event)" [ngModel]="inputModel.projecT_CODE">
+                                    <button [disabled]="disableInput" (click)="tradeProjectModal.show()" type="button" class="btn btn-primary">...</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- Hình thức thầu -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("BidMasterForm")}}</label>
+                                <all-code-select name="asS_CAT" [disabled]="disableInput" #asS_CAT="ngModel" [(ngModel)]="inputModel.form" [emptyText]="l('NullSelect')" [cdName]="'FORM'" [cdType]="'TR'">
+                                </all-code-select>
+                            </div>
+                        </div>
+
+                        <!-- Số tiền bảo lãnh -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("GuaranteeAmt")}}</label>
+                                <money-input #guaranteE_AMT="ngModel" name="guaranteE_AMT" [(ngModel)]="inputModel.guaranteE_AMT" [disabled]="disableInput"></money-input>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+                        <!-- File đính kèm -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("FileAttachment")}}</label>
+                                <file-picker [disabled]="disableInput" #filE_ATTACHMENT="ngModel" [folderUpload]="'BidList'" [inpCss]="'form-control'" [(ngModel)]="inputModel['filE_ATTACHMENT']" name="filE_ATTACHMENT"></file-picker>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="editable-title-group">
+
+                        <h5 class="popup-title col-md-12">{{l("BidConstractorSubtitle")}}</h5>
+
+                        <div class="action-button">
+                            <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="supplierModal.show()"><i class="pi pi-plus"></i>{{l("Add")}}</button>
+                            <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="editTable.removeAllCheckedItem()"><i
+                                    class="pi pi-times"></i>{{l("Delete")}}</button>
+                        </div>
+
+                    </div>
+
+                    <div class="primeng-datatable-container">
+                        <editable-table [requiredFields]="['iS_BID_WIN', 'senD_DT','offerinG_VALUE']" #editTable class="custom-table ui-table">
+                            <thead>
+                                <tr>
+                                    <!-- Checkbox -->
+                                    <th class="center">
+                                        <span style="width: 40px">
+                                            <checkbox-control [disabled]="disableInput"
+                                                (onchange)="editTable.checkAll($event.target.checked)"
+                                                [checked]="editTable.isCheckAll"></checkbox-control>
+                                        </span>
+                                    </th>
+                                    <!-- STT -->
+                                    <th class="center" style="width: 9%;"><span style="width: 40px">{{l("No")}}</span></th>
+                                    <!-- File đính kèm -->
+                                    <th style="width: 9%;" sortField="filE_ATTACHMENT"><span style="width: 150px">{{l("FileAttachment")}}</span></th>
+                                    <!-- Đơn vị trúng thầu -->
+                                    <th style="width: 9%;" class="" sortField="iS_BID_WIN"><span style="width: 150px">{{l("IsBidWin")}}</span></th>
+                                    <!-- ĐV tham gia thầu -->
+                                    <th style="width: 9%;" sortField="suP_NAME"><span style="width: 250px">{{l("UnitJoinBid")}}</span>
+                                    </th>
+                                    <!-- Ngày gửi hồ sơ thầu -->
+                                    <th style="width: 9%;" class="" sortField="senD_DT"><span style="width: 180px">{{l("BidSendDt")}}</span></th>
+                                    <!-- Giá chào thầu -->
+                                    <th style="width: 9%;" class="" sortField="offerinG_VALUE"><span style="width: 150px">{{l("BidOfferingValue")}}</span></th>
+                                    <!-- Hình thức bảo lãnh -->
+                                    <th style="width: 9%;" sortField="form"><span style="width: 150px">{{l("BidContractorForm")}}</span>
+                                    </th>
+                                    <!-- Ngày hết hạn bảo lãnh -->
+                                    <th style="width: 9%;" class="" sortField="exP_DT"><span style="width: 180px">{{l("BidContractorExpDt")}}</span>
+                                    </th>
+                                    <!-- Ngân hàng -->
+                                    <th style="width: 9%;" sortField="bank"><span style="width: 150px">{{l("Bank")}}</span></th>
+                                    <!-- Số chứng thư -->
+                                    <th style="width: 9%;" sortField="voucher"><span style="width: 150px">{{l("BidContractorVoucher")}}</span></th>
+                                    <!-- Ghi chú -->
+                                    <th style="width: 9%;" sortField="notes"><span style="width: 250px">{{l("Notes")}}</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of editTable.dataInPage; let in = index" [hidden]="item.page != editTable.currentPage">
+                                    <!-- Checkbox -->
+                                    <td class="center">
+                                        <span class="mo-header"></span>
+                                        <checkbox-control [disabled]="disableInput" (onchange)="item.isChecked = $event.target.checked" [checked]="item['isChecked']"></checkbox-control>
+                                    </td>
+                                    <!-- STT -->
+                                    <td class="center"><span class="mo-header"></span>{{item.no}}</td>
+                                    <!-- File đính kèm -->
+                                    <td><span class="mo-header"></span>
+                                        <!-- <file-picker [multiFile]="true" [disabled]="disableInput" type="text" [folderUpload]="'BidList'" [inpCss]="'form-control'" [(ngModel)]="item['filE_ATTACHMENT']" name="filE_ATTACHMENT-{{in}}"></file-picker> -->
+                                        <file-picker [disabled]="disableInput" type="text" [folderUpload]="'BidList'" [inpCss]="'form-control'" [(ngModel)]="item['filE_ATTACHMENT']" name="filE_ATTACHMENT-{{in}}"></file-picker>
+
+                                    </td>
+                                    <!-- Đơn vị trúng thầu -->
+                                    <td class="center"><span class="mo-header"></span>
+                                        <radio-control class="inner-vertical-center" [nameInput]="'iS_BID_WIN'" name="iS_BID_WIN-{{in}}" [TrueValue]="'1'" [FalseValue]="'0'" [disabled]="disableInput" [(ngModel)]="item.iS_BID_WIN">
+                                        </radio-control>
+                                    </td>
+                                    <!-- ĐV tham gia thầu -->
+                                    <td><span class="mo-header"></span>{{item.suP_NAME}}</td>
+                                    <!-- Ngày gửi hồ sơ thầu -->
+                                    <td><span class="mo-header"></span>
+                                        <date-control [disabled]="disableInput" [inpCss]="'form-control'" type="text" name="senD_DT-{{in}}" [(ngModel)]="item.senD_DT">
+                                        </date-control>
+                                        <!-- <div class="error-message" *ngIf="isShowError">
+                                            <span *ngIf="isNull(item.senD_DT)">{{l('BidSendDt')}}
+                                                {{l("ValidationRequired")}}</span>
+
+                                            <span *ngIf="!validationSendDt_inpuT_DT(item)">
+                                                {{l('BidSendDt')}} {{l('NotLessThan')}} {{l('BidInputDt')}}</span>
+
+                                            <span *ngIf="!validationSendDt_exP_DT(item)">
+                                                {{l('BidSendDt')}} {{l('NotLessThan')}} {{l('BidExpDt')}}</span>
+
+
+                                        </div> -->
+                                    </td>
+                                    <!-- Giá chào thầu -->
+                                    <td><span class="mo-header"></span>
+                                        <money-input [disabled]="disableInput" class="transparent" type="text" name="offerinG_VALUE-{{in}}" [(ngModel)]="item.offerinG_VALUE">
+                                        </money-input>
+                                        <!-- <div class="error-message" *ngIf="isShowError">
+                                            <span *ngIf="isNull(item.offerinG_VALUE)">{{l('BidOfferingValue')}}
+                                                {{l("ValidationRequired")}}</span>
+                                        </div> -->
+                                    </td>
+                                    <!-- Hình thức bảo lãnh -->
+                                    <td><span class="mo-header"></span>
+                                        <all-code-select [disabled]="disableInput" name="form-{{in}}" [emptyText]="l('NullSelect')" [cdName]="'FORM'" [cdType]="'CONT'" [(ngModel)]="item.form">
+                                        </all-code-select>
+                                    </td>
+                                    <!-- Ngày hết hạn bảo lãnh -->
+                                    <td><span class="mo-header"></span>
+                                        <date-control [disabled]="disableInput" [inpCss]="'form-control'" type="text" name="exP_DT-{{in}}" [(ngModel)]="item.exP_DT">
+                                        </date-control>
+                                        <!-- <div class="error-message" *ngIf="isShowError">
+                                            <span *ngIf="isNull(item.exP_DT)">{{l('BidContractorExpDt')}}
+                                                {{l("ValidationRequired")}}</span>
+
+                                            <span *ngIf="!validationExPDt_opeN_DT(item)">
+                                                {{l('BidContractorExpDt')}} {{l('NotLessThan')}}
+                                                {{l('BidOpenDt')}}</span>
+                                        </div> -->
+                                    </td>
+                                    <!-- Ngân hàng -->
+                                    <td><span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="bank-{{in}}" [(ngModel)]="item.bank" />
+                                    </td>
+                                    <!-- Số chứng thư -->
+                                    <td><span class="mo-header"></span>
+                                        <input [disabled]="disableInput" class="form-control transparent" type="text" name="voucher-{{in}}" [(ngModel)]="item.voucher" />
+                                    </td>
+                                    <!-- Ghi chú -->
+                                    <td>
+                                        <span class="mo-header"></span>
+                                        <textarea [disabled]="disableInput" class="form-control transparent" type="text" name="notes-{{in}}" [(ngModel)]="item.notes"></textarea>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </editable-table>
+                    </div>
+                </form>
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<supplier-modal (onSelect)="onSelectSupplier($event)" #supplierModal></supplier-modal>
+<trade-project-modal [multiple]="false" (onSelect)="onSelectProject($event)" #tradeProjectModal>
+</trade-project-modal>

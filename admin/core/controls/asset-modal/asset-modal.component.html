@@ -1,0 +1,252 @@
+<popup-frame [title]="popupTitle" (onSearchEvent)="buttonSearch()" (onSelectEvent)="accept()" #popupFrame>
+    <form class="horizontal-form filter-form" autocomplete="off">
+        <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+                <!-- Begin Filter -->
+                <h5 name="SearchContains" class="popup-title col-md-12">{{l("SearchContains")}}</h5>
+
+                <!-- Mã loại tài sản -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("AssTypeCode")}}</label>
+                        <select2-custom name="asseT_TYPE" (onChangeSelect2)="onGetAssGroups($event)" [(ngModel)]="filterInput.typE_ID" [(list)]="assTypes" [emptyText]="l('SelectAll')" [valueMember]="'typE_ID'" [displayMember]="'typE_CODE|typE_NAME'">
+                        </select2-custom>
+                    </div>
+                </div>
+
+                <!-- Mã nhóm tài sản -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("AssGroupCode")}}</label>
+                        <select2-custom name="grouP_ID" [(ngModel)]="filterInput.grouP_ID" [(list)]="assGroups" [valueMember]="'grouP_ID'" [emptyText]="l('SelectAll')" [displayMember]="'grouP_CODE|grouP_NAME'"></select2-custom>
+                    </div>
+                </div>
+
+                <!-- Trạng thái tài sản -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("AssetStatus")}}</label>
+                        <select2-custom name="asS_STATUS" [(ngModel)]="filterInput.asS_STATUS" [(list)]="assStatuses" [valueMember]="'statuS_ID'" [displayMember]="'statuS_CODE|statuS_NAME'" [emptyText]="l('SelectAll')">
+                        </select2-custom>
+                    </div>
+                </div>
+
+                <!-- Trạng thái khấu hao -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("AmortStatus")}}</label>
+                        <select2-custom name="amorT_STATUS" [(ngModel)]="filterInput.amorT_STATUS" [(list)]="assAmortStatuses" [valueMember]="'statuS_CODE'" [displayMember]="'statuS_CODE|statuS_NAME'" [emptyText]="l('SelectAll')">
+                        </select2-custom>
+                    </div>
+                </div>
+
+                <!-- Năm mua tài sản -->
+                <div class="{{isGroupColMd2? 'col-md-2': 'col-md-4'}}">
+                    <div class="form-group">
+                        <label>{{l("AssetPurchaseYear")}}</label>
+                        <!-- <input [(ngModel)]="filterInput.buY_DATE" name="buY_DATE" autoFocus
+                            class="form-control m-input decimal" type="number" min="0"> -->
+                        <input name="buY_DATE" class="form-control" type="text">
+                    </div>
+                </div>
+
+                <!-- So ky khau hao con lai -->
+                <div class="{{isGroupColMd2? 'col-md-2': 'col-md-4'}}">
+                    <div class="form-group">
+                        <label>{{l("AssMasterRemainMonth")}}</label>
+                        <input [(ngModel)]="filterInput.remaiN_MONTH" name="remaiN_MONTH" autoFocus class="form-control m-input decimal" type="number" min="0">
+                    </div>
+                </div>
+
+                <!-- Đơn vị -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("Branch")}}</label>
+                        <div class="input-group">
+                            <input class="form-control m-input" type="text" name="brancH_ID" #brancH_ID="ngModel" [ngModel]="filterInput.brancH_NAME" (focusout)="onBranchFocusOut()" />
+                            <button class="btn btn-primary ng-star-inserted" name="brancH_ID" (click)="branchModal.show()" type='button'>{{l("...")}}</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phòng ban -->
+                <div class="col-md-4">
+                    <div class="form-group" [style.display]="branchType != 'HS' ? 'none' : ''">
+                        <label>{{l("PlanDepartment")}}</label>
+                        <div class="user-group">
+                            <input *ngIf="!isDepFieldSelect2" class="form-control m-input" type="text" name="dep_ID" #dep_ID="ngModel" [ngModel]="filterInput.deP_NAME" (focusout)="onDepartmentFocusOut()" />
+                            <select2-custom *ngIf="isDepFieldSelect2" #depSelect [(ngModel)]="filterInput.depT_ID" [ngModelOptions]="{standalone: true}" [emptyText]="l('SelectAll')" [list]="[]" [valueMember]="'value'" [displayMember]="'display'" [hidden]>
+                            </select2-custom>
+                            <button class="btn btn-primary ng-star-inserted" name="dep_ID" (click)="departmentModal.show()" type='button'>{{l("...")}}</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mã tài sản -->
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{l("AssetCode")}}</label>
+                        <input [(ngModel)]="filterInput.asseT_CODE" name="asseT_CODE" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+
+                <!-- Tên tài sản -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{l("AssetName")}}</label>
+                        <input [(ngModel)]="filterInput.asseT_NAME" name="asseT_NAME" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+
+                <!-- Tất cả đơn vị (Level) -->
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="level"></label>
+                        <checkbox-control name="level" [label]="l('AllBranch')" [checked]="false" [TrueValue]="'ALL'" [FalseValue]="'UNIT'" [(ngModel)]="filterInput.level">
+                        </checkbox-control>
+                    </div>
+                </div>
+                <!-- End Filter -->
+
+                <!-- Tháng kế hoạch -->
+                <div class="full-width">
+                    <h5 name="PlanMonthFilter" class="popup-title col-md-12">{{l("ValueDefault")}}</h5>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>{{l("PlanMonth")}}</label>
+                            <input [(ngModel)]="planMonth" name="PlanMonthFilter" min="1" max="12" maxlength="2" minlength="1" class="form-control m-input left" (focusout)="planMonth = planMonth? planMonth : 0; planMonth = planMonth>12? 12 : planMonth;" type="number">
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Tháng dự kiến thanh lý -->
+                <div class="full-width">
+                    <h5 name="PlanLiqFilter" class="popup-title col-md-12">{{l("ValueDefault")}}</h5>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>{{l("LiquidateMonthExpected")}}</label>
+                            <input [(ngModel)]="planLiq" name="PlanLiqFilter" min="1" max="12" class="form-control m-input left" maxlength="2" (focusout)="planLiq = planLiq? planLiq : 0; planLiq = planLiq>12? 12 : planLiq;" type="number">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:none;" class="col-md-12">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary btn-search" (click)="search()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row align-items-center">
+        <div class="primeng-datatable-container popup-modal-container {{dataTable.isLoading}}">
+            <div class="spinner-border m-5" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <core-table [reloadPageOnInit]="false" #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                <thead>
+                    <tr>
+                        <!-- Begin Table Column -->
+                        <th class='center' *ngIf="multiple">
+                            <span style="width:40px">
+                                <checkbox-control #checkAllElement
+                                    (change)="onCheckAll(checkAllElement.inputRef.nativeElement)"
+                                    [checked]="checkAll">
+                                </checkbox-control>
+                            </span>
+                        </th>
+                        <th class='center'>
+                            <span style="width: 40px">{{l("No")}}</span>
+                        </th>
+                        <!-- Mã tài sản -->
+                        <th class='center' sortField="ASSET_CODE">
+                            <span style="width: 100px">{{l("AssetCode")}}</span>
+                        </th>
+                        <!-- Tên tài sản -->
+                        <th class='center' style="width: 30%" sortField="ASSET_NAME">
+                            <span style="width: 250px">{{l("AssetName")}}</span>
+                        </th>
+                        <!-- Số serial -->
+                        <th class='center' sortField="ASSET_SERIAL_NO">
+                            <span style="width: 150px">{{l("SerialNo")}}</span>
+                        </th>
+                        <!-- Ngày nhập -->
+                        <th class='center' sortField="BUY_DATE">
+                            <span style="width: 150px">{{l("InputDate")}}</span>
+                        </th>
+                        <!-- Đơn vị nhập -->
+                        <th class='center' sortField="BRANCH_CREATE_NAME">
+                            <span style="width: 150px">{{l("BranchCreateName")}}</span>
+                        </th>
+                        <!-- Đơn vị sử dụng -->
+                        <th class='center' sortField="BRANCH_NAME">
+                            <span style="width: 150px">{{l("BranchNameUse")}}</span>
+                        </th>
+                        <!-- <th sortField="PGD">
+                            <span style="width: 150px">{{l("BranchNameUse")}}</span>
+                        </th> -->
+                        <!-- Phòng ban sử dụng -->
+                        <th class='center' sortField="DEP_NAME">
+                            <span style="width: 150px">{{l("DepartmentUse")}}</span>
+                        </th>
+                        <!-- Thời gian sử dụng -->
+                        <th class='center' sortField="USE_DATE">
+                            <span style="width: 150px">{{l("UseTime")}}</span>
+                        </th>
+                        <!-- Nguyên giá -->
+                        <th class='center' sortField="BUY_PRICE">
+                            <span style="width: 130px">{{l("OriginalPrice")}}</span>
+                        </th>
+                        <!-- Giá trị còn lại -->
+                        <th class='center' sortField="REMAIN_AMORTIZED_AMT">
+                            <span style="width: 130px">{{l("RemainValue")}}</span>
+                        </th>
+                        <!-- Trạng thái tài sản -->
+                        <th class='center' sortField="ASS_STATUS_NAME">
+                            <span style="width: 150px">{{l("AssetStatus")}}</span>
+                        </th>
+                        <!-- <th sortField="USE_DATE">
+                            <span style="width: 150px">{{l("UseDate")}}</span>
+                        </th> -->
+
+
+                        <!-- End Table Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- asseT_CODE, asseT_NAME, asseT_SERIAL_NO, buY_DATE, brancH_CREATE_NAME, brancH_NAME, deP_NAME,usE_DATE, buY_PRICE, remaiN_AMORTIZED_AMT, asS_STATUS_NAME -->
+                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onDoubleClick(record);" (click)="selectRow($event,record)">
+                        <!-- Begin Table Value -->
+                        <td class="center" *ngIf="multiple">
+                            <span class="mo-header"></span>
+                            <checkbox-control (onchange)="setChecked($event.target.checked, record)" [checked]="record['isChecked']"></checkbox-control>
+                        </td>
+                        <td class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                        </td>
+                        <td><span class="mo-header"></span>{{record.asseT_CODE}}</td>
+                        <td><span class="mo-header"></span>{{record.asseT_NAME}}</td>
+                        <td><span class="mo-header"></span>{{record.asseT_SERIAL_NO}}</td>
+                        <td><span class="mo-header"></span>{{record.buY_DATE | dateFormatPipe}}</td>
+                        <td class="right"><span class="mo-header"></span>{{record.brancH_CREATE_NAME}}</td>
+                        <td><span class="mo-header"></span>{{record.brancH_NAME}}</td>
+
+                        <!-- <td><span class="mo-header"></span>{{record.pgd}}</td> -->
+                        <td><span class="mo-header"></span>{{record.deP_NAME}}</td>
+                        <td><span class="mo-header"></span>{{record.usE_DATE | dateFormatPipe}}</td>
+
+
+                        <td class="right"><span class="mo-header"></span>{{record.buY_PRICE | moneyFormatPipe}}</td>
+                        <td class="right"><span class="mo-header"></span>{{record.remaiN_AMORTIZED_AMT | moneyFormatPipe}}</td>
+                        <td><span class="mo-header"></span>{{record.asS_STATUS_NAME}}</td>
+                        <!-- <td><span class="mo-header"></span>{{record.usE_DATE | dateFormatPipe}}</td> -->
+
+
+                    </tr>
+                </tbody>
+            </core-table>
+        </div>
+    </div>
+</popup-frame>
+<dep-modal #departmentModal [multiple]="false" (onSelect)="onSelectDepartment($event)"></dep-modal>
+<branch-modal #branchModal [multiple]="false" (onSelect)="onSelectBranch($event)"></branch-modal>

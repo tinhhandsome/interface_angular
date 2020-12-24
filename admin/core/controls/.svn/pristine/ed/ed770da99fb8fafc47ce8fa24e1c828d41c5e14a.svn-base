@@ -1,0 +1,1 @@
+<input #control type="text" [disabled]="disabled" class="flatpick-custom" class="{{inpCss}}">

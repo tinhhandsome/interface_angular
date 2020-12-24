@@ -1,0 +1,10 @@
+<div bsModal #treeModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editModal" aria-hidden="true" [config]="{backdrop: 'static', keyboard: true}">
+    <div *ngIf="active" class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class='form-group'>
+                <input type='text' (input)="filterPermissions($event)" [(ngModel)]="filter" class='form-control' placeholder='{{l("SearchWithThreeDot")}}'>
+            </div>
+            <p-tree (onNodeSelect)="onSelectNode($event)" [value]="treeData" [(selection)]="selectedPermissions" selectionMode="radio" (onNodeSelect)="nodeSelect($event)" [propagateSelectionUp]="false"></p-tree>
+        </div>
+    </div>
+</div>

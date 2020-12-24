@@ -1,0 +1,104 @@
+<popup-frame [title]="l('UserModalTitle')" (onSearchEvent)="buttonSearch()" (onSelectEvent)="accept()" #popupFrame>
+
+    <!-- Begin Filter -->
+    <form class="horizontal-form filter-form" autocomplete="off">
+        <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+
+                <!-- Tên đăng nhập -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{l("UserName")}}</label>
+                        <input name="tlnanme" maxlength="12" [(ngModel)]="filterInput.tlnanme" [ngModelOptions]="{standalone: true}" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+
+                <!-- Quyền -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{l("Permissions")}}</label>
+                        <select2-custom name="rolE_ID" [(ngModel)]="filterInput.rolE_ID" [(list)]="roles" [valueMember]="'id'" [displayMember]="'displayName'" [emptyText]="l('SelectAll')">
+                        </select2-custom>
+                    </div>
+                </div>
+
+                <!-- End Filter -->
+                <div style="display:none;" class="col-md-12">
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-search" (click)="search()"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row align-items-center">
+        <div class="primeng-datatable-container popup-modal-container {{dataTable.isLoading}}">
+            <div class="spinner-border m-5" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <core-table [reloadPageOnInit]="false" #coreTable class="custom-table ui-table" (reloadPage)="search()">
+                <thead>
+                    <tr>
+                        <!-- Begin Table Column -->
+                        <!-- multiple -->
+                        <th class="center" *ngIf="multiple">
+                            <span style="width:60px">
+                                <checkbox-control #checkAllElement
+                                    (change)="onCheckAll(checkAllElement.inputRef.nativeElement)"
+                                    [checked]="checkAll"></checkbox-control>
+                            </span>
+                        </th>
+                        <th class="center">
+                            <span style="width: 40px">{{l("No")}}</span>
+                        </th>
+
+                        <!-- Cơ sở -->
+                        <th class="center" style="width: 40%" sortField="BRANCH_NAME">
+                            <span style="width: 150px">{{l('Base')}}</span>
+                        </th>
+
+                        <!-- Tên đăng nhập -->
+                        <th class="center" sortField="TLNANME">
+                            <span style="width: 150px">{{l('UserName')}}</span>
+                        </th>
+                        <!-- <th sortField="user.name">
+                            <span style="width: 150px">{{l('Name')}}</span>
+                        </th> -->
+
+                        <!-- Quyền -->
+                        <th class="center" style="width: 30%" sortField="ROLES">
+                            <span style="width: 150px">{{l('Permissions')}}</span>
+                        </th>
+
+                        <!-- Email -->
+                        <th class="center" sortField="EMAIL">
+                            <span style="width: 250px">{{l('EmailAddress')}}</span>
+                        </th>
+                        <!-- End Table Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- multiple dblclick -->
+                    <tr *ngFor="let record of dataTable.records" class="selectable" (click)="selectRow($event,record)" (dblclick)="onDoubleClick(record)">
+                        <!-- Begin Table Value -->
+                        <!-- multiple -->
+                        <td class="center" *ngIf="multiple">
+                            <span class="mo-header"></span>
+                            <checkbox-control (onchange)="setChecked($event.target.checked, record)" [checked]="record['isChecked']"></checkbox-control>
+                        </td>
+                        <td class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                        </td>
+                        <td><span class="mo-header"></span>{{record.brancH_NAME}}</td>
+                        <td><span class="mo-header"></span>{{record.tlnanme}}</td>
+                        <!-- <td><span class="mo-header"></span>{{record.tlFullName}}</td> -->
+                        <td><span class="mo-header"></span>{{record.roles}}</td>
+                        <td><span class="mo-header"></span>{{record.email}}</td>
+                        <!-- End Table Value -->
+                    </tr>
+                </tbody>
+            </core-table>
+
+
+        </div>
+    </div>
+</popup-frame>

@@ -1,0 +1,46 @@
+<div [@routerTransition]>
+    <!-- BEGIN: Header -->
+    <header mHeader id="m_header"
+            *ngIf="!installationMode"
+            #mHeader class="m-grid__item m-grid m-grid--desktop m-grid--hor-desktop m-header"
+            [attr.m-minimize]="currentTheme.baseSettings.header.desktopFixedHeader ? 'minimize': ''"
+            [attr.m-minimize-mobile]="currentTheme.baseSettings.header.mobileFixedHeader ? 'minimize': ''"
+            m-minimize-offset="10" m-minimize-mobile-offset="10">
+        <div class="m-grid__item m-grid__item--fluid m-grid m-grid--desktop m-grid--hor-desktop m-container {{ui.getContainerClass()}}">
+            <div class="m-grid__item m-grid__item--fluid m-grid m-grid--desktop m-grid--ver-desktop m-header__wrapper">
+                <div class="m-grid__item m-brand">
+                    <theme4-brand class="m-stack m-stack--ver m-stack--general m-stack--inline d-print-non"></theme4-brand>
+                </div>
+                <div class="m-grid__item m-grid__item--fluid m-header-head" id="m_header_nav">
+                    <topbar></topbar>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- END: Header -->
+    <!-- begin::Body -->
+    <div class="m-grid__item m-grid__item--fluid m-grid m-grid m-grid--hor m-container {{ui.getContainerClass()}}">
+        <div class="m-grid__item m-grid__item--fluid m-grid m-grid--hor-desktop m-grid--desktop m-body">
+            <div class="m-grid__item m-body__nav">
+                <top-bar-menu class="m-stack m-stack--ver m-stack--desktop"></top-bar-menu>
+            </div>
+            <div class="m-grid__item m-grid__item--fluid m-grid m-grid--desktop m-grid--ver-desktop m-body__content">
+                <div class="m-grid__item m-grid__item--fluid m-wrapper">
+                    <div *ngIf="subscriptionStatusBarVisible()"
+                         [ngClass]="{'hidden': !subscriptionStatusBarVisible()}" class="d-inline-block d-sm-none mt-3 ml-3">
+                        <span *ngIf="tenant.isInTrialPeriod && !subscriptionIsExpiringSoon()" [innerHTML]="getTrialSubscriptionNotification()"></span>
+                        <a *ngIf="subscriptionIsExpiringSoon()" routerLink="/app/admin/subscription-management">
+                            <span *ngIf="subscriptionIsExpiringSoon() && tenant.isInTrialPeriod"><i class="fa fa-exclamation-circle"></i> {{getExpireNotification("TrialExpireNotification")}}</span>
+                            <span *ngIf="subscriptionIsExpiringSoon() && !tenant.isInTrialPeriod"><i class="fa fa-exclamation-circle"></i> {{getExpireNotification("SubscriptionExpireNotification")}}</span>
+                        </a>
+                    </div>
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end:: Body -->
+    <!-- begin::Footer -->
+    <footer-bar [useWrapperDiv]="true"></footer-bar>
+    <!-- end::Footer -->
+</div>

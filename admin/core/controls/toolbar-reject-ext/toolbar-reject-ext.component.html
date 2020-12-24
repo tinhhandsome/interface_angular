@@ -1,0 +1,38 @@
+<div class="toolbar-component m-content">
+    <button [disabled]="!buttonAddEnable" (click)="add()" class="btn btn-primary">
+        <i class="pi pi-plus"></i>
+        {{l("Add")}}
+    </button>
+    <button [disabled]="!buttonUpdateEnable" (click)="update()" class="btn btn-primary">
+        <i class="pi pi-pencil"></i>
+        {{l("Edit")}}
+    </button>
+    <button [disabled]="!buttonSaveEnable" (click)="save()" class="btn btn-primary">
+        <i class="pi pi-save"></i>
+        {{l("Update")}}
+    </button>
+    <button [disabled]="!buttonDeleteEnable" (click)="delete()" class="btn btn-primary">
+        <i class="pi pi-times"></i>
+        {{l("Delete")}}
+    </button>
+    <button [disabled]="!buttonSearchEnable" (click)="search()" class="btn btn-primary">
+        <i class="pi pi-search"></i>
+        {{l("Search")}}
+    </button>
+    <button [disabled]="!buttonResetSearchEnable" (click)="resetSearch()" class="btn btn-primary">
+        <i class="pi pi-refresh"></i>
+        {{l("ResetSearch")}}
+    </button>
+    <button [disabled]="!buttonViewDetailEnable" (click)="viewDetail()" class="btn btn-primary">
+        <i class="pi pi-eye"></i>
+        {{l("View")}}
+    </button>
+    <button [disabled]="!buttonApproveEnable" (click)="approve()" class="btn btn-primary">
+        <i class="pi pi-check"></i>
+        {{l("Approve")}}
+    </button>
+    <button [disabled]="!buttonRejectEnable" (click)="reject()" class="btn btn-primary">
+        <i class="pi pi-check"></i>
+        {{l("Reject")}}
+    </button>
+</div>

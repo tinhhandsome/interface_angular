@@ -1,0 +1,142 @@
+import { Injector, Component, OnInit, ViewEncapsulation, AfterViewInit, ElementRef, ViewChild } from "@angular/core";
+import { ReportInfo, AsposeServiceProxy, CM_DEPARTMENT_ENTITY, BranchServiceProxy, CM_BRANCH_ENTITY, CM_DIVISION_ENTITY, DepartmentServiceProxy, RAT_TERM_MASTER_ENTITY, RatTermMasterServiceProxy } from "@shared/service-proxies/service-proxies";
+import { appModuleAnimation } from "@shared/animations/routerTransition";
+import { FileDownloadService } from "@shared/utils/file-download.service";
+import { ReportTypeConsts } from "@app/admin/core/ultils/consts/ReportTypeConsts";
+import { DefaultComponentBase } from "@app/ultilities/default-component-base";
+import { PreviewTemplateService } from "@app/admin/common/preview-template/preview-template.service";
+
+@Component({
+    templateUrl: './rat-supplier-report.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+
+export class RatSupplierReportComponent extends DefaultComponentBase implements OnInit, AfterViewInit {
+
+    hidden: boolean = false;
+
+    filterInput: any = {};
+
+    ratTermMasters: RAT_TERM_MASTER_ENTITY[];
+
+    ngAfterViewInit(): void {
+        // COMMENT: this.stopAutoUpdateView();
+    }
+
+    constructor(injector: Injector,
+        private fileDownloadService: FileDownloadService,
+        private asposeService: AsposeServiceProxy,
+        private previewTemplateService: PreviewTemplateService,
+        private ratTermMasterService: RatTermMasterServiceProxy
+    ) {
+        super(injector);
+
+        this.initCombobox()
+    }
+
+    @ViewChild('editForm') editForm: ElementRef;
+    isShowError = false;
+
+    ngOnInit(): void {
+        this.filterInput.BRANCH_LOGIN = this.appSession.user.subbrId;
+    }
+
+    initCombobox(): void {
+        let filterCombobox = this.getFillterForCombobox()
+        filterCombobox.brancH_CREATE = this.appSession.user.subbrId;
+        filterCombobox.level = 'ALL'
+
+        this.ratTermMasterService.rAT_TERM_MASTER_Search(filterCombobox).subscribe(response => {
+            this.ratTermMasters = response.items
+            this.updateView()
+        })
+
+    }
+
+
+    exportToExcel(exportId = 1) {
+
+        if ((this.editForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return;
+        }
+
+        if (exportId == 3) {
+            if (this.isNull(this.filterInput.BRANCH_ID)) {
+                this.isShowError = true;
+                this.showErrorMessage(this.l('BranchSelectRequired'));
+                this.updateView();
+                return;
+            }
+        }
+
+        let reportInfo = this.getReportInfo();
+        reportInfo.pathName = "/REPORT/DANHGIA_NCC_TONGHOP.xlsx";
+
+        switch (exportId) {
+            case 2:
+                reportInfo.fileName = "DANHGIA_NCC_TONGHOP_SL.xlsx"
+                reportInfo.storeName = "rpt_RAT_TERM_MASTER_NUM";
+                break;
+            case 3:
+                reportInfo.fileName = "DANHGIA_NCC_DV.xlsx"
+                reportInfo.storeName = "rpt_RAT_SUP_RATING";
+                break;
+            default:
+                reportInfo.storeName = "rpt_RAT_TERM_MASTER";
+                break;
+        }
+
+        this.asposeService.getReport(reportInfo).subscribe(x => {
+            this.fileDownloadService.downloadTempFile(x);
+            this.showSuccessMessage(this.l('ExportFileSuccess'));
+            this.updateView();
+        });
+    }
+
+    getReportInfo(): ReportInfo {
+        let reportInfo = new ReportInfo();
+        reportInfo.typeExport = ReportTypeConsts.Excel;
+
+        reportInfo.parameters = this.GetParamsFromFilter(this.filterInput);
+
+        reportInfo.values = this.GetParamsFromFilter({
+            branchName: this.appSession.user.branch.brancH_NAME,
+            rateTerm: this.filterInput.RATE_TERM
+        });
+        return reportInfo;
+    }
+
+    onSelectBranch(branch: CM_BRANCH_ENTITY) {
+        this.filterInput.BRANCH_ID = branch.brancH_ID;
+        this.filterInput.BRANCH_NAME = branch.brancH_NAME;
+        this.filterInput.BRANCH_CODE = branch.brancH_CODE;
+    }
+
+    onBranchUseFocusOut() {
+        if (this.isNull(this.filterInput.BRANCH_CODE)) {
+            this.onSelectBranch({} as CM_BRANCH_ENTITY)
+        }
+    }
+
+    onRateTermChange(ratTermMaster: RAT_TERM_MASTER_ENTITY) {
+        this.filterInput.RATE_TERM = ratTermMaster.ratE_TERM
+        this.filterInput.INPUT_DT = ratTermMaster.inpuT_DT
+        this.filterInput.FROM_DT = ratTermMaster.froM_DT
+        this.filterInput.TO_DT = ratTermMaster.tO_DT
+        this.filterInput.NOTE = ratTermMaster.notes
+
+        this.updateView()
+    }
+
+    // printPreview() {
+
+
+
+    //     this.previewTemplateService.printReportTemplate("TSCD_BC16A", parameters, values);
+    // }
+
+}

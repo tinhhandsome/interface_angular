@@ -1,0 +1,159 @@
+import { Injector, Component, OnInit, ViewEncapsulation, AfterViewInit, ViewChild, ElementRef } from "@angular/core";
+import { ReportInfo, AsposeServiceProxy, CM_BRANCH_ENTITY, CM_DEPARTMENT_ENTITY } from "@shared/service-proxies/service-proxies";
+import { appModuleAnimation } from "@shared/animations/routerTransition";
+import { FileDownloadService } from "@shared/utils/file-download.service";
+import { ReportTypeConsts } from "@app/admin/core/ultils/consts/ReportTypeConsts";
+import { DefaultComponentBase } from "@app/ultilities/default-component-base";
+import * as moment from 'moment';
+import { DateFormatPipe } from "@app/admin/core/pipes/date-format.pipe";
+import { PreviewTemplateService } from "@app/admin/common/preview-template/preview-template.service";
+import { Select2CustomComponent } from "@app/admin/core/controls/custom-select2/select2-custom.component";
+import { ReportTemplateModalComponent } from "@app/admin/core/controls/report-template-modal/report-template-modal.component";
+
+@Component({
+    templateUrl: './ass-list-over-view-PO-construction-asset-fix.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+
+export class AssListOverViewPOConstructionAssetFixComponent extends DefaultComponentBase implements OnInit, AfterViewInit {
+
+    filterInput: any = {};
+    levels: any;
+    branchType: string;
+    isShowError: boolean = false;
+
+    @ViewChild('exportForm') exportForm: ElementRef;
+    @ViewChild('depSelect') depSelect: Select2CustomComponent;
+    @ViewChild('reportTemplate') reportTemplate: ReportTemplateModalComponent;
+    
+    ngAfterViewInit(): void {
+        // COMMENT: this.stopAutoUpdateView();
+        this.setupValidationMessage();
+    }
+
+    constructor(injector: Injector,
+        private fileDownloadService: FileDownloadService,
+        private asposeService: AsposeServiceProxy,
+        private previewTemplateService: PreviewTemplateService) {
+        super(injector);
+    }
+
+    ngOnInit(): void {
+        this.filterInput.BRANCH_LOGIN = this.appSession.user.subbrId;
+        this.filterInput.LEVEL = 'ALL';
+        this.levels = this.getLevelsCombobox();
+        this.branchType = this.appSession.user.branch.brancH_TYPE;
+        this.filterInput.BRANCH_ID = this.appSession.user.subbrId;
+        this.filterInput.BRANCH_NAME = this.appSession.user.branchName;
+        this.filterInput.FROMDATE = moment().startOf('year');
+        this.filterInput.TODATE = moment().endOf('year');
+    }
+
+    exportToExcel() {
+        if ((this.exportForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return;
+        }
+
+
+        if (!this.filterInput.TODATE) {
+            this.showErrorMessage(this.l('ChooseDateRequired'));
+            this.updateView();
+            return;
+        }
+        let reportInfo = new ReportInfo();
+        reportInfo.typeExport = ReportTypeConsts.Excel;
+        if (!this.filterInput.FROMDATE)
+            this.filterInput.FROMDATE = '';
+
+        // if (!this.filterInput.DEP_NAME)
+        //     this.filterInput.DEP_ID = '';
+
+        reportInfo.values = this.GetParamsFromFilter({
+            fromDateToDateInput: (this.l('FromDate') + ' ' + ((this.filterInput.FROMDATE != '') ? this.filterInput.FROMDATE.format('DD/MM/YYYY') : '')
+                + ' ' + this.l('ToDate') + ' ' + this.filterInput.TODATE.format('DD/MM/YYYY')).toUpperCase(),
+            branchIdInput: this.appSession.user.subbrId,
+            branchNameInput: this.appSession.user.branchName,
+            username: this.appSession.user.name,
+            levelInput: this.levels.filter(x => x.value == this.filterInput.LEVEL)[0].display,
+            datePrintInput: moment().format('DD/MM/YYYY')
+        });
+
+
+        reportInfo.parameters = this.GetParamsFromFilter(this.filterInput);
+
+        reportInfo.pathName = "/REPORT/TSCD_BC09.xlsx";
+        reportInfo.storeName = "rpt_TSCD_BC09_Excel";
+
+        this.asposeService.getReport(reportInfo).subscribe(x => {
+            this.fileDownloadService.downloadTempFile(x);
+            this.showSuccessMessage(this.l('ExportFileSuccess'));
+            this.updateView();
+        });
+    }
+    printPreview() {
+        if ((this.exportForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return;
+        }
+
+
+        if (!this.filterInput.TODATE) {
+            this.showErrorMessage(this.l('ChooseDateRequired'));
+            this.updateView();
+            return;
+        }
+
+        // if (!this.filterInput.DEP_NAME)
+        //     this.filterInput.DEP_ID = '';
+
+        var str = '';
+        var datePipe = new DateFormatPipe();
+        if (this.filterInput.FROMDATE)
+            str += ' ' + this.l('FromDate') + ' ' + datePipe.transform(this.filterInput.FROMDATE)
+                + ' ' + this.l('ToDate').toLowerCase() + ' ' + datePipe.transform(this.filterInput.TODATE);
+        else
+            str += ' ' + this.l('ToDate') + ' ' + datePipe.transform(this.filterInput.TODATE);
+
+        let parameters = this.GetParamsFromFilter({
+            Branch_ID: this.appSession.user.subbrId,
+            BRANCH_LOGIN: this.appSession.user.subbrId,
+            LEVEL: 'ALL',
+            Todate: datePipe.transform(this.filterInput.TODATE),
+            Fromdate: datePipe.transform(this.filterInput.FROMDATE)
+        });
+        let values = this.GetParamsFromFilter({
+            fullName: this.appSession.user.userName,
+            datePrint: datePipe.transform(moment()),
+            branchCode: this.appSession.user.branchCode,
+            branchName: this.appSession.user.branchName,
+            A5: str,
+        });
+        this.reportTemplate.show('AssListOverViewPOConstructionAssetFix_Report', parameters, values);
+        // this.previewTemplateService.printReportTemplate('AssListOverViewPOConstructionAssetFix_Report', parameters, values);
+    }
+
+    // onSelectDep(dep: CM_DEPARTMENT_ENTITY): void {
+    //     this.filterInput.DEP_CODE = dep.deP_CODE;
+    //     this.filterInput.DEP_ID = dep.deP_ID;
+    //     this.filterInput.DEP_NAME = dep.deP_NAME;
+    // }
+
+    onSelectBranch(branch: CM_BRANCH_ENTITY) {
+        if(!branch.brancH_ID)
+            return;
+        this.filterInput.BRANCH_ID = branch.brancH_ID;
+        this.branchType = branch.brancH_TYPE;
+        if (this.branchType != 'HS') {
+            this.filterInput.DEP_ID = '';
+            this.depSelect.setSingleValue('', '');
+        }
+        this.filterInput.BRANCH_NAME = branch.brancH_NAME;
+        this.updateView();
+    }
+}

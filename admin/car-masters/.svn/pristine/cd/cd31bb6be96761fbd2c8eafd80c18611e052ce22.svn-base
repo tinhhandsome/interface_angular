@@ -1,0 +1,194 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <!-- Begin Title -->
+                        <span>{{l("CarOffer")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+                <div class="col text-right mt-3 mt-md-0">
+                    <div class="btn-group dropdown mr-2">
+                        <button class=" btn btn-success" (click)="exportToExcel()">
+                            <i class="far fa-file-excel"></i>
+                            {{l("ExcelOperations")}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+
+                                <!-- Số xe -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("N_Plate")}}</label>
+                                        <div class="input-group">
+                                            <input style="width:80%" class="form-control" maxlength="20" type="text" name="n_PLATE" [(ngModel)]="filterInput.n_PLATE" #n_PLATE='ngModel'>
+                                            <span class="input-group-btn">
+                                                    <button type="button" class="btn btn-primary"
+                                                        (click)="filterInputModal?.show()">...</button>
+                                                </span>
+                                        </div>
+                                        <div class="error-message" *ngIf="n_PLATE?.invalid">
+                                            <span *ngIf="n_PLATE?.errors.pattern">{{l('N_Plate')}}
+                                                    {{l("Invalidation")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ngày đề xuất -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("OfferDate")}}</label>
+                                        <date-control [inpCss]="'form-control'" type="text" #offeR_DT="ngModel" name="offeR_DT" [(ngModel)]="filterInput.offeR_DT">
+                                        </date-control>
+                                        <div class="error-message" *ngIf="offeR_DT.invalid">
+                                            <span *ngIf="offeR_DT?.errors.pattern">{{l('OfferDate')}}
+                                                    {{l("Invalidation")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ngày dự kiến sửa xong -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("FinishRepairDate")}}</label>
+                                        <date-control [inpCss]="'form-control'" type="text" #finisH_DT="ngModel" name="finisH_DT" [(ngModel)]="filterInput.finisH_DT">
+                                        </date-control>
+
+                                        <div class="error-message" *ngIf="finisH_DT.invalid">
+                                            <span *ngIf="finisH_DT?.errors.pattern">{{l('FinishRepairDate')}}
+                                                    {{l("Invalidation")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Khu vực -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("AreaName")}}</label>
+                                        <select2-custom name="offeR_BRANCH" [(ngModel)]="filterInput.offeR_BRANCH" #offeR_BRANCH="ngModel" [(list)]="branchs" [emptyText]="l('NullSelect')" [valueMember]="'brancH_ID'" [displayMember]="'brancH_CODE|brancH_NAME'">
+                                        </select2-custom>
+                                    </div>
+                                </div>
+
+                                <!-- Chi phí sửa chữa -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("RepairAMT")}}</label>
+                                        <money-input #repaiR_AMT="ngModel" maxlength=10 name="repaiR_AMT" [(ngModel)]="filterInput.repaiR_AMT">
+                                        </money-input>
+                                        <div class="error-message" *ngIf="repaiR_AMT.invalid">
+                                            <span *ngIf="repaiR_AMT?.errors.pattern">{{l('RepairAMT')}}
+                                                    {{l("Invalidation")}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tình trạng duyệt -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("AuthStatus")}}</label>
+                                        <all-code-select name="autH_STATUS" [(ngModel)]="filterInput.autH_STATUS" [emptyText]="l('SelectAll')" [cdName]="'AUTH_STATUS'">
+                                        </all-code-select>
+                                    </div>
+                                </div>
+                                <!-- End Filter -->
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="getCarOffers()">
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th>
+                                            <span style="width: 40px">{{l("No")}}</span>
+                                        </th>
+                                        <th sortField="n_PLATE">
+                                            <span style="width: 80px">{{l("N_Plate")}}</span>
+                                        </th>
+                                        <th sortField="offeR_DT">
+                                            <span style="width: 120px">{{l("OfferDate")}}</span>
+                                        </th>
+                                        <th sortField="repaiR_DT">
+                                            <span style="width: 130px">{{l("RepairDate")}}</span>
+                                        </th>
+                                        <th sortField="finisH_DT">
+                                            <span style="width: 180px">{{l("FinishRepairDate")}}</span>
+                                        </th>
+                                        <th sortField="repaiR_AMT">
+                                            <span style="width: 150px">{{l("RepairAMT")}}</span>
+                                        </th>
+                                        <th sortField="repaiR_CONTENT">
+                                            <span style="width: 200px">{{l("RepairContent")}}</span>
+                                        </th>
+                                        <th sortField="autH_STATUS">
+                                            <span style="width: 150px">{{l("AuthStatus")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onUpdate(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <td>
+                                            <span class="mo-header"></span>{{(filterInput.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <!-- Số xe -->
+                                        <td><span class="mo-header"></span>{{record.n_PLATE}}</td>
+                                        <!-- Ngày đề xuất  -->
+                                        <td><span class="mo-header"></span>{{record.offeR_DT | dateFormatPipe}}</td>
+                                        <!-- Ngày sửa chữa -->
+                                        <td><span class="mo-header"></span>{{record.repaiR_DT | dateFormatPipe}}
+                                        </td>
+                                        <!-- Ngày dự kiến sửa xong -->
+                                        <td><span class="mo-header"></span>{{record.finisH_DT | dateFormatPipe}}
+                                        </td>
+                                        <!-- Chi phí sửa chữa -->
+                                        <td><span class="mo-header"></span>{{record.repaiR_AMT | moneyFormatPipe}}
+                                        </td>
+                                        <!-- Nội dung sửa chữa thực tế -->
+                                        <td><span class="mo-header"></span>{{record.repaiR_CONTENT}}</td>
+                                        <!-- Tình trạng duyệt -->
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+
+                            <div class="primeng-no-data" *ngIf="dataTable.records.length == 0">
+                                {{l('NoData')}}
+                            </div>
+                            <div class="primeng-paging-container">
+                                <p-paginator [rows]="filterInput.maxResultCount || dataTable.defaultRecordsCountPerPage" #paginator (onPageChange)="getCarOffers()" [totalRecords]="dataTable.totalRecordsCount" [rowsPerPageOptions]="dataTable.predefinedRecordsCountPerPage">
+                                </p-paginator>
+
+                                <span class="total-records-count">
+                                        {{l('TotalRecordsCount')}} {{dataTable.totalRecordsCount}}
+                                    </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<car-master-modal (onSelect)="onSelectCar($event)" [multiple]='false' #filterInputModal></car-master-modal>

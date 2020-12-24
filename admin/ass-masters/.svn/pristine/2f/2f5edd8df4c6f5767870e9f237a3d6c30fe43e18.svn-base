@@ -1,0 +1,195 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <a [routerLink]="rootPage()"
+                        class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                        <span>{{l("HomePage")}}</span>
+                    </a>
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+
+                        <!-- Begin Title -->
+                        <span>{{l("AssMortCCLD")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <!-- BEGIN FORM-->
+                    <form #editForm="ngForm" id="editForm" novalidate class="container-fluid">
+                        <!-- List thong tin ki phan bo-->
+                        <div class="row align-items-center form-group" *ngIf="created">
+                            <ul>
+                                <li><b>{{l('AmortCCLDExecuteDate')}}:</b> {{output.executE_DT | dateTimeFormatPipe}}
+                                </li>
+                                <li><b>{{l('AmortCCLDTerm')}}:</b> {{output.amorT_TERM}}</li>
+                                <li><b>{{l('AmortCCLDTotalAMT')}}:</b> {{output.totaL_AMT | moneyFormatPipe}} </li>
+                                <li><b>{{l('AmortCCLDStatusName')}}:</b> {{output.statuS_NAME}}</li>
+                            </ul>
+                        </div>
+                        <div class="row align-items-center ">
+                            <!-- Kỳ phân bổ -->
+                            <div class="col-md-4 form-group required" style="padding:0px">
+                                <fieldset>
+                                    <legend>{{l("AmortCCLDTerm")}}</legend>
+                                    <div class="user-group">
+                                        <input type="text" name="amorT_TERM" #amorT_TERM="ngModel" class="form-control"
+                                            placeholder="MM/YY" [(ngModel)]="input.amorT_TERM"
+                                            (focusout)="getTermValue($event.target.value)" required />
+                                        <!-- Hủy bỏ kỳ phân bổ -->
+                                        <button class="btn btn-danger" id="btn-danger" name="btn-danger"
+                                            (click)="deleteAssAmortDo()" type="button">{{l("Cancel")}}
+                                            {{l("AmortCCLDTerm")| lowercase}}</button>
+                                    </div>
+                                    <div class="error-message" *ngIf="amorT_TERM.invalid && isShowError">
+                                        <span *ngIf="amorT_TERM?.errors?.required">{{l("AmortCCLDTerm")}}
+                                            {{l("ValidationRequired")}}</span>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <!-- [cleave]="{date: true, datePattern: ['m', 'Y']}" -->
+                        <div class="row align-items-center button-group">
+                            <!-- Button create amortCCLD  -->
+
+                            <button class="btn btn-primary mb-2" type="button"
+                                (click)="CreateAmortCCLD()">{{l('CreateAmortCCLD')}}</button>
+                            <button class="btn btn-primary mb-2" *ngIf="created" type="button"
+                                (click)="StartAmortCCLD()">{{l('StartAmortCCLD')}}</button>
+                            <button class="btn btn-primary mb-2" *ngIf="created" type="button"
+                                (click)="exportExcel()"><i class="far fa-file-excel"></i>{{l('ExportExcel')}}</button>
+
+                            <!-- End Filter -->
+                        </div>
+
+                        <div class="row align-items-center form-group">
+                            <!-- Bat dau bang pending item-->
+                            <div class="editable-title-group " [hidden]="!existedPendingItems">
+                                <h5 class="popup-title col-md-12">{{l("AssPendingList")}}</h5>
+                            </div>
+                            <div class="primeng-datatable-container {{editTable.isLoading}}"
+                                [hidden]="!existedPendingItems">
+                                <div class="spinner-border m-5" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                                <editable-table #editTable class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <!-- STT -->
+                                            <th>
+                                                <span style="width: 40px">{{l("No")}}</span>
+                                            </th>
+                                            <!-- Giao dịch -->
+                                            <th sortField="traN_TYPE_NAME">
+                                                <span style="width: 150px">{{l("Transaction")}}</span>
+                                            </th>
+                                            <!-- Trạng thái duyệt -->
+                                            <th sortField="autH_STATUS_NAME">
+                                                <span style="width: 150px">{{l("ApproveStatus")}}</span>
+                                            </th>
+                                            <!-- Người tạo -->
+                                            <th sortField="makeR_ID">
+                                                <span style="width: 150px">{{l("MakerId")}}</span>
+                                            </th>
+                                            <!-- End Table Column -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let record of editTable.dataInPage" class="selectable">
+                                            <!-- Begin Table Value -->
+                                            <!-- STT -->
+                                            <td><span class="mo-header"></span>{{record['no']}} </td>
+                                            <!-- Giao dịch -->
+                                            <td><span class="mo-header"></span>{{record.traN_TYPE_NAME}}</td>
+                                            <!-- Trạng thái duyệt -->
+                                            <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+                                            <!-- Người tạo -->
+                                            <td><span class="mo-header"></span>{{record.makeR_ID}}</td>
+                                            <!-- End Table Value -->
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                                <!-- Ket thuc bang pending item-->
+                            </div>
+                            <!-- Bat dau bang tai san phan bo item-->
+                            <div class="editable-title-group" [hidden]="!created">
+                                <h5 class="popup-title col-md-12">{{l("AssAmortList")}}</h5>
+                            </div>
+                            <div class="primeng-datatable-container {{amortListTable.isLoading}}" [hidden]="!created">
+                                <div class="spinner-border m-5" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                                <editable-table #amortListTable class="custom-table ui-table">
+                                    <thead>
+                                        <tr>
+                                            <!-- STT -->
+                                            <th>
+                                                <span style="width: 40px">{{l("No")}}</span>
+                                            </th>
+                                            <!-- Đơn vị -->
+                                            <th sortField="brancH_CODE">
+                                                <span style="width: 150px">{{l("BranchCode")}}</span>
+                                            </th>
+                                            <!-- Tên đơn vị -->
+                                            <th sortField="brancH_NAME">
+                                                <span style="width: 150px">{{l("Branch")}}</span>
+                                            </th>
+                                            <!-- Mã tài sản -->
+                                            <th sortField="asseT_CODE">
+                                                <span style="width: 150px">{{l("AssetCode")}}</span>
+                                            </th>
+                                            <!-- Tên sài sản -->
+                                            <th sortField="asseT_NAME">
+                                                <span style="width: 150px">{{l("AssetName")}}</span>
+                                            </th>
+                                            <!-- Số tiền -->
+                                            <th class="right" sortField="amorT_AMT">
+                                                <span style="width: 150px">{{l("Amount")}}</span>
+                                            </th>
+                                            <!-- Ghi chú -->
+                                            <th sortField="notes">
+                                                <span style="width: 150px">{{l("Notes")}}</span>
+                                            </th>
+                                            <!-- End Table Column -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let record of amortListTable.dataInPage" class="selectable">
+                                            <!-- Begin Table Value -->
+                                            <!-- stt -->
+                                            <td><span class="mo-header"></span>{{record['no']}} </td>
+                                            <!-- Đơn vị -->
+                                            <td><span class="mo-header"></span>{{record.brancH_CODE}}</td>
+                                            <!-- Tên đơn vị -->
+                                            <td><span class="mo-header"></span>{{record.brancH_NAME}}</td>
+                                            <!-- Mã tài sản -->
+                                            <td><span class="mo-header"></span>{{record.asseT_CODE}}</td>
+                                            <!-- Tên tài sản -->
+                                            <td><span class="mo-header"></span>{{record.asseT_NAME}}</td>
+                                            <!-- Số tiền -->
+                                            <td class="right"><span
+                                                    class="mo-header"></span>{{record.amorT_AMT | moneyFormatPipe}}</td>
+                                            <!-- Ghi chú -->
+                                            <td><span class="mo-header"></span>{{record.notes}}</td>
+                                            <!-- End Table Value -->
+                                        </tr>
+                                    </tbody>
+                                </editable-table>
+                            </div>
+                            <!-- Ket thuc bang pending item-->
+
+                        </div>
+                    </form>
+                    <!--END FORM-->
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

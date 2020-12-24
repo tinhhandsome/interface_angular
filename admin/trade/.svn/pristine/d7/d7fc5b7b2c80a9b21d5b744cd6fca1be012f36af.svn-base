@@ -1,0 +1,381 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <!-- Begin Title -->
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("RatSupplierTitle")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Create")}}
+                        {{l("RateSupplierEdit") | lowercase}}</span>
+                    <span *ngSwitchCase="EditPageState.edit">{{l("Edit")}} {{l("RateSupplierEdit") | lowercase}} :
+                        {{inputModel.ratE_TERM}}</span>
+                    <span *ngSwitchCase="EditPageState.viewDetail">{{l("View")}}
+                        {{l("RateSupplierEdit") | lowercase}} :
+                        {{inputModel.ratE_TERM}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin chi tiết -->
+                        <div class="col-md-12">
+                            <div class="editable-title-group">
+                                <h5 class="popup-title col-md-12">{{l("DetailInfo")}} </h5>
+                            </div>
+                        </div>
+
+                        <!-- Đợt đánh giá -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("RateNo")}}</label>
+                                <select2-custom required (onChangeSelect2)="rateSupSelectChange($event)"
+                                    name="ratE_TERM" #ratE_TERM="ngModel" [(ngModel)]="inputModel.raT_ID"
+                                    [(list)]="ratSups" [valueMember]="'raT_ID'" [displayMember]="'ratE_TERM'">
+                                </select2-custom>
+                                <div class="error-message" *ngIf="ratE_TERM.invalid && isShowError">
+                                    <span *ngIf="ratE_TERM?.errors.required">{{l('PoMasterCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="ratE_TERM?.errors.pattern">{{l('PoMasterCode')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ngày tạo -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("CreateDate")}}</label>
+                                <date-control [disabled]="true" [inpCss]="'form-control'" type="text"
+                                    #inpuT_DT="ngModel" name="inpuT_DT" [(ngModel)]="inputModel.inpuT_DT">
+                                </date-control>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+
+                        </div>
+
+                        <!-- Giai đoạn từ ngày-->
+                        <div class="col-md-4">
+                            <label>{{l("Period")}} {{l("FromDate")|lowercase}}</label>
+                            <date-control [disabled]="true" [inpCss]="'form-control'" type="text" #froM_DT="ngModel"
+                                name="froM_DT" [(ngModel)]="inputModel.froM_DT">
+                            </date-control>
+                        </div>
+
+                        <!-- Đến ngày -->
+                        <div class="col-md-4">
+                            <label>{{l("ToDate")}}</label>
+                            <date-control [disabled]="true" [inpCss]="'form-control'" type="text" #froM_DT="ngModel"
+                                name="froM_DT" [(ngModel)]="inputModel.froM_DT">
+                            </date-control>
+                        </div>
+
+                        <div class="col-md-4"></div>
+
+                        <!-- Ghi chú -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <textarea disabled class="form-control" type="text" #notes="ngModel" name="notes"
+                                    [(ngModel)]="inputModel.notes"></textarea>
+
+                            </div>
+                        </div>
+                        <!-- Thang điểm -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label></label>
+                                <div *ngIf='cm_Rating'>{{cm_Rating[0].tieU_CHI}}</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Bảng con: Danh sách đánh giá -->
+                    <div class="editable-title-group">
+                        <h5 class="popup-title col-md-12">{{l("RateList")}}</h5>
+                        <div class="action-button">
+                        </div>
+                    </div>
+
+                    <div class="primeng-datatable-container">
+                        <form #ngFormSupDetail="ngForm">
+                            <editable-table [requiredFields]="['m_ONTIME','m_QUALITY']" #editTableRateSupDetail
+                                class="custom-table ui-table">
+                                <thead>
+                                    <tr>
+
+                                        <!-- STT -->
+                                        <th><span style="width: 60px">{{l("No")}}</span></th>
+                                        <!-- Tên nhà cung cấp -->
+                                        <th sortField="suP_NAME"><span style="width: 200px">{{l("SupplierName")}}</span>
+                                        </th>
+                                        <!-- Tên thiết bị -->
+                                        <th sortField="goodS_NAME"><span style="width: 200px">{{l("GoodsName")}}</span>
+                                        </th>
+                                        <!-- A_ Điểm giao hàng -->
+                                        <th sortField="a_ONTIME"><span style="width: 200px">{{l("A_OnTime")}}</span>
+                                        </th>
+                                        <!-- A_KQ giao hàng -->
+                                        <th sortField="a_ONTIMERATE_NAME"><span
+                                                style="width: 200px">{{l("A_OnTimeRate")}}</span></th>
+                                        <!-- M_Điểm giao hàng -->
+                                        <th sortField="m_ONTIME" class="text-danger"><span
+                                                style="width: 200px">{{l("M_OnTime")}}</span></th>
+                                        <!-- M_KQ giao hàng -->
+                                        <th sortField="m_ONTIMERATE_NAME"><span
+                                                style="width: 200px">{{l("M_OnTimeRate")}}</span></th>
+
+                                        <!-- A_SL sửa chữa -->
+                                        <th sortField="a_QUALITY"><span style="width: 200px">{{l("A_Quality")}}</span>
+                                        </th>
+                                        <!-- M_Điểm chất lượng -->
+                                        <th sortField="m_QUALITY" class="text-danger"><span
+                                                style="width: 200px">{{l("M_Quality")}}</span></th>
+                                        <!-- M_KQ chất lượng -->
+                                        <th sortField="m_QUALITYRATE_NAME"><span
+                                                style="width: 200px">{{l("M_QualityRate")}}</span></th>
+
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="selectable {{item['editableIsSelected'] ? 'selected' : ''}}"
+                                        *ngFor="let item of editTableRateSupDetail.dataInPage; let in = index"
+                                        [hidden]="item['page'] != editTableRateSupDetail.currentPage"
+                                        (click)="editTableRateSupDetail.selectRow($event,item)">
+
+                                        <!-- STT -->
+                                        <td><span class="mo-header"></span>
+                                            <input class="label form-control"
+                                                name="{{editTableRateSupDetail.name('no',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail.dataInPage[in]['no']">
+                                        </td>
+                                        <!-- Tên nhà cung cấp -->
+                                        <td><span class="mo-header"></span>
+                                            <input class="label form-control"
+                                                name="{{editTableRateSupDetail.name('suP_NAME',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail.dataInPage[in]['suP_NAME']">
+                                        </td>
+                                        <!-- Tên thiết bị -->
+
+                                        <td><span class="mo-header"></span>
+                                            <input class="label form-control"
+                                                name="{{editTableRateSupDetail.name('goodS_NAME',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail.dataInPage[in]['goodS_NAME']">
+                                        </td>
+                                        <!-- A_ Điểm giao hàng -->
+                                        <td><span class="mo-header"></span>
+                                            <input class="label form-control"
+                                                name="{{editTableRateSupDetail.name('a_ONTIME',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail.dataInPage[in]['a_ONTIME']">
+                                        </td>
+                                        <!-- A_KQ giao hàng -->
+                                        <td><span class="mo-header"></span>
+                                            <input class="label form-control"
+                                                name="{{editTableRateSupDetail.name('a_ONTIMERATE_NAME',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail.dataInPage[in]['a_ONTIMERATE_NAME']">
+                                        </td>
+
+                                        <!-- M_Điểm giao hàng -->
+                                        <td><span class="mo-header"></span>
+                                            <input
+                                                (focusout)="reloadOntimeRateName(editTableRateSupDetail.dataInPage[in],$event)"
+                                                class="form-control" type="number" max="10" min="0"
+                                                name="{{editTableRateSupDetail.name('m_ONTIME',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail.dataInPage[in]['m_ONTIME']">
+                                        </td>
+
+
+                                        <!-- M_KQ giao hàng -->
+                                        <td><span class="mo-header"></span><input class="label form-control"
+                                                name="{{editTableRateSupDetail.name('m_ONTIMERATE_NAME',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail.dataInPage[in]['m_ONTIMERATE_NAME']">
+                                        </td>
+                                        <!-- A_SL sửa chữa -->
+                                        <td><span class="mo-header"></span>
+                                            <input class="label form-control"
+                                                name="{{editTableRateSupDetail.name('a_QUALITY',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail.dataInPage[in]['a_QUALITY']">
+                                        </td>
+
+                                        <!-- M_Điểm chất lượng -->
+                                        <td><span class="mo-header"></span>
+                                            <input
+                                                (focusout)="reloadQualityRateName(editTableRateSupDetail.dataInPage[in],$event)"
+                                                class="form-control" type="number" max="10" min="0"
+                                                name="{{editTableRateSupDetail.name('m_QUALITY',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail.dataInPage[in]['m_QUALITY']">
+                                        </td>
+
+                                        <!-- M_KQ chất lượng -->
+                                        <td><span class="mo-header"></span>
+                                            <input class="label form-control"
+                                                name="{{editTableRateSupDetail.name('m_QUALITYRATE_NAME',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail.dataInPage[in]['m_QUALITYRATE_NAME']">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </editable-table>
+                        </form>
+                    </div>
+
+                    <!-- Bảng con: Danh sách đánh giá -->
+                    <div class="editable-title-group">
+                        <h5 class="popup-title col-md-12">{{l("RateList")}}</h5>
+                        <div class="action-button">
+                        </div>
+                    </div>
+
+                    <div class="primeng-datatable-container">
+                        <form #ngFormSupDetail2="ngForm">
+                            <editable-table [requiredFields]="['m_WARRANTY','m_COMPLIANT']" #editTableRateSupDetail2
+                                class="custom-table ui-table">
+                                <thead>
+                                    <tr>
+                                        <!-- STT -->
+                                        <th><span style="width: 60px">{{l("No")}}</span></th>
+                                        <!-- Tên nhà cung cấp -->
+                                        <th sortField="suP_NAME"><span style="width: 200px">{{l("SupplierName")}}</span>
+                                        </th>
+                                        <!-- Tên thiết bị -->
+                                        <th sortField="goodS_NAME"><span style="width: 200px">{{l("GoodsName")}}</span>
+                                        </th>
+
+                                        <!-- A_SL bảo hành -->
+                                        <th sortField="a_WARRANTY"><span style="width: 250px">{{l("A_Warranty")}}</span>
+                                        </th>
+                                        <!-- M_Điểm bảo hành -->
+                                        <th sortField="m_WARRANTY" class="required text-danger"><span
+                                                style="width: 200px">{{l("M_Warranty")}}</span>
+                                        </th>
+                                        <!-- M_KQ bảo hành-->
+                                        <th sortField="m_WARRANTYRATE_NAME"><span
+                                                style="width: 200px">{{l("M_WarrantyRate")}}</span>
+                                        </th>
+                                        <!-- M_Điểm khiếu nại -->
+                                        <th sortField="m_COMPLIANT" class="required text-danger"><span
+                                                style="width: 200px">{{l("M_Compliant")}}</span></th>
+
+                                        <!-- M_KQ khiếu nại -->
+                                        <th sortField="m_COMPLIANTRATE_NAME"><span
+                                                style="width: 200px">{{l("M_CompliantRate")}}</span>
+                                        </th>
+
+                                        <!-- Ghi chú -->
+                                        <th sortField="notes"><span style="width: 200px">{{l("Notes")}}</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="selectable {{item['editableIsSelected'] ? 'selected' : ''}}"
+                                        *ngFor="let item of editTableRateSupDetail2.dataInPage; let in = index"
+                                        [hidden]="item['page'] != editTableRateSupDetail2.currentPage"
+                                        (click)="editTableRateSupDetail2.selectRow($event,item)">
+                                        <!-- Checkbox -->
+                                        <!-- STT -->
+                                        <td><span class="mo-header"></span>
+                                            <input class="label form-control"
+                                                name="{{editTableRateSupDetail2.name('no',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail2.dataInPage[in]['no']">
+                                        </td>
+                                        <!-- Tên nhà cung cấp -->
+
+                                        <td><span class="mo-header"></span>
+                                            <input class="label form-control"
+                                                name="{{editTableRateSupDetail2.name('suP_NAME',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail2.dataInPage[in]['suP_NAME']">
+                                        </td>
+                                        <!-- Tên thiết bị -->
+
+                                        <td><span class="mo-header"></span>
+                                            <input class="label form-control"
+                                                name="{{editTableRateSupDetail2.name('goodS_NAME',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail2.dataInPage[in]['goodS_NAME']">
+                                        </td>
+                                        <!-- A_SL bảo hành -->
+
+                                        <td><span class="mo-header"></span>
+                                            <input class="label form-control"
+                                                name="{{editTableRateSupDetail2.name('a_WARRANTY',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail2.dataInPage[in]['a_WARRANTY']">
+                                        </td>
+
+                                        <!-- M_Điểm bảo hành -->
+                                        <td>
+                                            <span class="mo-header"></span>
+                                            <input class="form-control transparent" type="numer" min="0" max="10"
+                                                (focusout)="reloadWarrantyRateName(editTableRateSupDetail2.dataInPage[in],$event)"
+                                                name="{{editTableRateSupDetail2.name('m_WARRANTY',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail2.dataInPage[in]['m_WARRANTY']" />
+                                        </td>
+                                        <!-- M_KQ bảo hành-->
+                                        <td><span class="mo-header"></span>
+                                            <input class="label form-control"
+                                                name="{{editTableRateSupDetail2.name('m_WARRANTYRATE_NAME',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail2.dataInPage[in]['m_WARRANTYRATE_NAME']">
+                                        </td>
+                                        <!-- M_Điểm khiếu nại -->
+                                        <td>
+                                            <span class="mo-header"></span>
+                                            <input
+                                                (focusout)="reloadCompliantRateName(editTableRateSupDetail2.dataInPage[in],$event)"
+                                                class="form-control transparent" type="number" min="0" max="10"
+                                                name="{{editTableRateSupDetail2.name('m_COMPLIANT',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail2.dataInPage[in]['m_COMPLIANT']" />
+                                        </td>
+                                        <!-- M_KQ khiếu nại -->
+                                        <td><span class="mo-header"></span>
+                                            <input class="label form-control"
+                                                name="{{editTableRateSupDetail2.name('m_COMPLIANTRATE_NAME',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail2.dataInPage[in]['m_COMPLIANTRATE_NAME']">
+                                        </td>
+                                        <!-- Ghi chú -->
+                                        <td>
+                                            <span class="mo-header"></span>
+                                            <textarea class="form-control transparent" type="text"
+                                                name="{{editTableRateSupDetail2.name('notes',in)}}"
+                                                [(ngModel)]="editTableRateSupDetail2.dataInPage[in]['notes']"></textarea>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </editable-table>
+                        </form>
+                    </div>
+                    <div class="editable-footer mt-3">
+                        <div>
+                            <button class=" btn btn-success" type="button" *ngIf="appToolbar.buttonSaveEnable"
+                                (click)="exportToExcel()">
+                                <i class="far fa-file-excel"></i>
+                                {{l("ExportReport")}}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>

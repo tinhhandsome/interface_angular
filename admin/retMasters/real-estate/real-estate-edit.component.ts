@@ -1,0 +1,306 @@
+import { Component, Injector, ViewChild, OnInit, ViewEncapsulation, ElementRef, AfterViewInit } from '@angular/core';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
+import * as _ from 'lodash';
+import { RealEstateServiceProxy, UltilityServiceProxy, CAR_MASTER_ENTITY, CarMasterServiceProxy, RET_MASTER_ENTITY, ASS_MASTER_ENTITY, AssMasterServiceProxy } from '@shared/service-proxies/service-proxies';
+import { EditPageState } from '@app/ultilities/enum/edit-page-state';
+import { DefaultComponentBase } from '@app/ultilities/default-component-base';
+import { IUiAction } from '@app/ultilities/ui-action';
+import { AuthStatusConsts } from '@app/admin/core/ultils/consts/AuthStatusConsts';
+import { AssetModalComponent } from '@app/admin/core/controls/asset-modal/asset-modal.component';
+import { finalize } from 'rxjs/operators';
+import * as moment from 'moment';
+
+@Component({
+    templateUrl: './real-estate-edit.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+export class RealEstateEditComponent extends DefaultComponentBase implements OnInit, IUiAction<any>, AfterViewInit {
+    constructor(
+        injector: Injector,
+        private realEstateServiceProxy: RealEstateServiceProxy,
+        private assMasterService: AssMasterServiceProxy,
+        private ultilityService: UltilityServiceProxy
+    ) {
+        super(injector);
+
+        this.editPageState = this.getRouteData('editPageState');
+        this.inputModel.reT_ID = this.getRouteParam('id');
+        this.initFilter();
+        this.initInputModel();
+        this.initIsApproveFunct();
+        // COMMENT: this.stopAutoUpdateView();
+        this.initDefaultInputValue();
+        // console.log(this);
+    }
+
+    @ViewChild('editForm') editForm: ElementRef;
+    @ViewChild('assetModal') assetModal: AssetModalComponent;
+
+    EditPageState = EditPageState;
+    editPageState: EditPageState;
+
+    inputModel: RET_MASTER_ENTITY = new RET_MASTER_ENTITY();
+    assModel: ASS_MASTER_ENTITY = new ASS_MASTER_ENTITY();
+    filterInput: any;
+    isApproveFunct: boolean;
+    totalAmt: number = 0;
+
+    showChargeTerm: boolean;
+
+    get disableInput(): boolean {
+        return this.editPageState == EditPageState.viewDetail;
+    }
+
+    isShowError = false;
+    isCheckAll = false;
+    ngOnInit(): void {
+        switch (this.editPageState) {
+            case EditPageState.add:
+                this.appToolbar.setRole('RealEstate', false, false, true, false, false, false, false, false);
+                this.appToolbar.setEnableForEditPage();
+                break;
+            case EditPageState.edit:
+                this.appToolbar.setRole('RealEstate', false, false, true, false, false, false, false, false);
+                this.appToolbar.setEnableForEditPage();
+                this.getRealEstate();
+                break;
+            case EditPageState.viewDetail:
+                this.appToolbar.setRole('RealEstate', false, false, false, false, false, false, true, false);
+                this.appToolbar.setEnableForViewDetailPage();
+                this.getRealEstate();
+                break;
+        }
+        this.appToolbar.setUiAction(this);
+    }
+
+    private initDefaultInputValue() {
+        this.showChargeTerm = false;
+        this.inputModel.buY_DT = moment();
+        this.inputModel.usE_PERIOD = 0;
+        this.inputModel.reT_TYPE = 'N';
+        this.inputModel.consT_STATUS = 'XD';
+        this.inputModel.usE_STATUS = 'D';
+        this.inputModel.purposE_IN_USE = 'DV';
+        this.inputModel.status = 'DHT';
+        this.inputModel.owneR_TYPE = 'M';
+        this.inputModel.length = 0;
+        this.inputModel.width = 0;
+        this.inputModel.lanD_SQUARE = 0;
+        this.inputModel.construcT_SQUARE = 0;
+        this.inputModel.floors = 1;
+        this.inputModel.totaL_SQUARE = 0;
+    }
+
+    ngAfterViewInit(): void {
+        this.updateView();
+        this.setupValidationMessage();
+    }
+
+    initInputModel() {
+    }
+
+    initIsApproveFunct() {
+        this.ultilityService.isApproveFunct(this.getCurrentFunctionId()).subscribe(isApproveFunct => {
+            this.isApproveFunct = isApproveFunct;
+        })
+    }
+
+    showAssetModal() {
+        this.assetModal.filterInput.asS_TYPE = '1';
+        this.assetModal.filterInput.brancH_ID = this.appSession.user.subbrId;
+        this.assetModal.filterInput.asS_CAT = 'RET';
+        this.assetModal.filterInput.brancH_LOGIN = this.appSession.user.subbrId;
+        this.assetModal.filterInput.level = 'UNIT';
+        this.assetModal.filterInput.top = 1000;
+        this.assetModal.show();
+    }
+
+    getRealEstate() {
+        this.realEstateServiceProxy.rET_MASTER_ById(this.inputModel.reT_ID).subscribe(response => {
+            this.inputModel = response;
+
+            this.showChargeTerm = (response.usE_PERIOD && response.usE_PERIOD > 0) ? true : false;
+
+            // CM_ATTACH_FILE
+            this.getFile(this.inputModel.reT_ID, this.inputModel);
+
+            this.getAssMaster(this.inputModel.asseT_ID);
+            if (response.autH_STATUS == AuthStatusConsts.Approve) {
+                this.setPageStateToApprove();
+            }
+        });
+    }
+
+    getAssMaster(assMasterId: string) {
+        this.assMasterService.aSS_MASTER_ById(assMasterId).subscribe(response => {
+            this.inputModel.asseT_ID = assMasterId;
+            this.inputModel.asseT_CODE = response.asseT_CODE;
+            Object.assign(this.assModel, response);
+            this.updateView();
+        });
+    }
+
+    onSelectAsset(input: ASS_MASTER_ENTITY) {
+        if (input.asseT_ID) {
+            this.getAssMaster(input.asseT_ID);
+        }
+    }
+
+    ValidateInput() {
+
+    }
+
+    private updateRealEstate() {
+        this.realEstateServiceProxy.rET_MASTER_Upd(this.inputModel).pipe(finalize(() => { this.saving = false; }))
+            .subscribe((response) => {
+                if (response['Result'] != '0') {
+                    this.showErrorMessage(response['ErrorDesc']);
+                }
+                else {
+                    // CM_ATTACH_FILE
+                    this.updateFile(this.inputModel, 'REAL_ESTATE', undefined, response['RET_ID']);
+                    this.updateSuccess();
+                    if (!this.isApproveFunct) {
+                        this.realEstateServiceProxy.rET_MASTER_App(this.inputModel.reT_ID, this.appSession.user.userName)
+                            .pipe(finalize(() => { this.saving = false; }))
+                            .subscribe((response) => {
+                                if (response['Result'] != '0') {
+                                    this.showErrorMessage(response['ErrorDesc']);
+                                }
+                                else {
+                                    this.setPageStateToApprove();
+                                }
+                            });
+                    }
+                    else {
+                        this.inputModel.autH_STATUS = AuthStatusConsts.NotApprove;
+                    }
+                }
+            });
+    }
+
+    private addNewRealEstate() {
+        this.inputModel.usE_PERIOD = this.showChargeTerm ? this.inputModel.usE_PERIOD : 0;
+        this.inputModel.recorD_STATUS = '1';
+        this.realEstateServiceProxy.rET_MASTER_Ins(this.inputModel).pipe(finalize(() => { this.saving = false; }))
+            .subscribe((response) => {
+                if (response['Result'] != '0') {
+                    this.showErrorMessage(response['ErrorDesc']);
+                }
+                else {
+                    // CM_ATTACH_FILE
+                    this.addFile(this.inputModel, 'REAL_ESTATE', undefined, response['RET_ID']);
+                    this.addNewSuccess();
+                    if (!this.isApproveFunct) {
+                        this.realEstateServiceProxy.rET_MASTER_App(response['RET_ID'], this.appSession.user.userName)
+                            .pipe(finalize(() => { this.saving = false; }))
+                            .subscribe((response) => {
+                                if (response['Result'] != '0') {
+                                    this.showErrorMessage(response['ErrorDesc']);
+                                }
+                            });
+                    }
+                }
+            });
+    }
+
+    saveInput() {
+        if (this.isApproveFunct == undefined) {
+            this.showErrorMessage(this.l('PageLoadUndone'));
+            this.updateView();
+            return;
+        }
+
+        if ((this.editForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return;
+        }
+
+        if (this.editPageState != EditPageState.viewDetail) {
+
+            this.saving = true;
+            this.inputModel.makeR_ID = this.appSession.user.userName;
+            if (!this.inputModel.reT_ID) {
+
+                this.addNewRealEstate();
+            }
+            else {
+                if (this.appSession.user.subbrId != this.inputModel.brancH_ID && this.inputModel.autH_STATUS == AuthStatusConsts.Reject) {
+                    this.showErrorMessage(this.l('UpdateFailed'));
+                    return;
+                }
+                this.updateRealEstate();
+            }
+        }
+    }
+
+    goBack() {
+        this.navigatePassParam('/app/admin/real-estate', null, { filterInput: JSON.stringify(this.filterInput) });
+    }
+
+    onAdd(): void {
+    }
+
+    onUpdate(): void {
+    }
+
+    onDelete(): void {
+    }
+
+    onViewDetail(item: any): void {
+    }
+
+    onApprove(): void {
+        if (!this.inputModel.reT_ID) {
+            return;
+        }
+        var currentUserName = this.appSession.user.userName;
+        if (currentUserName == this.inputModel.makeR_ID) {
+            this.showErrorMessage(this.l('ApproveFailed'));
+            return;
+        }
+        this.message.confirm(
+            this.l('ApproveWarningMessage', this.l(this.inputModel.reT_ID)),
+            this.l('AreYouSure'),
+            (isConfirmed) => {
+                if (isConfirmed) {
+                    this.saving = true;
+                    this.realEstateServiceProxy.rET_MASTER_App(this.inputModel.reT_ID, currentUserName)
+                        .pipe(finalize(() => { this.saving = false; }))
+                        .subscribe((response) => {
+                            if (response['Result'] != '0') {
+                                this.showErrorMessage(response['ErrorDesc']);
+                            }
+                            else {
+                                this.approveSuccess();
+                                this.setPageStateToApprove();
+                            }
+                        });
+                }
+            }
+        );
+    }
+
+
+    onSave(): void {
+        this.saveInput();
+    }
+
+    onSearch(): void {
+    }
+
+    onResetSearch(): void {
+    }
+
+
+    reloadLandSquare() {
+        this.inputModel.lanD_SQUARE = this.inputModel.length * this.inputModel.width;
+    }
+
+    reloadTotaLSquare() {
+        this.inputModel.totaL_SQUARE = this.inputModel.construcT_SQUARE * this.inputModel.floors;
+    }
+}

@@ -1,0 +1,97 @@
+<div [@routerTransition]>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <h3 class="m-subheader__title m-subheader__title--separator">
+                    <!-- Begin Title -->
+                    <span>{{l("CarBC07")}}</span>
+                    <!-- End Title -->
+                </h3>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <form class="horizontal-form filter-form" autocomplete="off">
+                    <div class="m-form m-form--label-align-right">
+                        <div class="row align-items-center m--margin-bottom-30">
+                            <!-- Begin Filter -->
+                            <!-- Đơn vị -->
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label>{{l("Branch")}}</label>
+                                    <div class="input-group">
+                                        <input class="form-control" [disabled]="true" [ngModelOptions]="{standalone: true}" [ngModel]="filterInput.brancH_NAME">
+                                        <span class="input-group-btn">
+                                            <button type="button" class="btn btn-primary"
+                                                (click)="branchModal.show()">...</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+                            <!-- Từ năm - Đến năm -->
+                            <div class="col-md-8">
+                                <fieldset>
+                                    <legend>{{l("About")}}</legend>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label>{{l("FromYear")}}</label>
+                                            <select2-custom [(ngModel)]="filterInput.fromYear" [ngModelOptions]="{standalone: true}" [(list)]="years" [valueMember]="'value'" [displayMember]="'display'">
+                                            </select2-custom>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label>{{l("ToYear")}}</label>
+                                            <select2-custom [(ngModel)]="filterInput.toYear" [ngModelOptions]="{standalone: true}" [(list)]="years" [valueMember]="'value'" [displayMember]="'display'">
+                                            </select2-custom>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="w-100"></div>
+                            <!-- Chọn xe -->
+                            <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("ChooseCar")}}</label>
+                                        <div class="user-group">
+                                                <select2-custom #carSelect [(ngModel)]="filterInput.caR_ID" [ngModelOptions]="{standalone: true}" [emptyText]="l('SelectAll')" [list]="[]" [valueMember]="'value'" [displayMember]="'display'">
+                                                </select2-custom>   <span class="input-group-btn">
+                                                <button type="button" class="btn btn-primary"
+                                                    (click)="carModal.show()">...</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            <!-- Cấp độ -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>{{l("Level")}}</label>
+                                    <select2-custom [(ngModel)]="filterInput.level" [ngModelOptions]="{standalone: true}" [(list)]="levels" [valueMember]="'value'" [displayMember]="'display'">
+                                    </select2-custom>
+                                </div>
+                            </div>
+                            <!-- Report -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label></label>
+                                    <div>
+                                        <button hidden class="btn btn-primary">{{l('Report')}}</button>
+                                        <button (click)="exportToExcel()" class="btn btn-primary">{{l('Excel')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <branch-modal (onSelect)="onSelectBranch($event)" [multiple]="false" #branchModal></branch-modal>
+    <car-master-modal (onSelect)="carSelect.setSingleValue(($event).caR_ID,($event).n_PLATE)" 
+                                    [multiple]="false" #carModal></car-master-modal>
+</div>

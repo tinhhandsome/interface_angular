@@ -1,0 +1,118 @@
+<div [@routerTransition] id="TenantDashboard">
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <h3 class="m-subheader__title m-subheader__title--separator">
+                    <span>{{"Dashboard" | localize}}</span>
+                </h3>
+                <span class="m-section__sub">
+                    {{"DashboardHeaderInfo" | localize}}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+
+
+        <div class="row">
+            <div class="col-lg-6 col-xs-6 col-sm-6">
+                <div class="m-portlet m-portlet--full-height ">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Tình trạng tài sản
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="m-portlet__head-tools">
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <!-- <app-pie-chart #assTypeChart></app-pie-chart> -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xs-6 col-sm-6">
+                <div class="m-portlet m-portlet--full-height ">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Tình trạng tài sản theo đơn vị
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="m-portlet__head-tools">
+                        </div>
+                    </div>
+                    <div class="m-portlet__body">
+                        <!-- <app-stack-vertical-charts #stackVerticalChart></app-stack-vertical-charts> -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-12 col-xs-12 col-sm-12">
+                <div class="m-portlet m-portlet--full-height ">
+                    <div class="m-portlet__head">
+                        <div class="m-portlet__head-caption">
+                            <div class="m-portlet__head-title">
+                                <h3 class="m-portlet__head-text">
+                                    Số lượng tài sản cần bảo dưỡng
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="m-portlet__head-tools">
+                            <button (click)="weekStatistic()" class="btn btn-primary statistic"> Số lượng đến hạn bảo dưỡng theo tuần (<span>{{scheduleCount.week}}</span>)</button>
+                            <button (click)="nextWeekStatistic()" class="btn btn-primary statistic"> Số lượng đến hạn bảo dưỡng theo tuần tiếp theo (<span>{{scheduleCount.nexT_WEEK}}</span>)</button>
+                            <button (click)="monthStatistic()" class="btn btn-primary statistic"> Số lượng đến hạn bảo dưỡng theo tháng (<span>{{scheduleCount.month}}</span>)</button>
+                        </div>
+                    </div>
+
+                    <div class="m-portlet__body">
+                        <!-- <p-table #dataTable [value]="primengTableHelper.records"
+                            rows="{{primengTableHelper.defaultRecordsCountPerPage}}" [paginator]="false" [lazy]="false"
+                            [scrollable]="true" ScrollWidth="100%" [responsive]="primengTableHelper.isResponsive"
+                            [resizableColumns]="primengTableHelper.resizableColumns">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th style="width: 150px">
+                                        Ngày bảo hành
+                                    </th>
+                                    <th style="width: 150px">
+                                        Nội dung bảo hành
+                                    </th>
+                                    <th style="width: 150px">
+                                        Mã tài sản
+                                    </th>
+                                    <th style="width: 150px">
+                                        Tên tài sản
+                                    </th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-record="$implicit">
+                                <tr class="selectable">
+                                    <td>
+                                        {{record.waR_DT}}
+                                    </td>
+                                    <td>
+                                        {{record.waR_CONTENT}}
+                                    </td>
+                                    <td>
+                                        {{record.asseT_CODE}}
+                                    </td>
+                                    <td>
+                                        {{record.asseT_NAME}}
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<maintainanceStatistic #maintainanceModal></maintainanceStatistic>

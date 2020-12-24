@@ -1,0 +1,35 @@
+<div>
+    <input #control readonly="readonly" type="text" [(ngModel)]="_ngModel" style="width: 300px; height: 40px; background-color: white">
+    <button (click)="showCam()" style="width: 100px;height: 40px;">Chụp hình</button>
+    <button (click)="showDevices()" style="width: 100px;height: 40px;">QR CODE</button>
+    <button (click)="showDevices()" style="width: 100px;height: 40px;">BAR CODE</button>
+  </div>
+  
+  <!--Quét mã-->
+  <div class="scanner-shell" *ngIf="hasDevices">
+    
+    <zxing-scanner [torch]="torchEnabled" [(device)]="currentDevice" (scanSuccess)="onCodeResult($event)"
+      [formats]="formatsEnabled" [tryHarder]="tryHarder" (permissionResponse)="onHasPermission($event)"
+      (camerasFound)="onCamerasFound($event)" (torchCompatible)="onTorchCompatible($event)">
+    </zxing-scanner>
+  </div> 
+  <!--chụp hình-->
+  <div id="camera" style=" text-align: center; margin-top: 60px"*ngIf="isHide">
+    <div style="text-align:center">
+      <div>
+        <webcam [height]="500" [width]="500" [trigger]="triggerObservable" (imageCapture)="handleImage($event)" *ngIf="showWebcam"
+                [allowCameraSwitch]="allowCameraSwitch" [switchCamera]="nextWebcamObservable"
+                [videoOptions]="videoOptions"
+                [imageQuality]="1"
+                (cameraSwitched)="cameraWasSwitched($event)"
+                (initError)="handleInitError($event)"
+        ></webcam>
+        <br/>
+        <button class="actionBtn" (click)="triggerSnapshot();" style="width: 80px;height: 40px;">Chụp hình</button>
+      </div>
+    </div>
+  
+    <div class="snapshot" *ngIf="webcamImage">
+      <img [src]="webcamImage.imageAsDataUrl"/>
+    </div>
+  </div>

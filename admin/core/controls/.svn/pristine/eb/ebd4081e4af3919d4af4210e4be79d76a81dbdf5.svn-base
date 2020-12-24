@@ -1,0 +1,11 @@
+<div class="file-input-group">
+    <input #control readonly="readonly" type="text" class="{{inpCss}}" [ngModel]="_ngModel" (click)="downloadFile()" style="cursor: pointer;" />
+
+    <button style="margin-left:0px;" *ngIf="!multiFile && !ngModel" type="button" class="btn btn-primary" [disabled]="disabled" (click)="importFileFromServer()"><i class="fa fa-plus"></i></button>
+    <button style="margin-left:0px;" *ngIf="!multiFile && ngModel" type="button" class="btn btn-primary" [disabled]="disabled" (click)="importFileFromServer()"><i class="fa fa-pen"></i></button>
+    <button style="margin-left:0px;" *ngIf="!multiFile && ngModel" type="button" class="btn btn-danger" [disabled]="disabled" (click)="deleteFile()"><i class="fa fa-eraser"></i></button>
+    <button style="margin-left:0px;" *ngIf="multiFile" type="button" class="btn btn-primary" (click)="fileMulti.show(_ngModel)">{{l("ChooseFile")}}</button>
+</div>
+
+<file-multi (modalSave)="getMultiFile($event)" [disabled]="disabled" [folderUpload]="folderUpload" #fileMulti>
+</file-multi>

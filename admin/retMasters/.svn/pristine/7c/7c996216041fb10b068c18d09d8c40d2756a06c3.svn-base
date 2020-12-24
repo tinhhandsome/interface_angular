@@ -1,0 +1,170 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div id="page-list-area">
+        <div class="m-subheader">
+            <div class="row align-items-center">
+                <div class="mr-auto col-auto">
+                    <h3 class="m-subheader__title m-subheader__title--separator">
+                        <!-- Begin Title -->
+                        <span>{{l("RealEstateList")}}</span>
+                        <!-- End Title -->
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div id="content" class="m-content">
+            <div class="m-portlet m-portlet--mobile">
+                <div class="m-portlet__body">
+                    <form class="horizontal-form filter-form" autocomplete="off">
+                        <div class="m-form m-form--label-align-right">
+                            <div class="row align-items-center m--margin-bottom-30">
+                                <!-- Begin Filter -->
+                                <!-- Mã tài sản -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("AssetCode")}}</label>
+                                        <div class="user-group">
+                                            <input class="form-control m-input" (focusout)="onAssetFocusOut()" name="AssetCode" type="text" [(ngModel)]="filterInput.asseT_CODE">
+                                            <button class="btn btn-primary" (click)="showAssetModal()" type='button'>{{l("...")}}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Mã địa điểm -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("DivisionCode")}}</label>
+                                        <div class="user-group">
+                                            <input class="form-control m-input" (focusout)="onDivisionFocusOut()" name="DivisionCode" type="text" [(ngModel)]="filterInput.diV_CODE">
+                                            <button class="btn btn-primary" (click)="showDivisionModal()" type='button'>{{l("...")}}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Tên địa điểm -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("DivisionName")}}</label>
+                                        <input class="form-control m-input" name="DivisionName" type="text" [ngModel]="filterInput.diV_NAME" [disabled]="true">
+                                    </div>
+                                </div>
+                                <!-- Mã bất động sản -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("RetCode")}}</label>
+                                        <input class="form-control m-input" name="RetId" type="text" [(ngModel)]="filterInput.reT_ID">
+                                    </div>
+                                </div>
+                                <!-- Loại bất động sản -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("RetType")}}</label>
+                                        <all-code-select name="RetType" [(ngModel)]="filterInput.reT_TYPE" [emptyText]="l('SelectAll')" [cdName]="'RET_TYPE'" [displayMember]="'cdval|content'" [cdType]="'RET'"></all-code-select>
+                                    </div>
+                                </div>
+                                <!-- Trạng thái duyệt -->
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>{{l("ApproveStatus")}}</label>
+                                        <all-code-select name="autH_STATUS" [(ngModel)]="filterInput.autH_STATUS" [emptyText]="l('SelectAll')" [cdName]="'AUTH_STATUS'" [cdType]="'AUTH_STATUS'"></all-code-select>
+                                    </div>
+                                </div>
+                                <!-- End Filter -->
+
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row align-items-center">
+                        <div class="primeng-datatable-container {{dataTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <core-table #coreTable class="custom-table ui-table" (reloadPage)="getRetMaster()">
+                                <thead>
+                                    <tr>
+                                        <!-- STT -->
+                                        <th>
+                                            <span style="width: 60px">{{l("No")}}</span>
+                                        </th>
+                                        <!-- Mã bất động sản -->
+                                        <th sortField="RET_ID">
+                                            <span style="width: 150px">{{l("RetCode")}}</span>
+                                        </th>
+                                        <!-- Nguyên giá tài sản -->
+                                        <th class="right" sortField="BUY_PRICE">
+                                            <span style="width: 150px">{{l("AssBuyPrice")}}</span>
+                                        </th>
+                                        <!-- Loại bất động sản -->
+                                        <th sortField="CONTENT">
+                                            <span style="width: 150px">{{l("RetType")}}</span>
+                                        </th>
+                                        <!-- Tên tài sản -->
+                                        <th sortField="ASSET_NAME">
+                                            <span style="width: 150px">{{l("AssetName")}}</span>
+                                        </th>
+                                        <!-- Tên địa điểm -->
+                                        <th sortField="DIV_NAME">
+                                            <span style="width: 150px">{{l("DivisionName")}}</span>
+                                        </th>
+                                        <!-- Địa chỉ -->
+                                        <th sortField="ADDR">
+                                            <span style="width: 150px">{{l("Address")}}</span>
+                                        </th>
+                                        <!-- Thời hạn sử dụng -->
+                                        <th sortField="USE_PERIOD">
+                                            <span style="width: 150px">{{l("ChargeTerms")}}</span>
+                                        </th>
+                                        <!-- Trạng thái duyệt -->
+                                        <th sortField="AUTH_STATUS_NAME">
+                                            <span style="width: 150px">{{l("ApproveStatus")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onUpdate(record)" (click)="selectRow($event,record)">
+                                        <!-- Begin Table Value -->
+                                        <!-- STT -->
+                                        <td><span class="mo-header"></span>{{(filterInput.skipCount + dataTable.records.indexOf(record)) + 1}}
+                                        </td>
+                                        <!-- Mã bất động sản -->
+                                        <td><span class="mo-header"></span>{{record.reT_ID}}</td>
+                                        <!-- Nguyên giá tài sản -->
+                                        <td class="right"><span class="mo-header"></span>{{record.buY_PRICE | moneyFormatPipe}}</td>
+                                        <!-- Loại bất động sản -->
+                                        <td><span class="mo-header"></span>{{record.content}}</td>
+                                        <!-- Tên tài sản -->
+                                        <td><span class="mo-header"></span>{{record.asseT_NAME}}</td>
+                                        <!-- Tên địa điểm -->
+                                        <td><span class="mo-header"></span>{{record.diV_NAME}}</td>
+                                        <!-- Địa chỉ -->
+                                        <td><span class="mo-header"></span>{{record.addr}}</td>
+                                        <!-- Thời hạn sử dụng -->
+                                        <td><span class="mo-header"></span>{{record.usE_PERIOD}}</td>
+                                        <!-- Trạng thái duyệt -->
+                                        <td><span class="mo-header"></span>{{record.autH_STATUS_NAME}}</td>
+                                        <!-- End Table Value -->
+                                    </tr>
+                                </tbody>
+                            </core-table>
+
+                            <div class="primeng-no-data" *ngIf="dataTable.records.length == 0">
+                                {{l('NoData')}}
+                            </div>
+                            <div class="primeng-paging-container">
+                                <p-paginator [rows]="dataTable.defaultRecordsCountPerPage" #paginator (onPageChange)="getRetMaster($event)" [totalRecords]="dataTable.totalRecordsCount" [rowsPerPageOptions]="dataTable.predefinedRecordsCountPerPage">
+                                </p-paginator>
+
+                                <span class="total-records-count">
+                                    {{l('TotalRecordsCount')}} {{dataTable.totalRecordsCount}}
+                                </span>
+                            </div>
+                        </div>
+                        <!-- Ket thuc bang entries post list-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <asset-modal #assetModal [multiple]="false" (onSelect)="onSingleSelectAsset($event)"></asset-modal>
+    <division-modal #divisionModal [multiple]="false" (onSelect)="onSingleSelectDivision($event)"></division-modal>
+</div>

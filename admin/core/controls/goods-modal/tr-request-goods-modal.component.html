@@ -1,0 +1,165 @@
+<popup-frame #popupFrame [title]="l('Add') + ' ' + l('GoodsDetail').toLowerCase()" (onSearchEvent)="buttonSearch(); isShowError = true;" (onSelectEvent)="accept()">
+    <div class="horizontal-form filter-form" id="filterForm">
+        <div class="m-form m-form--label-align-right">
+            <div class="row align-items-center m--margin-bottom-30">
+                <!-- Begin Filter -->
+
+                <!-- Radio btn trong kế hoạch -->
+                <div [class]="(isContractCodeHidden ? 'col-md-3' : 'col-md-6') + ' mt-3'">
+                    <div class="form-group">
+                        <label class="m-radio" for="plan-0">
+                        <input id="plan-0"
+                            type="radio"
+                            name="optradio"
+                            checked
+                            (click)="onSelectTypePlan(0)">
+                        {{l("inPlan")}}
+                        <span></span>
+                    </label>
+                    </div>
+                </div>
+
+                <!-- Radio btn ngoài kế hoạch -->
+                <div class="col-md-6 mt-3">
+                    <div class="form-group" for="plan-1">
+                        <label class="text-danger m-radio">
+                        <input id="plan-1"
+                            type="radio"
+                            name="optradio"
+                            (click)="onSelectTypePlan(1)">
+                        {{l("outPlan")}}
+                        <span style="border: 1px solid red"></span>
+                    </label>
+                    </div>
+                </div>
+
+                <!-- Mã kế hoạch -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>{{l("PlanCode")}}</label>
+                        <div class="input-group">
+                            <input [(ngModel)]="filterInput.plaN_CODE" (focusout)="onChangePlanCode($event.target.value)" #plaN_CODE="ngModel" name="plaN_CODE_TR_REQUEST" autoFocus class="form-control m-input" type="text">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-primary" (click)="tradeDetailModal.show();">...</button>
+                            </div>
+                        </div>
+                        <div class="error-message" *ngIf="isShowError && planIdEmpty">
+                            <span>{{l('PlanCode')}}
+                            {{l("ValidationRequired")}}</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Hợp đồng -->
+                <div class="col-md-6">
+                    <div class="form-group" name="CONTRACT">
+                        <label>{{l("Contract")}}</label>
+                        <div class="input-group">
+                            <input [ngModel]="filterInput.contracT_CODE" (focusout)="onContractCodeFocusOut($event.target.value)" [ngModelOptions]="{standalone: true}" autoFocus class="form-control m-input" type="text" name="contracT_CODE">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-primary" (click)="contractModal.show(); updateView();">...</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tên hàng hóa -->
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>{{l("GoodsName")}}</label>
+                        <input [(ngModel)]="filterInput.gD_NAME" name="gD_NAME" [ngModelOptions]="{standalone: true}" autoFocus class="form-control m-input" type="text">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row align-items-center">
+        <div class="primeng-datatable-container popup-modal-container {{dataTable.isLoading}}">
+            <div class="spinner-border m-5" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <h5 class="popup-title col-md-12">{{l("GoodsDetail")}}</h5>
+            <core-table #coreTable class="custom-table ui-table" [reloadPageOnInit]="false" (reloadPage)="search()">
+                <thead>
+                    <tr>
+                        <!-- Begin Table Column -->
+                        <!-- multiple -->
+                        <th *ngIf="multiple">
+                            <span style="width: 40px">
+                                <checkbox-control #checkAllElement
+                                    (change)="onCheckAll(checkAllElement.inputRef.nativeElement)"
+                                    [checked]="checkAll">
+                                </checkbox-control>
+                            </span>
+                        </th>
+                        <!-- STT -->
+                        <th class="center">
+                            <span style="width: 40px">{{l("No")}}</span>
+                        </th>
+                        <!-- Đơn vị -->
+                        <th class="center" sortField="brancH_NAME">
+                            <span style="width: 120px">{{l("Branch")}}</span>
+                        </th>
+                        <!-- Tên kế hoạch -->
+                        <th class="center" style="width: 30%" sortField="plaN_NAME">
+                            <span style="width: 350px">{{l("PlanName")}}</span>
+                        </th>
+                        <!-- Tên hàng hóa -->
+                        <th class="center" style="width: 30%" sortField="gD_NAME">
+                            <span style="width: 150px">{{l("GoodsName")}}</span>
+                        </th>
+                        <!-- Số lượng -->
+                        <th class="center" sortField="quantity">
+                            <span style="width: 100px">{{l("Quantity")}}</span>
+                        </th>
+                        <!-- Số lượng đã mua -->
+                        <th class="center" sortField="quantitY_EXE">
+                            <span style="width: 150px">{{l("QuantityHasBought")}}</span>
+                        </th>
+                        <!-- Số lượng còn lại -->
+                        <th class="center" sortField="quantitY_REMAIN">
+                            <span style="width: 130px">{{l("QuantityRemain")}}</span>
+                        </th>
+                        <!-- Đơn giá -->
+                        <th class="center" sortField="price">
+                            <span style="width: 150px">{{l("UnitPrice")}}</span>
+                        </th>
+
+                        <!-- End Table Column -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let record of dataTable.records" class="selectable" (dblclick)="onDoubleClick($event,record)" (click)="selectRow($event,record)">
+                        <!-- Begin Table Value -->
+                        <td *ngIf="multiple">
+                            <span class="mo-header"></span>
+                            <checkbox-control (onchange)="setChecked($event.target.checked, record)" [checked]="record['isChecked']"></checkbox-control>
+                        </td>
+                        <!-- STT -->
+                        <td class="center"><span class="mo-header"></span>{{(filterInputSearch.skipCount + dataTable.records.indexOf(record)) + 1}}
+                        </td>
+                        <!-- Tên đơn vị -->
+                        <td><span class="mo-header"></span>{{record.brancH_NAME}}</td>
+                        <!-- Tên kế hoạch -->
+                        <td><span class="mo-header"></span>{{record.plaN_NAME}}</td>
+                        <!-- Tên hàng hóa -->
+                        <td><span class="mo-header"></span>{{record.gD_NAME}}</td>
+                        <!-- Số lượng -->
+                        <td><span class="mo-header"></span>{{record.quantity}}</td>
+                        <!-- Số lượng đã mua -->
+                        <td><span class="mo-header"></span>{{record.quantitY_EXE}}</td>
+                        <!-- Số lượng còn lại -->
+                        <td><span class="mo-header"></span>{{record.quantitY_REMAIN}}</td>
+                        <!-- Đơn giá -->
+                        <td class="right"><span class="mo-header"></span>{{formatMoney(record.price)}}</td>
+
+                        <!-- End Table Value -->
+                    </tr>
+                </tbody>
+            </core-table>
+
+
+        </div>
+    </div>
+</popup-frame>
+
+<trade-detail-modal [multiple]="false" (onSelect)="onSelectTradeDetail($event)" #tradeDetailModal></trade-detail-modal>
+<contract-modal [multiple]="false" (onSelect)="onSelectContract($event);" #contractModal></contract-modal>

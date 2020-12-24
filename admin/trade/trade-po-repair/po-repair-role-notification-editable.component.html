@@ -1,0 +1,51 @@
+<!-- #region Bảng con danh sách user nhận thông báo -->
+
+<div class="editable-title-group">
+    <h5 class="popup-title col-md-12">{{l("RoleNotification")}}</h5>
+    <div class="action-button">
+        <button type="button" [disabled]="disableInput" class="btn btn-primary" (click)="userModal.show();"><i
+                class="pi pi-plus"></i>{{l("Add")}}</button>
+        <button type="button" [disabled]="disableInput" class="btn btn-danger" (click)="editTablePoRepairRoleNotification.removeAllCheckedItem()"><i
+                class="pi pi-times"></i>{{l("Delete")}}</button>
+    </div>
+</div>
+
+<div class="primeng-datatable-container">
+    <editable-table (onSort)="updateView()" #editTablePoRepairRoleNotification class="custom-table ui-table">
+        <thead>
+            <tr>
+                <!-- Checkbox -->
+                <th>
+                    <span style="width: 40px"><checkbox-control [disabled]="disableInput" (onchange)="editTablePoRepairRoleNotification.checkAll($event.target.checked)" [checked]="editTablePoRepairRoleNotification.isCheckAll"></checkbox-control></span>
+                </th>
+                <!-- STT -->
+                <th><span style="width: 40px">{{l("No")}}</span></th>
+                <!-- Tên user -->
+                <th style="width:50%" sortField="tlFullName"><span style="width: 200px">{{l("NameUser")}}</span></th>
+                <!-- Ghi chú -->
+                <th style="width:50%" sortField="notes"><span style="width: 200px">{{l("Notes")}}</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of editTablePoRepairRoleNotification.dataInPage; let in = index" [hidden]="item.page != editTablePoRepairRoleNotification.currentPage">
+                <!-- Checkbox -->
+                <td>
+                    <span class="mo-header"></span>
+                    <checkbox-control (onchange)="item.isChecked = $event.target.checked" [checked]="item['isChecked']"></checkbox-control>
+                </td>
+                <!-- STT -->
+                <td class="center"><span class="mo-header"></span>{{item.no}}</td>
+                <!-- Tên user -->
+                <td><span class="mo-header"></span>{{item.tlFullName}}</td>
+                <!-- Ghi chú -->
+                <td><span class="mo-header"></span>
+                    <textarea [disabled]="disableInput" name="notes-{{in}}-31" class="form-control transparent" [(ngModel)]="item.notes"></textarea>
+                </td>
+            </tr>
+        </tbody>
+    </editable-table>
+</div>
+
+<!-- #endregion -->
+
+<user-modal (onSelect)="onSelectUser($event)" #userModal></user-modal>

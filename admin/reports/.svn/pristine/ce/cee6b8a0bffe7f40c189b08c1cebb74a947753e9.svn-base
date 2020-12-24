@@ -1,0 +1,141 @@
+import { Injector, Component, OnInit, ViewEncapsulation, AfterViewInit, ViewChild, ElementRef } from "@angular/core";
+import { ReportInfo, AsposeServiceProxy, CM_DEPARTMENT_ENTITY, BranchServiceProxy, CM_BRANCH_ENTITY, CM_DIVISION_ENTITY, DepartmentServiceProxy, CM_SUPPLIER_ENTITY, CM_GOODS_ENTITY, TLUSER_GETBY_BRANCHID_ENTITY, CM_GOODSTYPE_REAL_ENTITY } from "@shared/service-proxies/service-proxies";
+import { appModuleAnimation } from "@shared/animations/routerTransition";
+import { FileDownloadService } from "@shared/utils/file-download.service";
+import { ReportTypeConsts } from "@app/admin/core/ultils/consts/ReportTypeConsts";
+import { DefaultComponentBase } from "@app/ultilities/default-component-base";
+import * as moment from 'moment';
+import { Select2CustomComponent } from "@app/admin/core/controls/custom-select2/select2-custom.component";
+import { DateFormatPipe } from "@app/admin/core/pipes/date-format.pipe";
+import { PreviewTemplateService } from "@app/admin/common/preview-template/preview-template.service";
+import { ReportTemplateModalComponent } from "@app/admin/core/controls/report-template-modal/report-template-modal.component";
+
+@Component({
+    templateUrl: './ass-synthetic.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+
+export class AssSyntheticComponent extends DefaultComponentBase implements OnInit, AfterViewInit {
+
+    filterInput: any = {};
+    branchType: string;
+    levels: any[];
+
+    @ViewChild('userSelect') userSelect: Select2CustomComponent;
+    @ViewChild('goodsTypeRealSelect') goodsTypeRealSelect: Select2CustomComponent;
+    @ViewChild('reportTemplate') reportTemplate : ReportTemplateModalComponent;
+    @ViewChild('depSelect') depSelect: Select2CustomComponent;
+
+    users: any[] = [];
+    goodsTypeReals: any[] = [];
+
+    @ViewChild('editForm') editForm: ElementRef;
+    isShowError = false;
+
+    ngAfterViewInit(): void {
+        // COMMENT: this.stopAutoUpdateView();
+        this.setupValidationMessage();
+    }
+
+    constructor(injector: Injector,
+        private fileDownloadService: FileDownloadService,
+        private asposeService: AsposeServiceProxy,
+        private previewTemplateService: PreviewTemplateService) {
+        super(injector);
+    }
+
+
+    ngOnInit(): void {
+        this.levels = this.getLevelsCombobox();
+        this.filterInput.BRANCH_LOGIN = this.appSession.user.subbrId;
+        this.filterInput.BRANCH_ID = this.appSession.user.subbrId;
+        this.branchType = this.appSession.user.branch.brancH_TYPE;
+        this.filterInput.BRANCH_NAME = this.appSession.user.branch.brancH_NAME;
+        this.filterInput.LEVEL = 'ALL';
+        this.filterInput.TODATE = moment().endOf('month');
+
+        this.updateView();
+    }
+
+    onSelectBranch(branch: CM_BRANCH_ENTITY) {
+        if(!branch.brancH_ID)
+            return;
+        this.filterInput.BRANCH_ID = branch.brancH_ID;
+        this.branchType = branch.brancH_TYPE;
+        if (this.branchType != 'HS') {
+            this.filterInput.DEP_ID = '';
+            this.depSelect.setSingleValue('', '');
+        }
+        this.filterInput.BRANCH_NAME = branch.brancH_NAME;
+        this.updateView();
+    }
+
+    inputIsValid()
+    {
+        if ((this.editForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return false;
+        }
+        return true;
+    }
+    exportToExcel() {
+
+        if ((this.editForm as any).form.invalid) {
+            this.isShowError = true;
+            this.showErrorMessage(this.l('FormInvalid'));
+            this.updateView();
+            return;
+        }
+
+        let reportInfo = new ReportInfo();
+        reportInfo.typeExport = ReportTypeConsts.Excel;
+
+        reportInfo.parameters = this.GetParamsFromFilter(this.filterInput);
+
+        reportInfo.values = this.GetParamsFromFilter({
+            branchCode: this.appSession.user.branch.brancH_CODE,
+            branchName : this.appSession.user.branchName,
+            level: this.levels.filter(x => x.value == this.filterInput.LEVEL)[0].display,
+            fullName: this.appSession.user.name,
+            datePrint: moment(),
+            A4: (this.l('ToDate') + ' ' + (this.filterInput.TODATE? this.filterInput.TODATE.format('DD/MM/YYYY') : '')).toUpperCase()
+        });
+
+        reportInfo.pathName = "/REPORT/TSCD_BC07.xlsx";
+        reportInfo.storeName = "rpt_TSCD_BC07_Excel";
+
+        this.asposeService.getReport(reportInfo).subscribe(x => {
+            this.fileDownloadService.downloadTempFile(x);
+            this.showSuccessMessage(this.l('ExportFileSuccess'));
+            this.updateView();
+        });
+    }
+    printPreview()
+    {
+        if(!this.inputIsValid())return;
+        var str = '';
+        var datePipe = new DateFormatPipe();
+        str +=  this.l('ToDate') + ' ' + datePipe.transform(this.filterInput.TODATE);
+        let parameters = this.GetParamsFromFilter({
+            BRANCH_ID: this.filterInput.BRANCH_ID,
+            BRANCH_LOGIN: this.appSession.user.subbrId,
+            LEVEL: this.filterInput.LEVEL,
+            DEP_ID: this.filterInput.DEP_ID,
+            Todate:  datePipe.transform(this.filterInput.TODATE),
+        });
+        let values = this.GetParamsFromFilter({ 
+            level: this.filterInput.LEVEL == 'UNIT' ? this.l('Branch') : this.l('AllGoods'),
+            fullName : this.appSession.user.name,
+            datePrint : datePipe.transform(moment()),
+            branchCode: this.appSession.user.branchCode,
+            branchName: this.appSession.user.branchName,
+            A5 : str,
+        });
+
+        this.reportTemplate.show('AssSynthetic_Report', parameters, values);
+    }
+
+}

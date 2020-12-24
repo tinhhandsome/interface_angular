@@ -1,0 +1,32 @@
+<popup-frame [title]="l('File')" #popupFrame [showSearchButton]="false" (onSelectEvent)="save()">
+    <div style="text-align: right;display: block;padding-right: 15px;">
+        <button [disabled]="disabled" (click)="l('SelectedFile')" (click)="showFilePicker()" type="button" class="btn btn-primary"><i
+                class="fa fa-upload"></i></button>
+    </div>
+    <table class="table table-bordered" style="margin-top: 50px">
+        <thead class="table-title">
+            <tr>
+                <th><span>{{l("FileName")}}</span></th>
+                <th style="width:10%"><span>{{l("Delete")}}</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of listFile">
+                <td width="90%" style="background-color: white !important; color: black;">
+                    <span class="mo-header"></span>
+                    <a href="#" (click)="!!download(item)">{{item}}</a>
+                </td>
+                <!-- <td width="10%" style="background-color: white !important; color: black;">
+                    <span class="mo-header"></span>
+                    <button type="button" (click)="download(item)" class="btn btn-primary" [buttonBusy]="saving">
+                        <span>{{"Download" | localize}}</span></button>
+                </td> -->
+                <td width="10%" style="background-color: white !important; color: black;">
+                    <span class="mo-header"></span>
+                    <button [disabled]="disabled" type="button" (click)="delete(item)" class="btn btn-danger" [buttonBusy]="saving">
+                        <i class="flaticon-delete"></i></button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</popup-frame>

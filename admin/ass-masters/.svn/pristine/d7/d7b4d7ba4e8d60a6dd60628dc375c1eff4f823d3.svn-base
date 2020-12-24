@@ -1,0 +1,742 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("AssInventory")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                    <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                    <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()"
+                    autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- Ngày kiểm kê -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("InventoryDate")}}</label>
+                                <date-control [inpCss]="'form-control'" type="text" name="inventorY_DT"
+                                    [(ngModel)]="inputModel.inventorY_DT" required #inventorY_DT="ngModel"
+                                    [disabled]="disableInput">
+                                </date-control>
+                                <div class="error-message" *ngIf="inventorY_DT.invalid && isShowError">
+                                    <span *ngIf="inventorY_DT?.errors.required">{{l('InventoryDate')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Đợt kiểm kê -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("InventTerm")}}</label>
+                                <select2-custom name="term" [(ngModel)]="inputModel.term" [(list)]="terms"
+                                    [emptyText]="l('Null')" [valueMember]="'terM_ID'" #term="ngModel"
+                                    [displayMember]="'terM_NAME'" required [disabled]="disableInput">
+                                </select2-custom>
+                                <div class="error-message" *ngIf="term.invalid && isShowError">
+                                    <span *ngIf="term?.errors.required">{{l('InventTerm')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Loại tài sản -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AssType")}}</label>
+                                <all-code-select name="TYPE_ID" [(ngModel)]="inputModel.asseT_TYPE"
+                                    [cdName]="'ASS_TYPE'" [cdType]="'ASS'" [disabled]="disableInput">
+                                </all-code-select>
+                                <!-- <all-code-select name="TYPE_ID" [(ngModel)]="inputModel.asseT_TYPE"
+                                    [cdName]="'ASS_TYPE'" [cdType]="'ASS'" [disabled]="disableInput"
+                                    (onChangeSelect2)="onAssetTypeChange()">
+                                </all-code-select> -->
+                            </div>
+                        </div>
+
+                        <!-- Đơn vị -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("Branch")}}</label>
+                                <div class="input-group">
+                                    <input class="form-control" type="text" name="brancH_CODE"
+                                        [(ngModel)]="inputModel.brancH_CODE" #brancH_CODE="ngModel" required
+                                        [disabled]="disableInput" (focusout)="onBranchInputFocusOut()">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-primary" [disabled]="disableInput"
+                                            (click)="branchModal.show()">...</button>
+                                    </span>
+                                </div>
+                                <div class="error-message" *ngIf="brancH_CODE.invalid && isShowError">
+                                    <span *ngIf="brancH_CODE?.errors.required">{{l('Branch')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tên đơn vị -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("BranchName")}}</label>
+                                <div class="input-group">
+                                    <input class="form-control" type="text" name="brancH_NAME"
+                                        [(ngModel)]="inputModel.brancH_NAME" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Người quản lý -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AssetManager")}}</label>
+                                <input class="form-control" [disabled]="disableInput" type="text" #nql="ngModel"
+                                    name="nql" [(ngModel)]="inputModel.nql" />
+                            </div>
+                        </div>
+
+                        <!-- Ghi chú -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>{{l("Note")}}</label>
+                                <textarea class="form-control" [disabled]="disableInput" type="text" #notes="ngModel"
+                                    name="notes" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Lọc tài sản is here -->
+
+                    <!--Accordion wrapper-->
+                    <div class="accordion md-accordion" id="accordionFilter" role="tablist">
+                        <div class="card">
+                            <div class="card-header black lighten-3 z-depth-1" role="tab" id="heading-kiemke">
+                                <a class="white-text font-weight-bold" data-toggle="collapse" href="#filterContent"
+                                    aria-expanded="true" aria-controls="filterContent">
+                                    <h5 class="mb-0 py-1"><i class="fas fa-angle-right"
+                                            style="padding-right: 5px;"></i>{{this.l('AssetFilter')}}</h5>
+                                </a>
+                            </div>
+                            <div id="filterContent" class="collapse" role="tabpanel" aria-labelledby="heading"
+                                data-parent="#accordionFilter">
+                                <div class="card-body">
+                                    <div class="row my-4">
+                                        <form #filterForm="ngForm" class="horizontal-form" (ngSubmit)="filterDetails()"
+                                            autocomplete="off">
+                                            <div class="col-md-12">
+                                                <div class="row">
+                                                    <!-- Lọc tài sản - Mã tài sản -->
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>{{l("AssetId")}}</label>
+                                                            <input class="form-control" type="text" name="asseT_CODE"
+                                                                [(ngModel)]="detailFilterInput.asseT_CODE">
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Lọc tài sản - Tên tài sản -->
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>{{l("AssetName")}}</label>
+                                                            <input class="form-control" type="text" name="asseT_NAME"
+                                                                [(ngModel)]="detailFilterInput.asseT_NAME">
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Lọc tài sản - Số serial -->
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>{{l("SerialNo")}}</label>
+                                                            <input class="form-control" type="text"
+                                                                name="asseT_SERIAL_NO"
+                                                                [(ngModel)]="detailFilterInput.asseT_SERIAL_NO">
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Lọc tài sản - Ngày sử dụng -->
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>{{l("UseDate")}}</label>
+                                                            <date-control [inpCss]="'form-control'" type="text"
+                                                                name="usE_DATE"
+                                                                [(ngModel)]="detailFilterInput.usE_DATE">
+                                                            </date-control>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Lọc tài sản - Đơn vị -->
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>{{l("Branch")}}</label>
+                                                            <input class="form-control" type="text"
+                                                                name="brancH_USE_NAME"
+                                                                [(ngModel)]="detailFilterInput.brancH_USE_NAME">
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Lọc tài sản - Tên phòng ban -->
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>{{l("DepartmentName")}}</label>
+                                                            <input class="form-control" type="text" name="depT_USE_NAME"
+                                                                [(ngModel)]="detailFilterInput.depT_USE_NAME">
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Lọc tài sản - Nguyên giá -->
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>{{l("OriginalPrice")}}</label>
+                                                            <money-input type="text" name="buY_PRICE"
+                                                                [(ngModel)]="detailFilterInput.buY_PRICE"></money-input>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Lọc tài sản - Giá trị còn lại -->
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>{{l("RemainValue")}}</label>
+                                                            <money-input type="text" name="remaiN_VALUE"
+                                                                [(ngModel)]="detailFilterInput.remaiN_VALUE">
+                                                            </money-input>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Lọc tài sản - Tình trạng kiểm kê -->
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>{{l("InventDesc")}}</label>
+                                                            <select2-custom name="asseT_STATUS"
+                                                                [(ngModel)]="detailFilterInput.asseT_STATUS"
+                                                                [(list)]="assStatus" [emptyText]="l('SelectAll')"
+                                                                [valueMember]="'statuS_ID'"
+                                                                [displayMember]="'statuS_NAME'">
+                                                            </select2-custom>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Lọc tài sản - Hiện trạng -->
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>{{l("InventStatus")}}</label>
+                                                            <input class="form-control" type="text" name="invenT_DESC"
+                                                                [(ngModel)]="detailFilterInput.invenT_DESC">
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Lọc tài sản - Ghi chú -->
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>{{l("Notes")}}</label>
+                                                            <input class="form-control" type="text" name="filter_notes"
+                                                                [(ngModel)]="detailFilterInput.notes">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-4 form-group">
+                                                        <label for=""></label>
+                                                        <button class="btn btn-primary"
+                                                            (click)='filterDetails()'>{{this.l('AssetFilter')}}</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!--Accordion wrapper-->
+
+                </form>
+                <!-- Danh sách tài sản hiện tại -->
+                <!-- <div class="col-md-12">
+                    <div class="mt-5"></div>
+                </div> -->
+                <div class="row editable-title-group" style="margin-top: 30px;">
+                    <h5 class="popup-title">{{l("CurrentAssetList")}}</h5>
+                </div>
+
+                <div class="row">
+                    <!-- Bảng con DANH SÁCH TÀI SẢN KIỂM KÊ -->
+                    <!-- <div class="col-md-12"> -->
+                    <div class="editable-title-group mt-0" style="width: 100%;">
+                        <h5 class="popup-title col-md-12" style="text-transform: initial;">{{l("AssetInventoryList")}}
+                        </h5>
+                        <div class="action-button">
+                            <!-- "          -->
+                            <button type="button" [hidden]="disableInput" class="btn btn-primary"
+                                (click)="showAssModal()"><i class="pi pi-plus"></i>{{l('Add')}}</button>
+                            <button type="button" [hidden]="disableInput" class="btn btn-danger"
+                                (click)="removeAllCheckItem_Custom()"><i
+                                    class="pi pi-times"></i>{{l("Delete")}}</button>
+                        </div>
+                    </div>
+                    <form #tableForm="ngForm" class='w-100'>
+
+                        <div class="primeng-datatable-container {{assInventListEditTable.isLoading}}">
+                            <div class="spinner-border m-5" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <editable-table [editTableName]="'1'" #assInventListEditTableView
+                                class="custom-table ui-table">
+
+                                <thead class="center">
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th>
+                                            <span style="width:40px;">
+                                                <checkbox-control [disabled]="disableInput"
+                                                    (onchange)="assInventListEditTable.checkAll($event.target.checked)"
+                                                    [checked]="assInventListEditTable.isCheckAll">
+                                                </checkbox-control>
+                                            </span>
+                                        </th>
+                                        <!-- STT -->
+                                        <th><span style="width: 40px">{{l("No")}}</span></th>
+                                        <!-- Mã tài sản -->
+                                        <th sortField="asseT_CODE">
+                                            <span style="width: 120px">{{l("AssetCode")}}</span>
+                                        </th>
+                                        <!-- Tên tài sản -->
+                                        <th style="width: 10%" sortField="asseT_NAME">
+                                            <span style="width: 220px">{{l("AssetName")}}</span>
+                                        </th>
+                                        <!-- Số seri -->
+                                        <th sortField="asseT_SERIAL_NO">
+                                            <span style="width: 120px">{{l("SerialNo")}}</span>
+                                        </th>
+                                        <!-- Ngày sử dụng -->
+                                        <th sortField="usE_DATE">
+                                            <span style="width: 120px">{{l("UseDate")}}</span>
+                                        </th>
+                                        <!-- Đơn vị -->
+                                        <th style="width: 10%" sortField="brancH_NAME">
+                                            <span style="width: 150px">{{l("Branch")}}</span>
+                                        </th>
+                                        <!-- Tên phòng -->
+                                        <th style="width: 10%" sortField="depT_NAME">
+                                            <span style="width: 150px">{{l("DeptName")}}</span>
+                                        </th>
+                                        <!-- Nguyên giá -->
+                                        <th sortField="buY_PRICE">
+                                            <span style="width: 130px">{{l("OriginalPrice")}}</span>
+                                        </th>
+                                        <!-- Giá trị còn lại -->
+                                        <th sortField="remaiN_VALUE">
+                                            <span style="width: 130px">{{l("RemainValue")}}</span>
+                                        </th>
+                                        <!-- Tình trạng kiểm kê -->
+                                        <th sortField="asS_STATUS_NAME">
+                                            <span style="width: 180px">{{l("InventDesc")}}</span>
+                                        </th>
+                                        <!-- Hiện trạng -->
+                                        <th style="width: 10%" sortField="invenT_DESC">
+                                            <span style="width: 150px">{{l("InventStatus")}}</span>
+                                        </th>
+                                        <!-- Ghi chú -->
+                                        <th style="width: 20%" sortField="notes">
+                                            <span style="width: 150px">{{l("Notes")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of assInventListEditTable.dataInPage; let in = index"
+                                        class="selectable {{item['editableIsSelected']? 'selected' : ''}}"
+                                        [hidden]="item['page'] != assInventListEditTable.currentPage"
+                                        (click)="assInventListEditTable.selectRow($event,item);">
+                                        <!-- Checkbox -->
+                                        <td class="center">
+                                            <span class="mo-header"></span>
+                                            <!-- <checkbox-control [disabled]="disableInput"
+                                                (onchange)="item.isChecked = $event.target.checked"
+                                                [checked]="item['isChecked']"
+                                                name="{{assInventListEditTable.name('isChecked',in)}}"></checkbox-control> -->
+                                            <checkbox-control [disabled]="disableInput"
+                                                name="{{assInventListEditTable.name('isChecked',in)}}"
+                                                [(ngModel)]="assInventListEditTable.dataInPage[in]['isChecked']">
+                                            </checkbox-control>
+                                        </td>
+                                        <!-- STT -->
+                                        <td><span class="mo-header"></span>
+                                            <!-- {{item['no']}} -->
+                                            <input class="text-center label" disabled
+                                                [(ngModel)]="assInventListEditTable.dataInPage[in]['no']"
+                                                name="{{assInventListEditTable.name('no',in)}}">
+                                        </td>
+
+                                        <!-- Mã tài sản -->
+                                        <td><span class="mo-header"></span>
+                                            <!-- {{item.asseT_CODE}} -->
+                                            <input class="label" disabled
+                                                [(ngModel)]="assInventListEditTable.dataInPage[in].asseT_CODE"
+                                                name="{{assInventListEditTable.name('asseT_CODE',in)}}">
+                                        </td>
+
+                                        <!-- Tên tài sản -->
+                                        <td><span class="mo-header"></span>
+                                            <!-- {{item.asseT_NAME}} -->
+                                            <input class="label" disabled
+                                                [(ngModel)]="assInventListEditTable.dataInPage[in].asseT_NAME"
+                                                name="{{assInventListEditTable.name('asseT_NAME',in)}}">
+                                        </td>
+
+                                        <!-- Số serial -->
+                                        <td><span class="mo-header"></span>
+                                            <!-- {{item.asseT_SERIAL_NO}} -->
+                                            <input class="label" disabled
+                                                [(ngModel)]="assInventListEditTable.dataInPage[in].asseT_SERIAL_NO"
+                                                name="{{assInventListEditTable.name('asseT_SERIAL_NO',in)}}">
+                                        </td>
+
+                                        <!-- Ngày sử dụng -->
+                                        <td><span class="mo-header"></span>
+                                            <!-- {{item.usE_DATE | dateFormatPipe}} -->
+                                            <date-control [inpCss]="'form-control'" [disabled]="true"
+                                                class="transparent"
+                                                [(ngModel)]="assInventListEditTable.dataInPage[in].usE_DATE"
+                                                name="{{assInventListEditTable.name('usE_DATE',in)}}"></date-control>
+                                        </td>
+
+                                        <!-- Đơn vị -->
+                                        <td><span class="mo-header"></span>
+                                            <!-- {{item.brancH_NAME}} -->
+                                            <input class="label" disabled
+                                                [(ngModel)]="assInventListEditTable.dataInPage[in].brancH_NAME"
+                                                name="{{assInventListEditTable.name('brancH_NAME',in)}}">
+                                        </td>
+
+                                        <!-- Tên phòng -->
+                                        <td><span class="mo-header"></span>
+                                            <!-- {{item.depT_NAME}} -->
+                                            <input class="label" disabled
+                                                [(ngModel)]="assInventListEditTable.dataInPage[in].depT_NAME"
+                                                name="{{assInventListEditTable.name('depT_NAME',in)}}">
+                                        </td>
+
+                                        <!-- Nguyên giá -->
+                                        <td class="right"><span class="mo-header"></span>
+                                            <!-- {{item.buY_PRICE | moneyFormatPipe}} -->
+                                            <money-input class="label" class="transparent" [disabled]="true"
+                                                [(ngModel)]="assInventListEditTable.dataInPage[in].buY_PRICE"
+                                                name="{{assInventListEditTable.name('buY_PRICE',in)}}"></money-input>
+                                        </td>
+
+                                        <!-- Giá trị còn lại -->
+                                        <td class="right"><span class="mo-header"></span>
+                                            <!-- {{item.remaiN_VALUE | moneyFormatPipe}} -->
+                                            <money-input class="label" class="transparent" [disabled]="true"
+                                                [(ngModel)]="assInventListEditTable.dataInPage[in].remaiN_VALUE"
+                                                name="{{assInventListEditTable.name('remaiN_VALUE',in)}}"></money-input>
+                                        </td>
+
+                                        <!-- Tình trạng kiểm kê -->
+                                        <td>
+                                            <!-- <select2-custom name="asseT_STATUS-{{in}}-1" [(ngModel)]="item.asseT_STATUS"
+                                                [(list)]="assStatus" [valueMember]="'statuS_ID'"
+                                                [displayMember]="'statuS_NAME'">
+                                            </select2-custom> -->
+                                            <select2-custom name="{{assInventListEditTable.name('asseT_STATUS',in)}}"
+                                                [(ngModel)]="assInventListEditTable.dataInPage[in].asseT_STATUS"
+                                                [(list)]="assStatus" [valueMember]="'statuS_ID'"
+                                                [displayMember]="'statuS_NAME'">
+                                            </select2-custom>
+                                        </td>
+
+                                        <!-- Hiện trạng -->
+                                        <td>
+                                            <input [disabled]="disableInput" class="form-control transparent"
+                                                type="text" name="{{assInventListEditTable.name('invenT_DESC',in)}}"
+                                                [(ngModel)]="assInventListEditTable.dataInPage[in].invenT_DESC" />
+                                        </td>
+
+                                        <!-- Ghi chú -->
+                                        <td>
+                                            <input [disabled]="disableInput" class="form-control transparent"
+                                                type="text" name="{{assInventListEditTable.name('notes',in)}}"
+                                                [(ngModel)]="assInventListEditTable.dataInPage[in].notes" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </editable-table>
+                        </div>
+                    </form>
+
+                    <!-- Bảng con DANH SÁCH TÀI THỪA SO VỚI SAO KÊ -->
+                    <!-- <div class="col-md-12"></div> -->
+                    <div class="editable-title-group" style="width: 100%;">
+                        <h5 class="popup-title col-md-12" style="text-transform: initial;">
+                            {{l("RedundantAssetInventoryList")}}</h5>
+                        <div class="action-button">
+                            <button type="button" [hidden]="disableInput" class="btn btn-primary"
+                                (click)="addItemIntoRedundantList()"> <i class="pi pi-plus"></i>{{l('Add')}}</button>
+                            <button type="button" [hidden]="disableInput" class="btn btn-danger"
+                                (click)="redundantListEditTable.removeAllCheckedItem()"><i
+                                    class="pi pi-times"></i>{{l("Delete")}}</button>
+                        </div>
+                    </div>
+                    <form #ngForm="ngForm" class="w-100">
+                        <div class="primeng-datatable-container">
+                            <editable-table [editTableName]="'2'" #redundantListEditTableView
+                                class="custom-table ui-table">
+
+                                <thead>
+                                    <tr>
+                                        <!-- Begin Table Column -->
+                                        <th>
+                                            <span style="width:40px;">
+                                                <checkbox-control [disabled]="disableInput"
+                                                    (onchange)="redundantListEditTable.checkAll($event.target.checked)"
+                                                    [checked]="redundantListEditTable.isCheckAll">
+                                                </checkbox-control>
+                                            </span>
+                                        </th>
+                                        <!-- STT -->
+                                        <th><span style="width: 40px">{{l("No")}}</span></th>
+                                        <!-- Mã tài sản -->
+                                        <th sortField="asseT_CODE">
+                                            <span style="width: 120px">{{l("AssetCode")}}</span>
+                                        </th>
+                                        <!-- Tên tài sản -->
+                                        <th style="width: 10%" sortField="asseT_NAME">
+                                            <span style="width: 220px">{{l("AssetName")}}</span>
+                                        </th>
+                                        <!-- Số seri -->
+                                        <th sortField="asseT_SERIAL_NO">
+                                            <span style="width: 120px">{{l("SerialNo")}}</span>
+                                        </th>
+                                        <!-- Ngày sử dụng -->
+                                        <th sortField="usE_DATE">
+                                            <span style="width: 120px">{{l("UseDate")}}</span>
+                                        </th>
+                                        <!-- Đơn vị -->
+                                        <th style="width: 10%" sortField="brancH_NAME">
+                                            <span style="width: 150px">{{l("Branch")}}</span>
+                                        </th>
+                                        <!-- Tên phòng -->
+                                        <th style="width: 10%" sortField="depT_USE_NAME">
+                                            <span style="width: 150px">{{l("DeptName")}}</span>
+                                        </th>
+                                        <!-- Nguyên giá -->
+                                        <th sortField="buY_PRICE">
+                                            <span style="width: 130px">{{l("OriginalPrice")}}</span>
+                                        </th>
+                                        <!-- Giá trị còn lại -->
+                                        <th sortField="remaiN_VALUE">
+                                            <span style="width: 130px">{{l("RemainValue")}}</span>
+                                        </th>
+                                        <!-- Tình trạng kiểm kê -->
+                                        <th sortField="asS_STATUS_NAME">
+                                            <span style="width: 180px">{{l("InventDesc")}}</span>
+                                        </th>
+                                        <!-- Hiện trạng -->
+                                        <th style="width: 10%" sortField="invenT_DESC">
+                                            <span style="width: 150px">{{l("InventStatus")}}</span>
+                                        </th>
+                                        <!-- Ghi chú -->
+                                        <th style="width: 20%" sortField="notes">
+                                            <span style="width: 150px">{{l("Notes")}}</span>
+                                        </th>
+                                        <!-- End Table Column -->
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of redundantListEditTable.dataInPage; let in = index"
+                                        class="selectable {{item['editableIsSelected']? 'selected' : ''}}"
+                                        [hidden]="item['page'] != redundantListEditTable.currentPage"
+                                        (click)="redundantListEditTable.selectRow($event,item);">
+                                        <!-- Checkbox -->
+                                        <td class="center">
+                                            <span class="mo-header"></span>
+                                            <!-- <checkbox-control [disabled]="disableInput"
+                                                (onchange)="item.isChecked = $event.target.checked"
+                                                [checked]="item['isChecked']"></checkbox-control> -->
+                                            <checkbox-control [disabled]="disableInput" style="width:40px"
+                                                name="{{redundantListEditTable.name('isChecked',in)}}"
+                                                [(ngModel)]="redundantListEditTable.dataInPage[in]['isChecked']">
+                                            </checkbox-control>
+                                        </td>
+                                        <!-- STT -->
+                                        <td class="center"><span class="mo-header"></span>
+                                            <!-- {{item['no']}} -->
+                                            <input class="text-center label" disabled
+                                                [(ngModel)]="redundantListEditTable.dataInPage[in]['no']"
+                                                name="{{redundantListEditTable.name('no',in)}}">
+                                        </td>
+
+                                        <!-- Mã tài sản -->
+                                        <td><span class="mo-header"></span>
+                                            <!-- <input [disabled]="disableInput" class="form-control transparent"
+                                                (focusout)='onAssIdChange(item.asseT_CODE)' type="text"
+                                                name="asseT_CODE-{{in}}" [(ngModel)]="item.asseT_CODE" /> -->
+
+                                            <input class="form-control transparent" [disabled]="disableInput"
+                                                (change)='onAssIdChange(item.asseT_CODE)'
+                                                [(ngModel)]="redundantListEditTable.dataInPage[in].asseT_CODE"
+                                                name="{{redundantListEditTable.name('asseT_CODE',in)}}">
+                                        </td>
+
+                                        <!-- Tên tài sản -->
+                                        <td><span class="mo-header"></span>
+                                            <!-- {{item.asseT_NAME}} -->
+                                            <input class="label" disabled
+                                                [(ngModel)]="redundantListEditTable.dataInPage[in].asseT_NAME"
+                                                name="{{redundantListEditTable.name('asseT_NAME',in)}}">
+                                        </td>
+
+                                        <!-- Số serial -->
+                                        <td><span class="mo-header"></span>
+                                            <!-- {{item.asseT_SERIAL_NO}} -->
+                                            <input class="label" disabled
+                                                [(ngModel)]="redundantListEditTable.dataInPage[in].asseT_SERIAL_NO"
+                                                name="{{redundantListEditTable.name('asseT_SERIAL_NO',in)}}">
+                                        </td>
+
+                                        <!-- Ngày sử dụng -->
+                                        <td><span class="mo-header"></span>
+                                            <!-- {{item.usE_DATE | dateFormatPipe}} -->
+                                            <date-control [inpCss]="'form-control'" [disabled]="true"
+                                                class="transparent"
+                                                [(ngModel)]="redundantListEditTable.dataInPage[in].usE_DATE"
+                                                name="{{redundantListEditTable.name('usE_DATE',in)}}"></date-control>
+                                        </td>
+
+                                        <!-- Đơn vị -->
+                                        <td><span class="mo-header"></span>
+                                            <!-- {{item.brancH_NAME}} -->
+                                            <input class="label" disabled
+                                                [(ngModel)]="redundantListEditTable.dataInPage[in].brancH_NAME"
+                                                name="{{redundantListEditTable.name('brancH_NAME',in)}}">
+                                        </td>
+
+                                        <!-- Tên phòng -->
+                                        <td><span class="mo-header"></span>
+                                            <!-- {{item.depT_ID}} -->
+                                            <input class="label" disabled
+                                                [(ngModel)]="redundantListEditTable.dataInPage[in].depT_NAME"
+                                                name="{{redundantListEditTable.name('depT_NAME',in)}}">
+                                        </td>
+
+                                        <!-- Nguyên giá -->
+                                        <td class="right"><span class="mo-header"></span>
+                                            <!-- {{item.buY_PRICE | moneyFormatPipe}} -->
+                                            <money-input class="label" class="transparent" [disabled]="true"
+                                                [(ngModel)]="redundantListEditTable.dataInPage[in].buY_PRICE"
+                                                name="{{redundantListEditTable.name('buY_PRICE',in)}}"></money-input>
+                                        </td>
+
+                                        <!-- Giá trị còn lại -->
+                                        <td class="right"><span class="mo-header"></span>
+                                            <!-- {{item.remaiN_AMORTIZED_AMT | moneyFormatPipe}} -->
+                                            <money-input class="label" class="transparent" [disabled]="true"
+                                                [(ngModel)]="redundantListEditTable.dataInPage[in].remaiN_AMORTIZED_AMT"
+                                                name="{{redundantListEditTable.name('remaiN_AMORTIZED_AMT',in)}}">
+                                            </money-input>
+                                        </td>
+
+                                        <!-- Tình trạng kiểm kê -->
+                                        <td>
+                                            <!-- <select2-custom disabled name="asseT_STATUS-{{in}}-2"
+                                                [(ngModel)]="item.asseT_STATUS" [(list)]="assStatus"
+                                                [emptyText]="l('Null')" [valueMember]="'statuS_ID'"
+                                                [displayMember]="'statuS_NAME'">
+                                            </select2-custom> -->
+                                            <select2-custom disabled
+                                                name="{{redundantListEditTable.name('asseT_STATUS',in)}}"
+                                                [(ngModel)]="redundantListEditTable.dataInPage[in].asseT_STATUS"
+                                                [(list)]="assStatus" [emptyText]="l('Null')" [valueMember]="'statuS_ID'"
+                                                [displayMember]="'statuS_NAME'">
+                                            </select2-custom>
+                                        </td>
+
+                                        <!-- Hiện trạng -->
+                                        <td>
+                                            <!-- <input [disabled]="disableInput" class="form-control transparent"
+                                                type="text" name="invenT_DESC2-{{in}}" [(ngModel)]="item.invenT_DESC" /> -->
+                                            <input [disabled]="disableInput" class="form-control transparent"
+                                                type="text" name="{{redundantListEditTable.name('invenT_DESC',in)}}"
+                                                [(ngModel)]="redundantListEditTable.dataInPage[in].invenT_DESC" />
+                                        </td>
+
+                                        <!-- Ghi chú -->
+                                        <td>
+                                            <!-- <input [disabled]="disableInput" class="form-control transparent"
+                                                type="text" name="notes2-{{in}}" [(ngModel)]="item.notes" /> -->
+                                            <input [disabled]="disableInput" class="form-control transparent"
+                                                type="text" name="{{redundantListEditTable.name('notes',in)}}"
+                                                [(ngModel)]="redundantListEditTable.dataInPage[in].notes" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+
+                            </editable-table>
+
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-md-12">
+                    <div style="text-align: right" [hidden]="!showPrintBtn">
+                        <label class='btn btn-primary' for="file-upload" style="margin-top: 6px; color:white!important">
+                            {{this.l('ImportStatus')}}
+                            <import-excel [inputCss]="'btn btn-primary'" [id]="'file-upload'" [hidden]="true"
+                                [startPosition]="'A10'" (toArrayObject)='getDataFromFile($event);'>
+                            </import-excel>
+                        </label>
+                        <button class="btn btn-primary mt-2" type="button"
+                            (click)="exportToExcel()">{{this.l('PrintList')}}</button>
+                    </div>
+                </div>
+
+
+
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<branch-modal #branchModal [multiple]="false" (onSelect)="onSelectBranch($event)"></branch-modal>
+<asset-modal-sk #assInventModal [hideColumns]="'ASSET_SERIAL_NO,DEP_NAME,BRANCH_CREATE_NAME,BUY_DATE'"
+    [hideFields]="'brancH_ID,PlanLiqFilter,PlanMonthFilter,SearchContains,planLiqTitle,planMonthTitle'"
+    [disableFields]="'asseT_TYPE'" [isPagingClient]="true" [isGroupColMd2]="true" [isDepFieldSelect2]="true"
+    (onSelect)="onSelectAssInvent($event)"></asset-modal-sk>
+<style>
+    .collapse:not(.in) {
+        display: none !important;
+    }
+
+    .collapse:not(.show) {
+        display: initial;
+    }
+</style>

@@ -1,0 +1,376 @@
+﻿<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()"
+                    class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("AssUseMultiList")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                    <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                    <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS_KT">
+                                </auth-status-input-page>
+                            </div>
+                        </div>
+                        <!--BEGIN INFORMATION-->
+                        <!-- Người thực hiện -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("Implementer")}}</label>
+                                <input [(ngModel)]="inputModel.useR_EXPORT" name="useR_EXPORT" #useR_EXPORT="ngModel"
+                                    readonly class="form-control m-input" type="text">
+                            </div>
+                        </div>
+                        <!-- Ngày xuất sử dụng -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("UseExportDate")}}</label>
+                                <date-control readonly [inpCss]="'form-control'" type="text" #usE_EXPORT_DT="ngModel"
+                                    name="usE_EXPORT_DT" [(ngModel)]="inputModel.usE_EXPORT_DT">
+                                </date-control>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!--Ghi chú-->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <textarea class="form-control" name="notes" #notes="ngModel" type="text"
+                                    [disabled]="disableInput" [(ngModel)]="inputModel.notes">
+                                    </textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+                        <!--END INFORMATION-->
+
+                        <div class="col-md-12">
+                            <form #ngFormAsset="ngForm" class="row">
+                                <!--BEGIN DETAIL 1-->
+                                <div class="col-md-12">
+                                    <div class="editable-title-group mb-3">
+                                        <h5 class="popup-title col-md-12">{{l("List")}} {{l("Asset")}}</h5>
+                                    </div>
+
+                                    <div class="primeng-datatable-container">
+
+                                        <editable-table [editTableName]="'1'" #editTableAssetView
+                                            class="custom-table ui-table">
+                                            <thead>
+                                                <tr>
+
+                                                    <!-- Begin Table Column -->
+                                                    <!-- STT -->
+                                                    <th><span style="width: 40px">{{l("No")}}</span></th>
+                                                    <!-- Mã tài sản -->
+                                                    <th sortField="asseT_CODE">
+                                                        <span style="width: 150px">{{l("AssetCode")}}</span>
+                                                    </th>
+                                                    <!-- Tên tài sản -->
+                                                    <th sortField="asseT_NAME">
+                                                        <span style="width: 250px">{{l("AssetName")}}</span>
+                                                    </th>
+                                                    <!-- Số seri -->
+                                                    <th sortField="asseT_SERIAL_NO">
+                                                        <span style="width: 150px">{{l("SerialNo")}}</span>
+                                                    </th>
+                                                    <!-- Nguyên giá -->
+                                                    <th sortField="buY_PRICE">
+                                                        <span style="width: 150px">{{l("OriginalPrice")}}</span>
+                                                    </th>
+                                                    <!-- Gía trị còn lại -->
+                                                    <th sortField="asremaiN_AMT">
+                                                        <span style="width: 150px">{{l("RemainValue")}}</span>
+                                                    </th>
+                                                    <!-- Ngày nhập -->
+                                                    <th sortField="creatE_DT_ASS">
+                                                        <span style="width: 150px">{{l("InputDate")}}</span>
+                                                    </th>
+                                                    <!-- Tên đơn vị -->
+                                                    <th class="" sortField="brancH_NAME">
+                                                        <span style="width: 200px">{{l("BranchName")}}</span>
+                                                    </th>
+                                                    <!-- Tên phòng ban -->
+                                                    <th sortField="deP_NAME">
+                                                        <span style="width: 200px">{{l("DepartmentName")}}</span>
+                                                    </th>
+                                                    <!-- Địa điểm -->
+                                                    <th class="" sortField="diV_NAME">
+                                                        <span style="width: 200px">{{l("Division")}}</span>
+                                                    </th>
+                                                    <!-- Tên người dùng -->
+                                                    <th sortField="emP_NAME">
+                                                        <span style="width: 200px">{{l("NameOfUser")}}</span>
+                                                    </th>
+                                                    <!-- Ghi chú -->
+                                                    <th sortField="notes">
+                                                        <span style="width: 300px">{{l("Notes")}}</span>
+                                                    </th>
+                                                    <!-- End Table Column -->
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let item of editTableAsset.dataInPage; let in = index"
+                                                    class="selectable {{item['editableIsSelected']? 'selected' : ''}}"
+                                                    [hidden]="item['page'] != editTableAsset.currentPage"
+                                                    (click)="editTableAsset.selectRow($event,item); updateView();">
+
+                                                    <!-- STT -->
+                                                    <td class="center"><span class="mo-header"></span>
+                                                        <input class="label"
+                                                            [(ngModel)]="editTableAsset.dataInPage[in]['no']"
+                                                            name="{{editTableAsset.name('no',in)}}"></td>
+
+                                                    <!--Mã tài sản-->
+                                                    <td>
+                                                        <span class="mo-header"></span>
+                                                        <input readonly class="form-control"
+                                                            [(ngModel)]="editTableAsset.dataInPage[in].asseT_CODE"
+                                                            name="{{editTableAsset.name('asseT_CODE',in)}}" />
+                                                    </td>
+
+                                                    <!--Tên tài sản-->
+                                                    <td>
+                                                        <span class="mo-header"></span>
+                                                        <input readonly class="form-control"
+                                                            [(ngModel)]="editTableAsset.dataInPage[in].asseT_NAME"
+                                                            name="{{editTableAsset.name('asseT_NAME',in)}}" />
+                                                    </td>
+
+                                                    <!--Số seri -->
+                                                    <td>
+                                                        <span class="mo-header"></span>
+                                                        <input readonly class="form-control"
+                                                            [(ngModel)]="editTableAsset.dataInPage[in].asseT_SERIAL_NO"
+                                                            name="{{editTableAsset.name('asseT_SERIAL_NO',in)}}" />
+                                                    </td>
+
+                                                    <!--Nguyên giá -->
+                                                    <td>
+                                                        <span class="mo-header"></span>
+                                                        <money-input readonly [inputCss]="'form-control'"
+                                                            name="{{editTableAsset.name('buY_PRICE',in)}}"
+                                                            [(ngModel)]="editTableAsset.dataInPage[in].buY_PRICE">
+                                                        </money-input>
+                                                    </td>
+
+                                                    <!--Gía trị còn lại -->
+                                                    <td>
+                                                        <span class="mo-header"></span>
+                                                        <money-input [inputCss]="'decimal form-control'"
+                                                            name="{{editTableAsset.name('asremaiN_AMT',in)}}"
+                                                            [(ngModel)]="editTableAsset.dataInPage[in].asremaiN_AMT"
+                                                            readonly>
+                                                        </money-input>
+                                                    </td>
+
+                                                    <!-- Ngày nhập -->
+                                                    <td>
+                                                        <span class="mo-header"></span>
+                                                        <date-control [disabled]="true" [inpCss]="'form-control'"
+                                                            type="text"
+                                                            name="{{editTableAsset.name('creatE_DT_ASS',in)}}"
+                                                            [(ngModel)]="editTableAsset.dataInPage[in].creatE_DT_ASS">
+                                                        </date-control>
+                                                    </td>
+
+                                                    <!--Tên đơn vị -->
+                                                    <td>
+                                                        <span class="mo-header"></span>
+                                                        <div class="user-group">
+                                                            <input class="form-control transparent"
+                                                                name="{{editTableAsset.name('brancH_NAME',in)}}"
+                                                                readonly
+                                                                [(ngModel)]="editTableAsset.dataInPage[in].brancH_NAME" />
+                                                            <button class="btn btn-primary ng-star-inserted"
+                                                                [disabled]="true"
+                                                                name="{{editTableAsset.name('btn_brancH_NAME',in)}}"
+                                                                type='button'>{{l("...")}}</button>
+                                                        </div>
+                                                    </td>
+                                                    <!--Tên phòng ban -->
+                                                    <td>
+                                                        <span class="mo-header"></span>
+                                                        <div class="user-group">
+                                                            <input class="form-control decimal"
+                                                                name="{{editTableAsset.name('deP_NAME',in)}}" readonly
+                                                                [(ngModel)]="editTableAsset.dataInPage[in].deP_NAME" />
+                                                            <button class="btn btn-primary ng-star-inserted"
+                                                                *ngIf="isShowSelectDepartment(editTableAsset.dataInPage[in].brancH_TYPE)"
+                                                                [disabled]="true"
+                                                                name="{{editTableAsset.name('btn_deP_NAME',in)}}"
+                                                                type='button'>{{l("...")}}</button>
+                                                        </div>
+                                                    </td>
+                                                    <!--Địa điểm -->
+                                                    <td>
+                                                        <span class="mo-header"></span>
+                                                        <div class="user-group">
+                                                            <input class="form-control transparent"
+                                                                name="{{editTableAsset.name('diV_NAME',in)}}" readonly
+                                                                [(ngModel)]="editTableAsset.dataInPage[in].diV_NAME" />
+                                                            <button class="btn btn-primary ng-star-inserted"
+                                                                [disabled]="true"
+                                                                name="{{editTableAsset.name('btn_diV_NAME',in)}}"
+                                                                type='button'>{{l("...")}}</button>
+                                                        </div>
+                                                    </td>
+                                                    <!--Tên người dùng -->
+                                                    <td>
+                                                        <span class="mo-header"></span>
+                                                        <div class="user-group">
+                                                            <input class="form-control"
+                                                                name="{{editTableAsset.name('emP_NAME',in)}}" readonly
+                                                                [(ngModel)]="editTableAsset.dataInPage[in].emP_NAME" />
+                                                            <button class="btn btn-primary ng-star-inserted"
+                                                                [disabled]="true"
+                                                                name="{{editTableAsset.name('btn_emP_NAME',in)}}"
+                                                                type='button'>{{l("...")}}</button>
+                                                        </div>
+                                                    </td>
+                                                    <!--Ghi chú -->
+                                                    <td>
+                                                        <span class="mo-header"></span>
+                                                        <textarea class="form-control required"
+                                                            name="{{editTableAsset.name('notes',in)}}" readonly
+                                                            [(ngModel)]="editTableAsset.dataInPage[in].notes"></textarea>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </editable-table>
+                                    </div>
+                                </div>
+                                <!--END DETAIL 1-->
+
+                                <!--BEGIN DETAIL 2-->
+                                <div class="col-md-12">
+                                    <div class="editable-title-group mb-3">
+                                        <h5 class="popup-title col-md-12">{{l("List")}} {{l("Asset")}}</h5>
+                                    </div>
+
+                                    <div class="primeng-datatable-container">
+                                        <editable-table [editTableName]="'2'"
+                                            [requiredFields]="['amorT_START_DATE,','amorT_MONTH','corE_NOTE']"
+                                            #editTableAmortView class="custom-table ui-table">
+                                            <thead>
+                                                <tr>
+                                                    <!-- Begin Table Column -->
+                                                    <!-- STT -->
+                                                    <th><span style="width: 40px">{{l("No")}}</span></th>
+                                                    <!--Ngày bắt đầu phân bổ-->
+                                                    <th sortField="amorT_START_DATE">
+                                                        <span style="width: 180px">{{l("AllocationStartDate")}}</span>
+                                                    </th>
+                                                    <!--Số tháng khấu hao-->
+                                                    <th sortField="amorT_MONTH" class="required">
+                                                        <span style="width: 180px">{{l("AmortMonth")}}</span>
+                                                    </th>
+                                                    <!--Ngày kết thúc phân bổ-->
+                                                    <th sortField="amorT_END_DATE">
+                                                        <span style="width: 180px">{{l("AllocationEndDate")}}</span>
+                                                    </th>
+                                                    <!--Diễn giải hoạch toán-->
+                                                    <th sortField="corE_NOTE">
+                                                        <span style="width: 400px">{{l("CoreNote")}}</span>
+                                                    </th>
+                                                    <!-- End Table Column -->
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let item of editTableAmort.dataInPage; let in = index"
+                                                    class="selectable {{item['editableIsSelected']? 'selected' : ''}}"
+                                                    [hidden]="item['page'] != editTableAmort.currentPage"
+                                                    (click)="editTableAmort.selectRow($event,item); updateView();">
+                                                    <!-- STT -->
+                                                    <td class="center"><span class="mo-header"></span>
+                                                        <input class="label"
+                                                            [(ngModel)]="editTableAmort.dataInPage[in]['no']"
+                                                            name="{{editTableAmort.name('no',in)}}"></td>
+                                                    <!--Ngày bắt đầu phân bổ-->
+                                                    <td style="width:20%">
+                                                        <span class="mo-header"></span>
+                                                        <date-control [disabled]="disableInput"
+                                                            [inpCss]="'form-control transparent'" type="text"
+                                                            (focusout)="onchangeAmortStartDate()"
+                                                            name="{{editTableAmort.name('amorT_START_DATE',in)}}"
+                                                            [(ngModel)]="editTableAmort.dataInPage[in].amorT_START_DATE">
+                                                        </date-control>
+                                                    </td>
+                                                    <!--Số tháng khấu hao -->
+                                                    <td style="width:10%">
+                                                        <span class="mo-header"></span>
+                                                        <input [disabled]="disableInput"
+                                                            class="form-control transparent" type="number" min="1"
+                                                            (focusout)="onchangeAmortMonth($event.target.value)"
+                                                            name="{{editTableAmort.name('amorT_MONTH',in)}}"
+                                                            [ngModel]="editTableAmort.dataInPage[in].amorT_MONTH" />
+
+                                                    </td>
+                                                    <!--Ngày kết thúc phân bổ-->
+                                                    <td style="width:20%">
+                                                        <span class="mo-header"></span>
+                                                        <date-control [disabled]="true"
+                                                            [inpCss]="'form-control transparent'"
+                                                            name="{{editTableAmort.name('amorT_END_DATE',in)}}"
+                                                            [(ngModel)]="editTableAmort.dataInPage[in].amorT_END_DATE">
+                                                        </date-control>
+                                                    </td>
+                                                    <!--Diễn giải hoạch toán-->
+                                                    <td style="width:60%">
+                                                        <span class="mo-header"></span>
+                                                        <textarea class="form-control transparent"
+                                                            [disabled]="disableInput"
+                                                            name="{{editTableAmort.name('corE_NOTE',in)}}"
+                                                            [(ngModel)]="editTableAmort.dataInPage[in].corE_NOTE"></textarea>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </editable-table>
+
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <!--END DETAIL 2-->
+                        <div [hidden]="!isShowPrintButton" class="col-md-12 group">
+                            <div class="col-md-8 ">({{l("CoreNote")}}: {{l("CoreNoteValidDescription")}})</div>
+                            <div class="col-md-4 action-button">
+                                <button type="button" class="btn btn-primary mt-3" (click)="printCoreNoteInvoice()">
+                                    {{l("PrintCoreNoteInvoice")}}</button>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </form>
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>

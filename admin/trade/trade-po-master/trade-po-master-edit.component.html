@@ -1,0 +1,239 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("TradePoMaster")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" novalidate autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page #authStatusMessage [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!-- #region Thông tin -->
+                        <!-- Số PO -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("PoMasterCode")}}</label>
+                                <input maxlength="15" class="form-control" type="text" #pO_CODE="ngModel" [disabled]="true" name="pO_CODE" [(ngModel)]="inputModel.pO_CODE" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}">
+                                <div class="error-message" *ngIf="pO_CODE.invalid && isShowError">
+                                    <span *ngIf="pO_CODE?.errors.required">{{l('PoMasterCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="pO_CODE?.errors.pattern">{{l('PoMasterCode')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ngày gọi hàng -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("PoMasterInputDt")}}</label>
+                                <date-control [disabled]="isEditPage" [inpCss]="'form-control'" type="text" #inpuT_DT="ngModel" name="inpuT_DT" [(ngModel)]="inputModel.inpuT_DT">
+                                </date-control>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!-- Tên đơn hàng -->
+                        <div class="col-md-8">
+                            <div class="form-group required">
+                                <label>{{l("PoMasterName")}}</label>
+                                <input class="form-control" required type="text" #pO_NAME="ngModel" name="pO_NAME" [disabled]="disableInput" [(ngModel)]="inputModel.pO_NAME">
+                                <div class="error-message" *ngIf="pO_NAME.invalid && isShowError">
+                                    <span *ngIf="pO_NAME?.errors.required">{{l('PoMasterName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+
+                        <!-- Số tờ trình -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("RequestDocCode")}}</label>
+                                <input class="form-control" type="text" #reQ_DOC_ID="ngModel" name="reQ_DOC_ID" [disabled]="disableInput" [(ngModel)]="inputModel.reQ_DOC_ID">
+                                <div class="error-message" *ngIf="reQ_DOC_ID.invalid && isShowError">
+                                    <span *ngIf="reQ_DOC_ID?.errors.required">{{l('RequestDocCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Ngày nhận tờ trình -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("TradeRequestDocDT")}}</label>
+                                <date-control #deliverY_DT="ngModel" name="deliverY_DT" [(ngModel)]="inputModel.deliverY_DT" [disabled]="disableInput">
+                                </date-control>
+                                <div class="error-message" *ngIf="deliverY_DT.invalid && isShowError">
+                                    <span *ngIf="deliverY_DT?.errors.required">{{l('TradeRequestDocDT')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Ngày duyệt tờ trình -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("RequestDocPayAppDate")}}</label>
+                                <date-control #payapP_DT="ngModel" name="payapP_DT" [(ngModel)]="inputModel.payapP_DT" (focusout)="checkPayappDtValid()" [disabled]="disableInput">
+                                </date-control>
+                                <div class="error-message" *ngIf="payapP_DT.control['errorMessage'] && isShowError">
+                                    <span>{{payapP_DT.control['errorMessage']}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Số hợp đồng -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("ContractCode")}}</label>
+                                <div class="user-group">
+                                    <input class="form-control" type="text" #contracT_CODE="ngModel" (focusout)="onChangeContractCode($event)" name="contracT_CODE" [disabled]="isEditPage" [ngModel]="inputModel.contracT_CODE">
+                                    <button [disabled]="isEditPage" (click)="showContractModal()" type="button" class="btn btn-primary">...</button>
+                                </div>
+                                <div class="error-message" *ngIf="contracT_CODE.invalid && isShowError">
+                                    <span *ngIf="contracT_CODE?.errors.required">{{l('ContractCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tổng giá trị hợp đồng -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("ContractTotalAmt")}}</label>
+                                <money-input #contracT_TOTAL_AMT="ngModel" name="contracT_TOTAL_AMT" [(ngModel)]="inputModel.contracT_TOTAL_AMT" [disabled]="true"></money-input>
+                            </div>
+                        </div>
+
+                        <!-- Tổng giá trị đã thực hiện -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("TotalAmtMade")}}</label>
+                                <money-input #contracT_TOTAL_EXE_AMT="ngModel" name="contracT_TOTAL_EXE_AMT" [(ngModel)]="inputModel.contracT_TOTAL_EXE_AMT" [disabled]="true"></money-input>
+                            </div>
+                        </div>
+
+                        <!-- Nội dung hợp đồng -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("ContractContent")}}</label>
+                                <textarea class="form-control" type="text" #contracT_NAME="ngModel" name="contracT_NAME" [disabled]="true" [(ngModel)]="inputModel.contracT_NAME">
+                                </textarea>
+                            </div>
+                        </div>
+
+                        <!-- File đính kèm -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("FileAttachment")}}</label>
+                                <file-picker [disabled]="disableInput" type="text" #filE_ATTACHMENT="ngModel" [folderUpload]="'PoMaster'" [inpCss]="'form-control'" [(ngModel)]="inputModel['filE_ATTACHMENT']" name="filE_ATTACHMENT"></file-picker>
+                            </div>
+                        </div>
+
+                        <!-- Mã nhà cung cấp -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("SupplierCode")}}</label>
+                                <div class="user-group">
+                                    <input class="form-control" hidden required [disabled]="disableInput" type="text" #suP_ID="ngModel" name="suP_ID" [(ngModel)]="inputModel.suP_ID">
+                                    <input class="form-control" type="text" (change)="suP_CODE_change($event)" #suP_CODE="ngModel" name="suP_CODE" [ngModel]="inputModel.suP_CODE">
+                                    <button [disabled]="isEditPage" (click)="showSupModal()" type="button" class="btn btn-primary">...</button>
+                                </div>
+                                <div class="error-message" *ngIf="suP_ID.invalid && isShowError">
+                                    <span *ngIf="suP_ID?.errors.required">{{l('SupplierCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tên nhà cung cấp -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("SupplierName")}}</label>
+                                <input class="form-control" type="text" #suP_NAME="ngModel" name="suP_NAME" [disabled]="true" [(ngModel)]="inputModel['suP_NAME2']">
+                            </div>
+                        </div>
+
+                        <div class="col-md-12"></div>
+
+                        <!-- Địa chỉ -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Address")}}</label>
+                                <textarea class="form-control" type="text" #suP_ADDR="ngModel" name="suP_ADDR" [disabled]="true" [(ngModel)]="inputModel.suP_ADDR"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- #endregion -->
+
+                    </div>
+
+                    <!-- #region Bảng con: Chi tiết hàng hóa -->
+
+                    <goods-detail-editable [editPageState]="editPageState" [inputModel]="inputModel" [disableInput]="disableInput" [isShowError]="isShowError" [editForm]="editForm" #editPageGoodDetail (onChangeTotalAmt)="onChangeTotalAmt($event)"></goods-detail-editable>
+
+                    <!-- #endregion -->
+
+                    <!-- #region Bảng con lịch thanh toán -->
+
+                    <po-payment-editable [editPageState]="editPageState" [disableInput]="disableInput" [isShowError]="isShowError" [editForm]="editForm" [totalAmt]="editPageGoodDetail.totalAmt" #editPagePoPayment></po-payment-editable>
+
+                    <!-- #endregion -->
+
+                    <!-- #region Bảng con danh sách user nhận thông báo -->
+
+                    <role-notification-editable [editPageState]="editPageState" [disableInput]="disableInput" [isShowError]="isShowError" [editForm]="editForm" #editPageRoleNotification></role-notification-editable>
+
+                    <!-- #endregion -->
+                </form>
+                <!-- End Form -->
+
+                <div class="spacing-vertical"></div>
+
+                <div *ngIf="inputModel.pO_CODE" class="form-footer right">
+                    <button (click)="printOfferDeliveryDoc_p()" type="button" class="btn btn-primary">
+                        {{l('PrintOfferDeliveryDoc')}}
+                    </button>
+                    <button (click)="printOfferDeliveryDoc_w()" type="button" class="btn btn-primary">
+                        {{l('PrintWordFile')}}
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<supplier-modal (onSelect)="onSelectSupplier($event)" [multiple]="false" #supplierModal></supplier-modal>
+<contract-modal (onSelect)="onSelectContract($event)" [multiple]="false" #contractModal></contract-modal>
+<report-template #reportTemplate></report-template>

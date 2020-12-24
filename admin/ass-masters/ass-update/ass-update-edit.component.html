@@ -1,0 +1,416 @@
+﻿<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <a [routerLink]="rootPage()" class="m-subheader__title m-subheader__title--separator link-to-list-page home-page">
+                    <span>{{l("HomePage")}}</span>
+                </a>
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+
+                    <span>{{l("AssUpdate_Title")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Toolbar_Create")}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Toolbar_Update")}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("Toolbar_ViewDetail")}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.u_AUTH_STATUS">
+                                </auth-status-input-page>
+                            </div>
+                        </div>
+
+                        <!--BEGIN ASSET INFORMATION-->
+
+                        <!-- Mã tài sản -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("AssetCode")}}</label>
+                                <div class="group">
+                                    <input class="form-control" type="text" #asseT_CODE="ngModel" name="asseT_CODE" required [disabled]="_disableInput" [(ngModel)]="inputModel.asseT_CODE">
+                                    <button class="btn btn-primary ng-star-inserted" type='button' [disabled]="_disableInput" (click)="openAssetModal()">{{l("...")}}</button>
+                                </div>
+                                <div class="error-message" *ngIf="asseT_CODE.invalid && isShowError">
+                                    <span *ngIf="asseT_CODE?.errors.required">{{l('AssetCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mã loại tài sản -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AssTypeCode")}}</label>
+                                <input [(ngModel)]="assetInfo.typE_NAME" name="typE_NAME" #typE_NAME="ngModel" [disabled]="true" class="form-control m-input" type="text">
+                            </div>
+                        </div>
+
+                        <!-- Mã nhòm tài sản -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AssGroupCode")}}</label>
+                                <input [(ngModel)]="assetInfo.grouP_NAME" name="grouP_NAME" #grouP_NAME="ngModel" [disabled]="true" class="form-control m-input" type="text">
+                            </div>
+                        </div>
+
+                        <!-- Tên tài sản -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("AssetName")}}</label>
+                                <input [(ngModel)]="assetInfo.asseT_NAME" name="asseT_NAME" #asseT_NAME="ngModel" [disabled]="true" class="form-control m-input" type="text">
+                            </div>
+                        </div>
+
+                        <!-- Ngày nhập -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("InputDate")}}</label>
+                                <date-control [disabled]="true" [inpCss]="'form-control'" type="text" #creatE_DT="ngModel" name="creatE_DT" [(ngModel)]="assetInfo.creatE_DT">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!-- Gộp nhóm bên trái -->
+                        <div class="col-md-8">
+                            <div class="row">
+                                <!--Số tháng khấu hao-->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AmortMonth")}}</label>
+                                        <div class="group">
+                                            <input class="form-control" name="amorT_MONTH" #amorT_MONTH="ngModel" type="text" min="0" [disabled]="true" [(ngModel)]="assetInfo.amorT_MONTH" [disabled]="true" />
+                                            <label class="ml-1 mt-2">{{l("Month")}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--Tỷ lệ khấu hao-->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AmortRate")}}</label>
+                                        <div class="group">
+                                            <input class="form-control decimal" name="amorT_RATE" #amorT_RATE="ngModel" type="number" min="0" [disabled]="true" [(ngModel)]="assetInfo.amorT_RATE" />
+                                            <label class="ml-1 mt-2">{{l("(%)")}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Thông tin mô tả-->
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>{{l("Description")}}</label>
+                                        <textarea class="form-control" name="asseT_DESC" #asseT_DESC="ngModel" type="text" [disabled]="true" [(ngModel)]="assetInfo.asseT_DESC">
+                                          </textarea>
+                                    </div>
+                                </div>
+
+                                <!--Nguyên giá-->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("OriginalPrice")}}</label>
+                                        <money-input [inputCss]="'form-control decimal'" #buY_PRICE="ngModel" name="buY_PRICE" [(ngModel)]="assetInfo.buY_PRICE" [disabled]="true">
+                                        </money-input>
+                                    </div>
+                                </div>
+
+                                <!--Số tháng đã khấu hao-->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{l("AmortedMonth")}}</label>
+                                        <div class="group">
+                                            <input class="form-control decimal" name="amorTed_MONTH" #amorTed_MONTH="ngModel" type="number" min="0" [disabled]="true" [(ngModel)]="assetInfo.amorT_MONTH" />
+                                            <label class="ml-1 mt-2">{{l("Month")}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!--Số seri-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("SerialNo")}}</label>
+                                <textarea class="form-control" rows="13" name="asseT_SERIAL_NO" #asseT_SERIAL_NO="ngModel" type="text" [disabled]="true" [(ngModel)]="assetInfo.asseT_SERIAL_NO">
+                                        </textarea>
+                            </div>
+                        </div>
+
+                        <!--Gía trị khấu hao-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmortAmount")}}</label>
+                                <money-input [inputCss]="'form-control decimal'" #amorT_AMT="ngModel" name="amorT_AMT" [(ngModel)]="assetInfo.amorT_AMT" [disabled]="true" required></money-input>
+                            </div>
+                        </div>
+                        <!--Gía trị khấu hao còn lại-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("RemainAmortAmount")}}</label>
+                                <money-input [inputCss]="'form-control decimal'" #remaiN_AMORTIZED_AMT="ngModel" name="remaiN_AMORTIZED_AMT" [(ngModel)]="assetInfo.remaiN_AMORTIZED_AMT" [disabled]="true">
+                                </money-input>
+                            </div>
+                        </div>
+                        <!--Ngày bắt đầu khấu hao-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmortStartDate")}}</label>
+                                <date-control [disabled]="true" [inpCss]="'form-control'" type="text" #amorT_START_DATE="ngModel" name="amorT_START_DATE" [(ngModel)]="assetInfo.amorT_START_DATE">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!--Trạng thái tài sản-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AssetStatus")}}</label>
+                                <input [(ngModel)]="inputModel.asS_STATUS_NAME" name="asS_STATUS_NAME" #asS_STATUS_NAME="ngModel" [disabled]="true" class="form-control m-input" type="text">
+                            </div>
+                        </div>
+                        <!--Trạng thái khấu hao-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmortStatus")}}</label>
+                                <input [(ngModel)]="assetInfo.amorT_STATUS_NAME" name="amorT_STATUS_NAME" #amorT_STATUS_NAME="ngModel" [disabled]="true" class="form-control m-input" type="text">
+                            </div>
+                        </div>
+                        <!--Ngày bắt đầu khấu hao-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmortEndDate")}}</label>
+                                <date-control [disabled]="true" [inpCss]="'form-control'" type="text" #amorT_END_DATE="ngModel" name="amorT_END_DATE" [(ngModel)]="assetInfo.amorT_END_DATE">
+                                </date-control>
+                            </div>
+                        </div>
+
+                        <!--Ghi chú-->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <textarea class="form-control" name="notes" #notes="ngModel" type="text" [disabled]="true" [(ngModel)]="assetInfo.notes">
+                                    </textarea>
+                            </div>
+                        </div>
+                        <!--Người quản lý-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AssetManager")}}</label>
+                                <input class="form-control" name="l_NQL" #l_NQL="ngModel" type="text" [disabled]="true" [(ngModel)]="inputModel.l_NQL">
+                            </div>
+                        </div>
+                        <!--Hiện trạng-->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("InventStatus")}}</label>
+                                <textarea class="form-control" name="l_ASSET_DESC" #l_ASSET_DESC="ngModel" type="text" [disabled]="true" [(ngModel)]="inputModel.l_ASSET_DESC">
+                                        </textarea>
+                            </div>
+                        </div>
+                        <!--END ASSET INFOMATION-->
+
+                        <!--Thông tin thay đổi-->
+                        <div class="col-md-12">
+                            <h5 class="popup-title col-md-12">{{l("InformationChange")}}</h5>
+                        </div>
+
+                        <!--Số tháng khấu hao-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("AmortMonth")}}</label>
+                                <div class="group">
+                                    <input class="form-control decimal" name="au_amorT_MONTH" #au_amorT_MONTH="ngModel" [disabled]="true" type="number" min="0" [(ngModel)]="inputModel.u_AMORT_MONTH" />
+                                    <label class="ml-1 mt-2">{{l("Month")}}</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Số seri-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("SerialNo")}}</label>
+                                <input class="form-control" name="au_asseT_SERIAL_NO" #au_asseT_SERIAL_NO="ngModel" [disabled]="disableInput" type="text" [(ngModel)]="inputModel.u_ASSET_SERIAL_NO">
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!-- Tên tài sản -->
+                        <div class="col-md-8">
+                            <div class="form-group required">
+                                <label>{{l("AssetName")}}</label>
+                                <input [(ngModel)]="inputModel.u_ASSET_NAME" name="au_asseT_NAME" [disabled]="disableInput" #au_asseT_NAME="ngModel" required class="form-control m-input" type="text">
+                                <div class="error-message" *ngIf="au_asseT_NAME.invalid && isShowError">
+                                    <span *ngIf="au_asseT_NAME?.errors.required">{{l('AssetName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+
+
+                        <!--Ghi chú-->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Description")}}</label>
+                                <textarea class="form-control" name="au_asseT_DESC" #au_asseT_DESC="ngModel" type="text" [disabled]="disableInput" [(ngModel)]="inputModel.u_ASSET_DESC">
+                                        </textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!--Tăng/giảm-->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("ExtValue")}}</label>
+                                <money-input [inputCss]="'form-control decimal'" name="exT_VALUE" #exT_VALUE="ngModel" [disabled]="disableInput" (onMoneyValueChange)="onMoneyChanged()" type="number" [(ngModel)]="_extValue" required [isNegative]="true"></money-input>
+                                <div class="error-message" *ngIf="exT_VALUE.invalid && isShowError">
+                                    <span *ngIf="exT_VALUE?.errors.required">{{l('ExtValue')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Ngày cập nhật-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("UpdatedDate")}}</label>
+                                <date-control [disabled]="true" [inpCss]="'form-control'" type="text" #creatE_DT="ngModel" name="creatE_DT" [(ngModel)]="inputModel.u_CREATE_DT">
+                                </date-control>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!--Nguyên giá-->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>{{l("OriginalPrice")}}</label>
+                                <money-input [inputCss]="'form-control decimal'" name="au_buY_PRICE" #au_buY_PRICE="ngModel" type="number" [(ngModel)]="_buyPrice" [disabled]="true" min="0"></money-input>
+                            </div>
+                        </div>
+
+                        <!--Gía trị khấu hao-->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("AmortAmount")}}</label>
+                                <money-input [inputCss]="'form-control decimal'" name="au_amorT_AMT" [disabled]="disableInput" #au_amorT_AMT="ngModel" required type="number" [(ngModel)]="_amortAmt" min="0">
+                                </money-input>
+                                <div class="error-message" *ngIf="au_amorT_AMT.invalid && isShowError">
+                                    <span *ngIf="au_amorT_AMT?.errors.required">{{l('OriginalPrice')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!-- Trạng thái tài sản (Cập nhật) -->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("AssetStatus")}}</label>
+                                <select2-custom [disabled]="disableInput" required (onChangeSelect2)="onSelectStatus($event)" #assStatusChange="ngModel" name="assStatusChange" [(ngModel)]="inputModel.u_ASS_STATUS" [(list)]="assStatuses" [valueMember]="'statuS_ID'" [displayMember]="'statuS_NAME'">
+                                </select2-custom>
+                                <div class="error-message" *ngIf="assStatusChange.invalid && isShowError">
+                                    <span *ngIf="assStatusChange?.errors.required">{{l('AssetStatus')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Người quản lý -->
+                        <div class="col-md-4">
+                            <div class="form-group ">
+                                <label>{{l("AssetManager")}}</label>
+                                <input [(ngModel)]="inputModel.nql" name="nql" [disabled]="disableInput" #nql="ngModel" class="form-control m-input" type="text">
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!-- Hiện trạng -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("InventStatus")}}</label>
+                                <textarea class="form-control" name="asseT_STATUS_DESC" #asseT_STATUS_DESC="ngModel" type="text" [disabled]="disableInput" [(ngModel)]="inputModel.asseT_STATUS_DESC"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!-- File đính kèm -->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("FileAttachment")}}</label>
+                                <file-picker [disabled]="disableInput" type="text" [folderUpload]="'AssUpdate'" [inpCss]="'form-control'" [(ngModel)]="inputModel['filE_ATTACHMENT']" name="filE_ATTACHMENT"></file-picker>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+                        <!--Ghi chú-->
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>{{l("Notes")}}</label>
+                                <textarea class="form-control" name="au_notes" #au_notes="ngModel" type="text" [disabled]="disableInput" [(ngModel)]="inputModel.u_NOTES">
+                                    </textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+
+
+
+                        <!--Tài khoản GL-->
+                        <div class="col-md-4">
+                            <div class="form-group required">
+                                <label>{{l("AccountGL")}}</label>
+                                <input class="form-control" name="accounT_GL" #accounT_GL="ngModel" type="text" required [disabled]="disableInput" [(ngModel)]="inputModel.accounT_GL" />
+                                <div class="error-message" *ngIf="accounT_GL.invalid && isShowError">
+                                    <span *ngIf="accounT_GL?.errors.required">{{l('AccountGL')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8"></div>
+
+                        <!--Diễn giải hoạch toán-->
+                        <div class="col-md-8">
+                            <div class="form-group required">
+                                <label>{{l("CoreNote")}}</label>
+                                <input class="form-control " name="corE_NOTE" #corE_NOTE="ngModel" type="text" required [disabled]="disableInput" [(ngModel)]="inputModel.corE_NOTE" pattern="{{s('gAMSProCore.CoreNoteRegexValidation')}}" required type="text" />
+                                <div class="error-message" *ngIf="corE_NOTE.invalid && isShowError">
+                                    <span *ngIf="corE_NOTE?.errors.required">{{l('CoreNote')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="corE_NOTE?.errors.pattern">{{l('CoreNote')}}
+                                        {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+                        <div class="col-md-12">({{l("CoreNoteValidDescription")}})</div>
+
+                        <div class="col-md-12">
+                            <button type="button" [hidden]="!isShowPrintButton" class="btn btn-primary top-space" (click)="printCoreNoteInvoice()">
+                                {{l("PrintCoreNoteInvoice")}}</button>
+                        </div>
+
+
+                    </div>
+                </form>
+                <!-- End Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<asset-modal [hideFields]="'PlanDepartment,level,PlanMonthFilter,PlanLiqFilter,buY_DATE,remaiN_MONTH'" (onSelect)="onSelectAsset($event)" [multiple]="false" #assetModal>
+</asset-modal>
+<report-template #reportTemplate></report-template>

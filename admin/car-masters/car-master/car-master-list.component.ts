@@ -1,0 +1,151 @@
+import { ListComponentBase } from "@app/ultilities/list-component-base";
+import { Injector, Component, OnInit, ViewEncapsulation } from "@angular/core";
+import { CarMasterServiceProxy, CAR_MASTER_ENTITY, ASS_TYPE_ENTITY, AssTypeServiceProxy, CM_BRANCH_ENTITY, BranchServiceProxy, CM_CAR_TYPE_ENTITY, CarTypeServiceProxy, AsposeServiceProxy, ReportInfo, } from "@shared/service-proxies/service-proxies";
+import { LazyLoadEvent } from "primeng/api";
+import { IUiAction } from "@app/ultilities/ui-action";
+import { appModuleAnimation } from "@shared/animations/routerTransition";
+import { FileDownloadService } from "@shared/utils/file-download.service";
+import { finalize } from "rxjs/operators";
+import { ReportTypeConsts } from "@app/admin/core/ultils/consts/ReportTypeConsts";
+import * as moment from 'moment';
+import { AuthStatusConsts } from "@app/admin/core/ultils/consts/AuthStatusConsts";
+
+@Component({
+    templateUrl: './car-master-list.component.html',
+    encapsulation: ViewEncapsulation.None,
+    animations: [appModuleAnimation()]
+})
+
+export class CarMasterListComponent extends ListComponentBase<CAR_MASTER_ENTITY> implements IUiAction<CAR_MASTER_ENTITY>, OnInit {
+    filterInput: CAR_MASTER_ENTITY = new CAR_MASTER_ENTITY();;
+    branchName: string
+    CarMasterParents: CAR_MASTER_ENTITY[];
+    branches: CM_BRANCH_ENTITY[];
+    carTypes: CM_CAR_TYPE_ENTITY[];
+
+    constructor(injector: Injector,
+        private fileDownloadService: FileDownloadService,
+        private asposeService: AsposeServiceProxy,
+        private carTypeService: CarTypeServiceProxy,
+        private branchService: BranchServiceProxy,
+        private carMasterService: CarMasterServiceProxy) {
+        super(injector);
+        this.filterInput.brancH_ID = this.appSession.user.subbrId
+
+        this.initFilter();
+        this.initCombobox()
+    }
+
+    ngOnInit(): void {
+        // set ui action
+        this.appToolbar.setUiAction(this);
+        // set role toolbar
+        this.appToolbar.setRole('CarMaster', true, true, false, true, true, true, false, true);
+        this.appToolbar.setEnableForListPage();
+
+        this.branchName = this.appSession.user.branchName;
+
+    }
+    initCombobox(): void {
+        let filterCombobox = this.getFillterForCombobox();
+        this.branchService.cM_BRANCH_Search(filterCombobox).subscribe(response => {
+            this.branches = response.items;
+        });
+        this.carTypeService.cM_CAR_TYPE_Search(filterCombobox).subscribe(response => {
+            this.carTypes = response.items;
+        });
+    }
+
+    exportToExcel() {
+    }
+    downloadCarMasterExcel() {
+        let reportInfo = new ReportInfo();
+        reportInfo.typeExport = ReportTypeConsts.Excel;
+
+        let filterReport = { ...this.filterInputSearch }
+        filterReport.maxResultCount = -1;
+
+        reportInfo.parameters = this.GetParamsFromFilter(filterReport)
+
+        reportInfo.pathName = "/CAR_MASTER/rpt_car_master.xlsx";
+        reportInfo.storeName = "CAR_MASTER_Search";
+
+        this.asposeService.getReport(reportInfo).subscribe(x => {
+            this.fileDownloadService.downloadTempFile(x);
+        });
+    }
+    search(): void {
+
+        this.showTableLoading();
+
+        if (!this.filterInputSearch.brancH_ID) {
+            this.filterInputSearch.brancH_ID = this.appSession.user.subbrId;
+        }
+
+
+        this.carMasterService.cAR_MASTER_Search(this.filterInputSearch)
+            .pipe(finalize(() => this.hideTableLoading()))
+            .subscribe(result => {
+                this.dataTable.records = result.items;
+                this.dataTable.totalRecordsCount = result.totalCount;
+                this.filterInputSearch.totalCount = result.totalCount;
+
+            });
+    }
+
+    onAdd(): void {
+        this.navigatePassParam('/app/admin/car-master-add', null, { filterInput: JSON.stringify(this.filterInputSearch) });
+    }
+
+    onUpdate(item: CAR_MASTER_ENTITY): void {
+        this.navigatePassParam('/app/admin/car-master-edit', { id: item.caR_ID, nPlate: item.n_PLATE }, { filterInput: JSON.stringify(this.filterInputSearch) });
+    }
+
+    onDelete(item: CAR_MASTER_ENTITY): void {
+        if (item.autH_STATUS == AuthStatusConsts.Approve) {
+            this.showErrorMessage(this.l('DeleteFailed'));
+            return
+        }
+
+        this.message.confirm(
+            this.l('DeleteWarningMessage', item.n_PLATE),
+            this.l('AreYouSure'),
+            (isConfirmed) => {
+                if (isConfirmed) {       
+                    this.saving = true;
+                    this.carMasterService.cAR_MASTER_Del(item.caR_ID)
+                        .pipe(finalize(() => { this.saving = false; }))
+                        .subscribe((response) => {
+                            if (response.result != '0') {
+                                this.showErrorMessage(response["ErrorDesc"]);
+                            }
+                            else {
+                                this.showSuccessMessage(this.l('SuccessfullyDeleted'));
+                                this.reloadPage();
+                            }
+                        });
+                }
+            }
+        );
+    }
+
+    onApprove(item: CAR_MASTER_ENTITY): void {
+
+    }
+
+    onViewDetail(item: CAR_MASTER_ENTITY): void {
+        this.navigatePassParam('/app/admin/car-master-view', { id: item.caR_ID, nPlate: item.n_PLATE }, { filterInput: JSON.stringify(this.filterInputSearch) });
+    }
+
+    onSave(): void {
+
+    }
+
+
+
+    onResetSearch(): void {
+        this.filterInput = new CAR_MASTER_ENTITY();
+        this.filterInput.level = 'ALL'
+        this.changePage(0);
+    }
+}

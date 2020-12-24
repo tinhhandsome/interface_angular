@@ -1,0 +1,8 @@
+<div class="form-group">
+    <label>Tên chi nhánh</label>
+    <input class="form-control" type="text" [(ngModel)]="branchName" />
+</div>
+
+<button (click)="downloadBranchExcel()" class="btn btn-primary">Tải báo cáo chi nhánh Excel</button>
+<button (click)="downloadBranchWord()" class="btn btn-primary">Tải báo cáo chi nhánh Word</button>
+<button (click)="downloadBranchPdf()" class="btn btn-primary">Tải báo cáo chi nhánh Pdf</button>

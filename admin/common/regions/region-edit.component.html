@@ -1,0 +1,83 @@
+<div [@routerTransition]>
+    <appToolbar #appToolbar></appToolbar>
+    <div class="m-subheader">
+        <div class="row align-items-center">
+            <div class="mr-auto col-auto">
+                <!-- Begin Title -->
+                <h3 (click)="goBack()" class="m-subheader__title m-subheader__title--separator link-to-list-page">
+                    <span>{{l("Region")}}</span>
+                </h3>
+                <span [ngSwitch]="editPageState" class="m-section__sub">
+                    <span *ngSwitchCase="EditPageState.add">{{l("Create")}} {{l("Region") | lowercase}}</span>
+                <span *ngSwitchCase="EditPageState.edit">{{l("Edit")}} {{l("Region") | lowercase}} :
+                        {{inputModel.regioN_NAME}}</span>
+                <span *ngSwitchCase="EditPageState.viewDetail">{{l("View")}} {{l("Region") | lowercase}} :
+                        {{inputModel.regioN_NAME}}</span>
+                </span>
+                <!-- End Title -->
+            </div>
+            <div class="col text-right mt-3 mt-md-0">
+            </div>
+        </div>
+    </div>
+
+    <div id="content" class="m-content">
+        <div class="m-portlet m-portlet--mobile">
+            <div class="m-portlet__body">
+                <!-- Begin Form -->
+                <form #editForm="ngForm" id="editForm" #editForm="ngForm" novalidate (ngSubmit)="saveInput()" autocomplete="off">
+                    <div class="modal-body row">
+                        <div class="col-md-12 align-right">
+                            <div class="form-group">
+                                <auth-status-input-page [authStatus]="inputModel.autH_STATUS"></auth-status-input-page>
+                            </div>
+                        </div>
+                        <input hidden class="form-control" type="text" #regioN_ID="ngModel" name="regioN_ID" [(ngModel)]="inputModel.regioN_ID">
+
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("RegionCode")}}</label>
+                                <input maxlength="15" required class="form-control" type="text" #regioN_CODE="ngModel" name="regioN_CODE" pattern="{{s('gAMSProCore.CodeNumberRegexValidation')}}" [(ngModel)]="inputModel.regioN_CODE">
+                                <div class="error-message" *ngIf="regioN_CODE.invalid && isShowError">
+                                    <span *ngIf="regioN_CODE?.errors.required">{{l('RegionCode')}}
+                                        {{l("ValidationRequired")}}</span>
+                                    <span *ngIf="regioN_CODE?.errors.pattern">{{l('RegionCode')}}
+                                            {{l("Invalidation")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group required">
+                                <label>{{l("RegionName")}}</label>
+                                <input required class="form-control" type="text" #regioN_NAME="ngModel" name="regioN_NAME" [(ngModel)]="inputModel.regioN_NAME" maxlength="200">
+                                <div class="error-message" *ngIf="regioN_NAME.invalid && isShowError">
+                                    <span *ngIf="regioN_NAME?.errors.required">{{l('RegionName')}}
+                                        {{l("ValidationRequired")}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group outter-vertical-center">
+                                <div class="form-group inner-vertical-center">
+                                    <label class="m-checkbox" for="recorD_STATUS">{{l("IsActive")}}
+                                        <input type="checkbox" id="recorD_STATUS" #recorD_STATUS name="recorD_STATUS"
+                                        [checked]="inputModel.recorD_STATUS == '1'"(change)="inputModel.recorD_STATUS = recorD_STATUS.checked? '1' : '0'">
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>{{l("Note")}}</label>
+                                <textarea class="form-control" type="text" #notes="ngModel" name="notes" [(ngModel)]="inputModel.notes"></textarea>
+                            </div>
+                        </div>
+                        <button hidden (click)="saveInput()"></button>
+                    </div>
+                </form>
+                <!-- Begin Form -->
+            </div>
+        </div>
+    </div>
+</div>

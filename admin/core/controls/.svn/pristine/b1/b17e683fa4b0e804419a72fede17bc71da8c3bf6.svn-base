@@ -1,0 +1,34 @@
+<div class="toolbar-component m-content float-on-top">
+    <button *ngIf="isList" [disabled]="enable? !buttonAddEnable : true" (click)="add()" class="btn btn-primary">
+        <i class="pi pi-plus"></i>
+        <span>{{l("Add")}}</span>
+    </button>
+    <button *ngIf="isList" [disabled]="enable? !buttonUpdateEnable : true" (click)="update()" class="btn btn-primary">
+        <i class="pi pi-pencil"></i>
+        <span>{{l("Edit")}}</span>
+    </button>
+    <button *ngIf="isEdit || isAssUpdateReport" [disabled]="enable? !buttonSaveEnable : true" (click)="save()" class="btn btn-primary">
+        <i class="pi pi-save"></i>
+        <span>{{l("Update")}}</span>
+    </button>
+    <button *ngIf="isList" [disabled]="enable? !buttonDeleteEnable : true" (click)="delete()" class="btn btn-primary">
+        <i class="pi pi-times"></i>
+        <span>{{l("Delete")}}</span>
+    </button>
+    <button *ngIf="isList || isAssUpdateReport" [disabled]="enable? !buttonSearchEnable : true" (click)="search()" class="btn btn-primary">
+        <i class="pi pi-search"></i>
+        <span>{{l("Search")}}</span>
+    </button>
+    <button *ngIf="false" [disabled]="enable? !buttonResetSearchEnable : true" (click)="resetSearch()" class="btn btn-primary">
+        <i class="pi pi-refresh"></i>
+        <span>{{l("ResetSearch")}}</span>
+    </button>
+    <button *ngIf="isList" [disabled]="enable? !buttonViewDetailEnable : true" (click)="viewDetail()" class="btn btn-primary">
+        <i class="pi pi-eye"></i>
+        <span>{{l("View")}}</span>
+    </button>
+    <button *ngIf="isEdit" [disabled]="enable? !buttonApproveEnable : true" (click)="approve()" class="btn btn-primary">
+        <i class="pi pi-check"></i>
+        <span>{{l("Approve")}}</span>
+    </button>
+</div>
